@@ -51,7 +51,7 @@ $obj_function = new coFunction();
     <script type="text/javascript" src="../assets/js/datatables.min.js"></script>
     <script type="text/javascript" src="../assets/js/dataTables.bootstrap4.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.min.js"></script>
+    <script src="../assets/js/jquery.validate.js"></script>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
     <!-- <script src="../assets/js/additionalvalidations.js"></script> -->
