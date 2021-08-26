@@ -38,8 +38,8 @@
             <!-- Nav Item - Utilities Collapse Menu -->
 
             <li class="nav-item">
-                <a class="nav-link" href="#">
-                    <i class="far fa-address-book"></i>
+                <a class="nav-link" href="accountability.php">
+                    <i class="fas fa-file-invoice-dollar"></i>
                     <span>Rendición de Cuentas</span></a>
             </li>
             <!-- Divider -->
