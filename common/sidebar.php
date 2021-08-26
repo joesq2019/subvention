@@ -28,11 +28,13 @@
             </div>
 
             <!-- Nav Item - Pages Collapse Menu -->
+            <?php if($obj_function->validarPermiso($_SESSION['permissions'],'subvention_list')): ?>
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="subvention.php">
                     <i class="fas fa-file-contract"></i>
                     <span>Subvenciones</span></a>
             </li>
+            <?php endif; ?>
             <!-- Nav Item - Utilities Collapse Menu -->
 
             <li class="nav-item">
