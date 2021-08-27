@@ -345,7 +345,7 @@ var subventionAddController = {
         $('#add').click(function(){
             i++;
             $('#dynamic_field').append(
-                `<tr id="row${i}">
+                `<tr id="row${i}" class="dynamic_field">
                 <td><input type="text" name="inputDetails_${i}" id="inputDetails_${i}" placeholder="Detalle inversión 1" class="form-control inner_form detalle_list" /></td>
                 <td><input type="number" name="inputUnityPrice_${i}" id="inputUnityPrice_${i}" data-op="${i}" placeholder="Precio unitario" class="form-control inner_form " /></td>
                 <td><input type="number" name="inputQuantity_${i}" id="inputQuantity_${i}" data-op="${i}" placeholder="Cantidad" class="form-control inner_form quantity_list" /></td>
@@ -397,7 +397,7 @@ var subventionAddController = {
         $('#add_act').click(function(){
             j++;
             $('#dynamic_activities').append(
-                `<tr id="row${j}">
+                `<tr id="row${j}" class="dynamic_activities">
                 <td class="col-md-8"><input type="text" name="inputActivity_${j}" id="inputActivity_${j}" data-op="${j}" placeholder="Descripción de actividad" class="form-control inner_form activity_list" /></td>
                 <td><input type="text" name="inputMonthAct_${j}" id="inputMonthAct_${j}" data-op="${j}" placeholder="Mes" class="form-control inner_form month_list" /></td>
                 <td><button type="button" name="remove" id="${j}" class="btn btn-danger btn_remove_act">X</button></td>
@@ -479,36 +479,17 @@ var subventionAddController = {
                 } 
 
                 var financing_array = [];
-                $( "#dynamic_field" ).each(function( index ) {
+                $( ".dynamic_field" ).each(function( index ) {
                     var inputs_data = $(this).find(":input").serializeArray();
                     financing_array.push(inputs_data);
                 });
 
                 var activities_array = [];
-                $( "#dynamic_activities" ).each(function( index ) {
+                $( ".dynamic_activities" ).each(function( index ) {
                     var inputs_data = $(this).find(":input").serializeArray();
                     activities_array.push(inputs_data);
                 });
-                // var data = $('#dynamic_field').find('select, textarea, input').serializeArray(),
-                // data_2 = $(' #dynamic_activities').find('select, textarea, input').serializeArray(), 
-                // dataFinancingArray = [], dataActivitiesArray = [];
-
-                // for (i = 0; i < data.length; i++) {
-                //     dataFinancingArray.push({
-                //         name: data[i].name,
-                //         value: data[i].value
-                //     });
-                // }
-
-                // for (i = 0; i < data_2.length; i++) {                     
-                //     dataActivitiesArray.push({
-                //         name: data_2[i].name,
-                //         value: data_2[i].value
-                //     });                     
-                // }
-                
-                //  var dataSerialize = JSON.stringify(dataFinancingArray, null, 2), 
-                //  dataSerialize2 = JSON.stringify(dataActivitiesArray, null, 2);
+              
  
                 var dt = {
                     method: 'saveNewSubvention',

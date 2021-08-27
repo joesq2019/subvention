@@ -211,7 +211,7 @@
                                         <div class="table-responsive">
                                             <table class="table table-bordered" >
                                                 <tbody id="dynamic_field">
-                                                    <tr>
+                                                    <tr class="dynamic_field">
                                                         <td><input type="text" name="inputDetails_1" id="inputDetails_1" data-op="${i}" placeholder="Detalle inversión 1" class="form-control inner_form detalle_list" /></td>
                                                         <td><input type="number" name="inputUnityPrice_1" id="inputUnityPrice_1" data-op="1" placeholder="Precio unitario" class="form-control inner_form unity_price_list" step="0.1" /></td>
                                                         <td><input type="number" name="inputQuantity_1" id="inputQuantity_1" data-op="1" placeholder="Cantidad" class="form-control quantity_list" /></td>
@@ -270,7 +270,7 @@
                                         <input type="number" name="inputCantActivities" id="inputCantActivities" class="form-control" required min="0" />
                                     </div>
                                      <table class="table" id="dynamic_activities">                                                
-                                        <tr>
+                                        <tr class="dynamic_activities">
                                             <td class="col-md-8"><input type="text" name="inputActivity_1" id="inputActivity_1" data-op="1" placeholder="Descripción de actividad" class="form-control inner_form activity_list" /></td>
                                             <td><input type="text" name="inputMonthAct_1" id="inputMonthAct_1" data-op="1" placeholder="Mes" class="form-control inner_form month_list"/></td>
                                             <td><button type="button" name="add" id="add_act" class="btn btn-success">Agregar</button></td>

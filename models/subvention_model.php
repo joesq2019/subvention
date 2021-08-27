@@ -80,36 +80,9 @@ switch ($method) {
     break;
 
     case 'saveNewSubvention':
-    	// print_r($_POST['financing']);
-    	 
-    	     	// the insert command and table columns 
-    	$detalle = '';    	 
-    	$keys = [];
-    	$values = [];
-    	$cant_f =  $cant = count((array)$_POST['financing'][0]);
-    	foreach ($_POST['financing'][0] as $value ) {
-			$keys[] = $value['name'];
-			
-			// foreach($value['value'] as $v){
-			
-			
-		// }
-   //  		  // $query = "INSERT INTO table ('details') VALUES ('$detalle')" ;
-		}
-		
-		// $name = implode(', ', (array)$keys);
-		// $valor = implode(',', (array)$values);
-		// for ($i = 0; $i < $cant_f; $i++) {
-		// 	$values[] = $_POST['financing'][0];
-			if (strpos($name, 'inputDetails_') !== false) {
-			   echo ($_POST['financing'][0][$i]['value']);
-			}
-		// }
-		
-		 
-   		  // print_r($name);
-		  	 
-    	exit;
+    	//print_r($_POST['activities']);exit();
+        $date = date('Y-m-d H:i:s');
+
     	$organitation_name = $_POST['organitation']['name']; 
     	$organitation_rut = $_POST['organitation']['rut']; 
     	$organitation_address = $_POST['organitation']['address']; 
@@ -119,14 +92,14 @@ switch ($method) {
     		$out['code'] = 204;
             $out['message'] = 'Error Insert...!';
 
-            $campo = "name, rut, address, email, phone, status";
-            $valor = "$organitation_name, $organitation_rut, $organitation_address, $organitation_email, $organitation_phone, '1'";
+            $campo = "name, rut, address, email, phone, status, created_at";
+            $valor = "'$organitation_name', '$organitation_rut', '$organitation_address', '$organitation_email', '$organitation_phone', '1', '$date'";
             $organitation_id = $obj_bdmysql->insert("organitation", $campo, $valor, $dbconn);
-            // $sql = "INSERT INTO user ($campo) VALUES ($valor)";
-            // print_r($sql); exit();
+            //$sql = "INSERT INTO user ($campo) VALUES ($valor)";
+           // print_r($sql); exit();
              
-            $campo = "id_organitation, year, name_proyect, objetive_proyect, quantity_purchases, amount_purchases, organization_contribution, amount_direct, amount_indirect, total_beneficiaries, quantity_activities, status";     
-            $valor = "'$organitation_id', '$year', '$name_proyect', '$objetive_proyect', '$quantity_purchases', '$total_sum_price', '$amount_organitation', '$amount_direct', '$amount_indirect', '$total_sum_bene', '$quantity_activities', 1";
+            $campo = "id_organitation, year, name_proyect, objetive_proyect, quantity_purchases, amount_purchases, organization_contribution, amount_direct, amount_indirect, total_beneficiaries, quantity_activities, status, created_at";     
+            $valor = "'$organitation_id', '$year', '$name_proyect', '$objetive_proyect', '$quantity_purchases', '$total_sum_price', '$amount_organitation', '$amount_direct', '$amount_indirect', '$total_sum_bene', '$quantity_activities', 1, '$date'";
             $subvention_id = $obj_bdmysql->insert("subvention", $campo, $valor, $dbconn);
 
             $cant = count((array)$_POST['beneficiarios']);
@@ -140,22 +113,44 @@ switch ($method) {
 	            	$address = $_POST['beneficiarios'][$i]['address']; 
 	            	$phone = $_POST['beneficiarios'][$i]['phone'];
 
-	                $campo = "type, id_subvention, name, address, phone,";     
-            		$valor = "'$type', '$id_subvention', '$name' ,'$address' , '$phone'";
+	                $campo = "type, id_subvention, name, address, phone, created_at";     
+            		$valor = "'$type', '$subvention_id', '$name' ,'$address' , '$phone', '$date'";
 	                $obj_bdmysql->insert("members", $campo, $valor, $dbconn);
-	                // $sql = "INSERT INTO user ($campo) VALUES ($valor)";print_r($sql);
+	                //$sql = "INSERT INTO members ($campo) VALUES ($valor)";print_r($sql);exit();
 	            }
 	        }
-	        $json = json_decode($_POST['financing'], true);
-	        $cant_f =  $cant = count((array)$json);
-	        // $v
-	        	if ($cant > 0) {
-		    		foreach ($json as $key => $value) {
-		    			print_r($value);
-		    		}
-		    	}
-	        // INSERT INTO `financing_details`(`id`, `id_subvention`, `details`, `unit_price`, `quantity`, `total_price`) VALUES ('[value-1]','[value-2]','[value-3]','[value-4]','[value-5]','[value-6]')
-			exit;
+
+	        $cant_f =   count((array)$_POST['financing']);
+	      
+        	if ($cant_f > 0) {
+	    		foreach ($_POST['financing'] as $value ) {
+                    $detalle = $value[0]['value'];
+                    $price = $value[1]['value'];
+                    $cant = $value[2]['value'];
+                    $total = $value[3]['value'];
+
+                    $campo = "id_subvention, details, unit_price, quantity, total_price";     
+                    $valor = "'$subvention_id', '$detalle', '$price' ,'$cant' , '$total'";
+                    $obj_bdmysql->insert("financing_details", $campo, $valor, $dbconn);
+                    
+                }
+	    	}
+
+            $cant_a =   count((array)$_POST['activities']);
+          
+            if ($cant_a > 0) {
+                foreach ($_POST['activities'] as $value ) {
+                    $activities = $value[0]['value'];
+                    $month = $value[1]['value'];
+
+                    $campo = "id_subvention, activities, month";     
+                    $valor = "'$subvention_id', '$activities', '$month'";
+                    $obj_bdmysql->insert("schedule", $campo, $valor, $dbconn);
+                    
+                }
+            }
+	       
+		
             if ($subvention_id > 0) {
                 $out['code'] = 200;
                 $out['message'] = 'La subvención fué creada exitosamente..!';
@@ -164,11 +159,7 @@ switch ($method) {
 
     	 }
 
-		//     [financing] => [ { "name": "iinputDetails_1", "value": "s" }, { "name": "inputUnityPrice_1", "value": "2" }, { "name": "inputQuantity_1", "value": "2" }, { "name": "inputDetails_2", "value": "e" }, { "name": "inputUnityPrice_2", "value": "3" }, { "name": "inputQuantity_2", "value": "3" } ]
-	
-		//     [activities] => [ { "name": "inputActivity_1", "value": "t" }, { "name": "inputMonthAct_1", "value": "03-2021" } ]
-		// )
-    	exit();
+    	echo json_encode($out);
     break;
 
 }
