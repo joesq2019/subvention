@@ -59,9 +59,12 @@ switch ($method) {
                 $status = '';
                 if($obj_function->validarPermiso($_SESSION['permissions'],'user_edit')){
                     $botones .= '<button class="btn btn-primary btn-sm mr-1" onclick="accountabilityController.edit(' . $row["id"] . ')"><i class="fas fa-edit" aria-hidden="true"></i></a></button>';
+                    
                 }
                 if($obj_function->validarPermiso($_SESSION['permissions'],'user_delete')){
                     $botones .= '<button class="btn btn-primary btn-sm mr-1" onclick="accountabilityController.deleted(' . $row["id"] . ')"><i class="fas fa-trash-alt" aria-hidden="true"></i></a></button>';
+                    $botones .= '<button class="btn btn-info btn-sm mr-1 mb-1" onclick="accountabilityController.uploadFileBeneficiaries(' . $row["id"] . ')"><i class="fas fa-upload" aria-hidden="true"></i> Beneficiarios</a></button>';
+                    $botones .= '<button class="btn btn-info btn-sm mr-1" onclick="accountabilityController.uploadDocumentation(' . $row["id"] . ')"><i class="fas fa-upload" aria-hidden="true"></i> Documentación</a></button>';
                 }
 
                 if($row['status'] == 1) $status = '<span class="badge badge-warning">Pendiente</span>';
