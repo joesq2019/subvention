@@ -1,18 +1,19 @@
-var MODEL = '../models/users_model.php';
+var MODEL = '../models/accountability_model.php';
 var dataTable = '';
-var formCreateUser = $("#formCreateUser");
+var formCreateAccountability = $("#formCreateAccountability");
+var count = 1, number_invoice = 0;
 
-var userController = {
+var accountabilityController = {
     init: () => {
-        /*
-        dataTable = $('#usersDataTable').DataTable({
+        
+        dataTable = $('#accountabilityDataTable').DataTable({
             "processing": true,
             "serverSide": true,
             "responsive": !0,
             "ajax": {
                 url: MODEL, // json datasource
                 data: {
-                    method: "userList"
+                    method: "accountabilityList"
                 },
                 type: "post",
                 error: function() {}
@@ -41,7 +42,7 @@ var userController = {
                 }
             }
         });
-*/
+
         jQuery.validator.addMethod("alphanumeric", function(value, element) {
             return this.optional(element) || /^[a-zA-Z0-9]*$/.test(value);
         }, "Solo letras y números");
@@ -68,75 +69,50 @@ var userController = {
         
         $("#formCreateUser").validate({
             rules: {
-                add_name: {
+                add_name_represent: {
                     required: true,
                     nombres: true
                 },
-                add_apellido: {
-                    nombres: true
+                add_invoice_number: {
+                    required: true
                 },
-                add_username: {
-                    required: true,
-                    alphanumeric: true
+                add_mount_delivered: {
+                    required: true
                 },
-                add_rut: {
-                    required: true,
-                    rut: true
+                add_yielded: {
+                    required: true
                 },
-                add_rol: {
+                add_amount_refunded: {
                     required: true,
                 },
-                add_password: {
-                    required: true,
-                    minlength: 8,
-                    alphanumeric: true
+                add_balance: {
+                    required: true
                 },
-                add_repeat_password: {
-                    required: true,
-                    minlength: 8,
-                    equalTo: "#add_password"
-                },
-                add_email: {
-                    required: true,
-                    email: true
-                },
-                add_telefono: {
-                    required: true,
-                    telefono: true
-                },
-                add_direccion: {
+                add_date_surrender_income: {
                     required: true
                 }
             },
             messages: {
-                add_name: {
+                add_name_represent: {
                     required: "El nombre es requerido.",
                 },
-                add_rut: {
-                    required: "El rut es requerido.",
+                add_invoice_number: {
+                    required: "El número de factura es requerido.",
                 },
-                add_username: {
-                    required: "El username es requerido.",
+                add_mount_delivered: {
+                    required: "El monto entregado es requerido.",
                 },
-                add_rol: {
-                    required: "El rol es requerido.",
+                add_yielded: {
+                    required: "El monto rendido es requerido.",
                 },
-                add_password: {
-                    required: "La contraseña es requerida requerida.",
+                add_amount_refunded: {
+                    required: "El monto reintegrado es requerido.",
                 },
-                add_email: {
-                    required: "El email es requerido.",
-                    email: "Introduzca una direccion de correo valido, ejemplo: tunombre@gmail.com"
+                add_balance: {
+                    required: "El balance es requerido.",
                 },
-                add_repeat_password: {
-                    required: "Repetir la contraseña es obligatorio.",
-                    equalTo: "La contraseña repetida no coincide con la anterior"
-                },
-                add_telefono: {
-                    required: "El número de contacto es requerido."
-                },
-                add_direccion: {
-                    required: "La dirección es requerida."
+                add_date_surrender_income: {
+                    required: "La fecha de rendicion es obligatoria.",
                 }
             },
             errorElement: 'span',
@@ -151,67 +127,93 @@ var userController = {
                 $(element).removeClass('is-invalid');
             }
         });
-
+        
+        $("body").delegate(".dateAcc", "focusin", function(){
+            $(this).datepicker({
+                format: "dd-mm-yyyy",
+                altFormat: "DD-MM-YYYY",
+                changeMonth: true,
+                changeYear: true,
+            }).on('changeDate', function(e) {
+                $(this).datepicker('hide');
+            });
+        });
+        
         //preloader('show');
+    },
+    add_dynamic_input_field: function(count, invoice_number)
+    {
+        var button = '';
+        if(count > 1)
+        {
+            button = '<button type="button" name="remove" id="'+count+'" class="btn btn-danger btn-xs remove mt-4">x</button>';
+        }
+        else
+        {
+            button = '<button type="button" name="add_more" id="add_more" class="btn btn-success btn-xs mt-4">+</button>';
+        }
+        if (count <= invoice_number ) {
+            output = `<tr id="row${count}" class="test invoice_${count}">
+                    <td class="col-md-1">
+                        <div class="rotate-15 text-center mt-4">
+                            <label for="">Factura ${count}</label>
+                        </div>                    
+                    </td>
+                    <td class="col-md-3">
+                        <div class="form-group m-form__group"> 
+                            <label>Fecha</label>
+                            <input type="text" name="add_date_${count}" id="add_date" class="form-control dateAcc" placeholder="Fecha" required>
+                        </div>
+                    </td>
+                    <td class="col-md-3"> 
+                        <div class="form-group m-form__group"> 
+                            <label>Monto</label>
+                            <input type="number" name="add_amount_${count}" id="add_amount" class="form-control sum_amount" value="0" step="0.1" placeholder="Monto" required>
+                        </div>
+                    </td>
+                    <td class="col-md-4">
+                        <div class="form-group m-form__group"> 
+                            <label>Detalle</label>
+                            <input type="text" name="add_detail_${count}" id="add_detail" class="form-control" placeholder="Detalle" required>
+                        </div>
+                    </td>
+                     
+                <td align="center">${button}</td>
+            </tr>`;
+            $('#invoices').append(output);
+        }
     },
     events: function() {
 
-        $("#add_invoice_number").change(function(){
-            console.log("awfawf");
-            var number_invoice = $("#add_invoice_number").val();
-            var new_invoice = '';
-            $("#add_yielded").val(0);
-            for (var i=1; i <= number_invoice; i++) {
-                new_invoice += `<div class="row test invoice_${i}">
-                    <div class="col-md-2 rotate-15 pl-4 mt-4">
-                        <label for="">Factura ${i}</label>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group m-form__group"> 
-                            <label>Fecha</label>
-                            <input type="text" name="add_date_${i}" id="add_date" class="form-control" required>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group m-form__group"> 
-                            <label>Monto</label>
-                            <input type="text" name="add_amount_${i}" id="add_amount" class="form-control sum_amount" value="0" required>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group m-form__group"> 
-                            <label>Detalle</label>
-                            <i class="fas fa-times float-right remove_invoice" title="Remover Factura" data-id="${i}" style="cursor:pointer"></i>
-                            <input type="text" name="add_detail_${i}" id="add_detail" class="form-control" required>
-                        </div>
-                    </div>
-                </div>
-                <hr class="hr_${i}">`;
-            }
-            $("#invoices").html('');  
-            $("#invoices").append(new_invoice);     
+        $(document).on('click', '#add_more', function(){
+            count = count + 1;            
+            number_invoice = $("#add_invoice_number").val();
+            accountabilityController.add_dynamic_input_field(count, number_invoice);
+        });
 
-            $(".sum_amount").keyup(function(event){
-                var sum = 0;
-                $('.sum_amount').each(function(){
-                    if($(this).val() > 0){
-                        sum += parseFloat($(this).val());
-                    } else {
-                        sum += 0;
-                    }
-                });
-                $("#add_yielded").val(sum);
+        $(document).on('click', '.remove', function(){
+            var row_id = $(this).attr("id");
+            count = count - 1;
+            $('#row'+row_id).remove();
+        });
+
+        $(document).on('focusout', '.sum_amount', function(){
+            var sum = 0;
+            $('.sum_amount').each(function(){
+                if($(this).val() > 0){
+                    sum += parseFloat($(this).val());
+                } else {
+                    sum += 0;
+                }
             });
+            $("#add_yielded").val(sum);
+        });
 
-            $(".remove_invoice").click(function(event){
-                event.preventDefault();
-                var div_id = $(this).data('id');
-                $(".invoice_"+div_id).remove();
-                $(".hr_"+div_id).remove();
 
-                number_invoice--;
-                $("#add_invoice_number").val(number_invoice);
-            });       
+        $("#add_invoice_number").change(function(){
+            number_invoice = $("#add_invoice_number").val();
+            $("#add_yielded").val(0);            
+            accountabilityController.add_dynamic_input_field(1,number_invoice);        
         });
 
         //ESTO ES
@@ -223,33 +225,47 @@ var userController = {
         // console.log(invoices_array)
         //ESTO ES
 
-        $("#btn_newUser").click(function(event) {
+        $("#btn_newAccountability").click(function(event) {
             event.preventDefault();
-            userController.clean();
-            $("#modalCreateUser").modal('show');
+            accountabilityController.clean();
+            $('#invoices').html('');
+            
+            $('#modalCreateAccountability').modal({
+                backdrop: 'static',
+                keyboard: false
+            });
+                 
         });
 
-        $("#btn_saveUser").click(function(event){
+        $("#btn_saveAccountability").click(function(event){
             event.preventDefault();
-            if ($("#formCreateUser").valid()) {
+            if ($("#formCreateAccountability").valid()) {
+                var invoices_array = [];
+                $( ".test" ).each(function( index ) {
+                    var inputs_data = $(this).find(":input").serializeArray();
+                    invoices_array.push(inputs_data);
+                });
                 var dt = {
-                    method: 'saveNewUser',
-                    id_user: $("#id_user").val(),
-                    add_name: $("#add_name").val(),
-                    add_last_name: $("#add_last_name").val(),
-                    add_rut: $("#add_rut").val(),
-                    add_username: $("#add_username").val(),
-                    add_password: $("#add_password").val(),
-                    add_email: $("#add_email").val(),
-                    add_role: $("#add_role").val(),
+                    method: 'saveNewAccountability',
+                    id: $("#id_accountability").val() == '' ? 0 : $('#id_accountability').val(),
+                    id_subvention: $("#id_subvention").val(),
+                    add_name_represent: $("#add_name_represent").val(),
                     add_phone: $("#add_phone").val(),
+                    add_email: $("#add_email").val(),
+                    add_invoice_number: $("#add_invoice_number").val(),
+                    invoices_array: invoices_array,                    
+                    add_mount_delivered: $("#add_mount_delivered").val(),
+                    add_yielded: $("#add_yielded").val(),
+                    add_amount_refunded: $("#add_amount_refunded").val(),
+                    add_balance: $("#add_balance").val(),
+                    add_date_surrender_income: $("#add_date_surrender_income").val()
                 };
                 preloader("show");
                 $.post(MODEL, dt,
                     function(data) {                      
                         if (data.code == 200) {
                             preloader("hide",data.message,'success');
-                            $("#modalCreateUser").modal('hide');
+                            $("#modalCreateAccountability").modal('hide');
                             dataTable.draw();
                         }
                         if(data.code == 204){
@@ -264,98 +280,84 @@ var userController = {
             }
         });
 
-        $("#seePass").mouseover(function() {
-            $("#add_password").attr("type", "text");
-            $("#add_repeat_password").attr("type", "text");
-        });
-
-        $("#seePass").mouseout(function() {
-            $("#add_password").attr("type", "password");
-            $("#add_repeat_password").attr("type", "password");
-        });
-
-        $('#add_username').blur(function() {
-            var parametros = {
-                "method": "checkUserName",
-                "username": $('#add_username').val(),
-                "id": $('#id_user').val(),
-            };
-            $.post(MODEL, parametros, function(data) {
-                if (data.code == 204) {
-                    $('#add_username').val('');
-                    preloader("hide",data.message,'info');
-                }
-                if (data.code == 440) {
-                    loginTimeout();
-                }
-            },'json');
-        });
-
-        $('#add_email').blur(function() {
-            var parametros = {
-                "method": "checkEmail",
-                "email": $('#add_email').val(),
-                "id": $('#id_user').val(),
-            };
-            $.post(MODEL, parametros, function(data) {
-                if (data.code == 204) {
-                    $('#add_email').val('');
-                    preloader("hide",data.message,'');
-                }
-                if (data.code == 440) {
-                    loginTimeout();
-                }
-            },'json');
-        });
-
-        $('#add_rut').blur(function() {
+        $('#add_rut_organization').blur(function() {
             var parametros = {
                 "method": "checkRut",
-                "rut": $('#add_rut').val(),
-                "id": $('#id_user').val(),
+                "rut": $('#add_rut_organization').val(),
             };
+            preloader('show');
             $.post(MODEL, parametros, function(data) {
                 if (data.code == 204) {
-                    $('#add_rut').val('');
+                    $('#add_rut_organization').val('');
                     preloader("hide",data.message,'info');
+                }
+                if(data.code == 200){
+                    $('#id_subvention').val(data.id_subvention);
+                    $('#add_name_organization').val(data.name);
+                    $('#add_phone').val(data.phone);
+                    $('#add_email').val(data.email);
+                    $('#add_name_project').val(data.name_proyect);
+                    preloader("hide",data.message,'success');
                 }
                 if (data.code == 440) {
                     loginTimeout();
                 }
             },'json');
         });
+
+        $('#add_amount_refunded').blur(function() {
+            var montoreintegrado = $(this).val();
+            if (montoreintegrado > 0) $('#span_amount_refunded').css('display', 'block');          
+            if (montoreintegrado == 0) $('#span_amount_refunded').css('display', 'none'); 
+
+            var montoentregado = $('#add_mount_delivered').val();    
+            var montorendido = $('#add_yielded').val();   
+
+            var balance = parseFloat(montoentregado) - (parseFloat(montorendido) + parseFloat(montoreintegrado));
+            $('#add_balance').val(balance);   
+        });
+
+        
     },
     edit: function(id) {
         event.preventDefault();
-        userController.clean();
-
-        $( "#add_password" ).rules( "add", { required: false });
-        $( "#add_repeat_password" ).rules( "add", { required: false });  
+        accountabilityController.clean();
         
-        var dt = { method: 'editUser', id: id };
+        var dt = { method: 'editAccountability', id: id };
         preloader('show');
         $.post(MODEL, dt,
             function(data) {
                 if (data.code == 200) {
                     preloader('hide');
-                    $("#id_user").val(data.id_user);
-                    $("#add_name").val(data.name);
-                    $("#add_last_name").val(data.last_name);
-                    $("#add_rut").val(data.rut);
-                    $("#add_username").val(data.username);
-                    $("#add_email").val(data.email);
-                    $("#add_role").val(data.type_role);
-
+                    $("#id_accountability").val(data.id_accountability);
+                    $('#add_rut_organization').val(data.rut);
+                    $('#id_subvention').val(data.id_subvention);
+                    $('#add_name_organization').val(data.name);
+                    $('#add_name_project').val(data.name_proyect);
+                    $("#add_name_represent").val(data.name_represent);
                     $("#add_phone").val(data.phone);
+                    $("#add_email").val(data.email);
+                    $("#add_invoice_number").val(data.number_invoices);
+                    $("#add_mount_delivered").val(data.amount_delivered);
+                    $("#add_yielded").val(data.amount_yielded);
+                    $("#add_amount_refunded").val(data.amount_refunded);
+                    $("#add_balance").val(data.balance);
+                    $("#add_date_surrender_income").val(data.date_admission);
+                    $('#invoices').html(data.invoices);
+                    $('#titleModelAccountability').html('Editar Rendición');
                     
-                    $("#modalCreateUser").modal("show");
+                    $('#modalCreateAccountability').modal({
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+
                 }
                 if(data.code == 204){
-                    $("#modalCreateUser").modal("hide");
+                    $("#modalCreateAccountability").modal("hide");
                     preloader("hide",data.message,'error');
                 }
                 if (data.code == 440) {
-                    $("#modalCreateUser").modal("hide");
+                    $("#modalCreateAccountability").modal("hide");
                     loginTimeout();
                 }
             },
@@ -415,42 +417,32 @@ var userController = {
         }, 'json');
     },
     clean: function() {
-        $("#id_user").val(0);
+        $('#titleModelAccountability').html('Nueva Rendición');
+        $("#id_accountability").val(0);
 
-        $('#add_name').val('');
-        $('#add_last_name').val('');
-        $('#add_rut').val('');
-        $('#add_username').val('');
-        $("#add_repeat_password").val("");
-        $("#add_password").val("");
-        $("#add_email").val("");
-        $("#add_role").val("");
-
+        $('#add_rut_organization').val('');
+        $('#id_subvention').val('');
+        $('#add_name_organization').val('');
+        $('#add_name_project').val('');
+        $("#add_name_represent").val("");
         $("#add_phone").val("");
+        $("#add_email").val("");
+        $("#add_invoice_number").val("");
+        $("#add_mount_delivered").val("");
+        $("#add_yielded").val("");
+        $("#add_amount_refunded").val("");
+        $("#add_balance").val("");
+        $("#add_date_surrender_income").val("");
 
-        $( "#add_password" ).rules( "add", { required: true });
-        $( "#add_repeat_password" ).rules( "add", { required: true }); 
+        $('#invoices').html('');
     },
 };
 
 $(function() {
-    userController.init();
-    userController.events();
+    accountabilityController.init();
+    accountabilityController.events();
 });
 
-function findRoles(){
-    //preloader("show");
-    var parametros = {
-        "method": "findRoles"
-    };
-    $.post(MODEL, parametros, function(data) {
-        // if (data.code == 200) {
-        //     dataTable.draw();
-        //     preloader("hide", data.message, 'success');
-        // }
-        $("#add_role").html(data);
-    },'json');
-}
 
 document.addEventListener("DOMContentLoaded", function(event) {
 

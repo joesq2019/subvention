@@ -191,13 +191,23 @@ class coFunction{
                 ]
             ],
             'subvenciones' => [
-                'icon' => '<i class="far fa-id-badge"></i>',
+                'icon' => '<i class="fas fa-file-contract"></i>',
                 'title' => 'Modulo Subvencion',
                 'keys' => [
-                    'roles_listx' => 'Puede ver la lista de subvenciones',
-                    'roles_addx' => 'Puede agregar subvencionesx',
-                    'roles_editx' => 'Puede editar subvencionesx',
-                    'roles_deletex' => 'Puede borrar subvencionesx'
+                    'subvention_list' => 'Puede ver la lista de subvenciones',
+                    'subvention_add' => 'Puede agregar subvenciones',
+                    'subvention_edit' => 'Puede editar subvenciones',
+                    'subvention_delete' => 'Puede borrar subvenciones'
+                ]
+            ],
+            'accountability' => [
+                'icon' => '<i class="fas fa-file-invoice-dollar"></i>',
+                'title' => 'Modulo Rendicion de Cuentas',
+                'keys' => [
+                    'accountability_list' => 'Puede ver la lista de rendicion de cuentas',
+                    'accountability_add' => 'Puede agregar rendicion de cuenta',
+                    'accountability_edit' => 'Puede editar rendicion de cuenta',
+                    'accountability_delete' => 'Puede borrar rendicion de cuenta'
                 ]
             ]
         ];
