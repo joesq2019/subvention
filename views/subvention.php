@@ -16,14 +16,14 @@
 	</div>
 	<div class="card-body border-bottom-primary">
 	    <div class="table-responsive">
-	        <table class="table table-bordered" id="subventionsDataTable" cellspacing="0">
+	        <table class="table table-bordered" id="subventionDataTable" cellspacing="0">
 	            <thead>
 	                <tr>
-	                	<th>#</th>
-	                    <th>Rut Organización</th>
+	                	<th># Folio</th>
 	                    <th>Nombre Organización</th>
-	                    <th>Email Organización</th>
-	                    <th>Estado</th>
+	                    <th>Fecha solicitud subvención</th>
+	                    <th>Fecha rendición</th>
+	                    <th>Estado de rendición</th>
 	                    <th>Acciones</th>
 	                </tr>
 	            </thead>

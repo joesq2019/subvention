@@ -21,9 +21,9 @@
             <div class="card">
                 <div class="card-header border-bottom">
                     <!-- Wizard navigation-->
-                    <div class="nav nav-pills nav-justified flex-column flex-xl-row nav-wizard" id="cardTab" role="tablist">
+                    <div class="nav nav-pills nav-justified flex-column flex-xl-row nav-wizard" id="cardTab" role="tablist" style="font-size: 12px; font-weight: 700;">
                         <!-- Wizard navigation item 1-->
-                        <a class="nav-item nav-p nav-link active" id="wizard1-tab" href="#wizard1-5556" data-toggle="tab" href="#wizard1" role="tab" aria-controls="nav-home" aria-selected="true">
+                        <a class="nav-item nav-p nav-link active" id="wizard1-tab" href="#wizard1-5556" data-toggle="tab" href="#wizard1" role="tab" aria-controls="nav-home" aria-selected="true" >
                             <div class="wizard-step-icon">1</div>
                             <div class="wizard-step-text">
                                 <div class="wizard-step-text-name">DATOS GENERALES Y DATOS DEL PROYECTO</div>
@@ -62,9 +62,9 @@
                 <div class="card-body">
                     <div class="tab-content" id="cardTabContent">
                         <!-- Wizard tab pane item 1-->
-                        <div class="tab-pane py-5 py-xl-10 fade active show" id="wizard1-5556" role="tabpanel" aria-labelledby="wizard1-tab">
+                        <div class="tab-pane py-xl-10 fade active show" id="wizard1-5556" role="tabpanel" aria-labelledby="wizard1-tab">
                             <div class="row justify-content-center">
-                                <div class="col-xxl-6 col-xl-8">
+                                <div class="col-xxl-6 col-xl-10">
                                     <h3 class="text-primary">Paso 1</h3>
                                     <h5 class="card-title mb-4">Ingresar los datos generales</h5>
                                                             
@@ -123,10 +123,10 @@
                             </div>
                         </div>
                         <!-- Wizard tab pane item 2-->
-                        <div class="tab-pane py-5 py-xl-10 fade" id="wizard2" role="tabpanel" aria-labelledby="wizard2-tab">
+                        <div class="tab-pane py-xl-10 fade" id="wizard2" role="tabpanel" aria-labelledby="wizard2-tab">
                             <div class="row justify-content-center">
                                 <div class="col-xxl-6 col-xl-10">
-                                    <h3 class="text-primary">Step 2</h3>
+                                    <h3 class="text-primary">Paso 2</h3>
                                     <h5 class="card-title mb-4">Ingresar representates de la organización</h5>
                                     <table class="table">
             							<thead>
@@ -186,16 +186,16 @@
                             </div>
                         </div>
                         <!-- Wizard tab pane item 3-->
-                        <div class="tab-pane py-5 py-xl-10 fade" id="wizard3" role="tabpanel" aria-labelledby="wizard3-tab">
+                        <div class="tab-pane py-xl-10 fade" id="wizard3" role="tabpanel" aria-labelledby="wizard3-tab">
                             <div class="row justify-content-center">
                                 <div class="col-xxl-6 col-xl-10">
-                                    <h3 class="text-primary">Pase 3</h3>
+                                    <h3 class="text-primary">Paso 3</h3>
                                     <h5 class="card-title mb-4">Ingresar datos del financiamiento</h5>
                                     <div class="row gx-3">
                                         <div class="mb-3 col-md-3 form-group">
                                             <label class="btn btn-primary btn-file mt-4">
                                                 Cargar Archivos <span class="requerido" >*</span>
-                                                <input type="file" id="imagenes" required name="images[]" style="display: none;" multiple accept='file_extension|image/*' >
+                                                <input type="file" id="financing_files" required name="images[]" style="display: none;" multiple>
                                             </label>
                                             <p>Seleccione hasta 10 imagenes</p>  
                                         </div>
@@ -260,7 +260,7 @@
                             </div>
                         </div>
                         <!-- Wizard tab pane item 4-->
-                        <div class="tab-pane py-5 py-xl-10 fade" id="wizard4" role="tabpanel" aria-labelledby="wizard4-tab">
+                        <div class="tab-pane py-xl-10 fade" id="wizard4" role="tabpanel" aria-labelledby="wizard4-tab">
                             <div class="row justify-content-center">
                                 <div class="col-xxl-6 col-xl-10">
                                     <h3 class="text-primary">Paso 4</h3>
@@ -285,21 +285,107 @@
                             </div>
                         </div>
                         <!-- Wizard tab pane item 4-->
-                        <div class="tab-pane py-5 py-xl-10 fade" id="wizard5" role="tabpanel" aria-labelledby="wizard5-tab">
+                        <div class="tab-pane py-xl-10 fade" id="wizard5" role="tabpanel" aria-labelledby="wizard5-tab">
                             <div class="row justify-content-center">
-                                <div class="col-xxl-6 col-xl-8">
-                                    <h3 class="text-primary">Step 5</h3>
+                                <div class="col-xxl-6 col-xl-10">
+                                    <h3 class="text-primary">Paso 5</h3>
                                     <h5 class="card-title mb-4">Subir Documentos</h5>
+                                </div>
+                                <div class="col-xxl-6 col-xl-12">
                                     <div class="row gx-3">
-                                        <div class="mb-3 col-md-3 form-group">
-                                            <label class="btn btn-primary btn-file mt-4">
-                                                Cargar Archivos <span class="requerido" >*</span>
-                                                <input type="file" id="archivos" required name="archivos[]" style="display: none;" multiple accept='file_extension|image/*' >
-                                            </label>
-                                            <p>Seleccione los archivos correspondientes</p>  
+                                        <div class="col-md-4">
+                                            <div class="mb-3 col-md-12 form-group">
+                                                <label class="btn btn-primary btn-file mt-4">
+                                                    Cargar Archivo <span class="requerido" >*</span>
+                                                    <input type="file" id="certificado_persolidad_juridica" required name="certificado_persolidad_juridica" style="display: none;" accept='file_extension|image/*' class="input_file">
+                                                </label>
+                                                <p>Certificado de Personalidad Jurídica Vigentes</p>  
+                                            </div>
                                         </div>
-                                        <div class="mb-3 col-md-9 form-group row gx-3" id="lista_2">
-                                            <p>Debe Cargar 1 archivo minimo</p>
+                                        <div class="col-md-4">
+                                            <div class="mb-3 col-md-12 form-group">
+                                                <label class="btn btn-primary btn-file mt-4">
+                                                    Cargar Archivo <span class="requerido" >*</span>
+                                                    <input type="file" id="certificado_directorio" required name="certificado_directorio" style="display: none;" accept='file_extension|image/*' class="input_file">
+                                                </label>
+                                                <p>Certificado de Directorio Vigente</p>  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3 col-md-12 form-group">
+                                                <label class="btn btn-primary btn-file mt-4">
+                                                    Cargar Archivo <span class="requerido" >*</span>
+                                                    <input type="file" id="estatutos" required name="estatutos" style="display: none;" accept='file_extension|image/*' class="input_file">
+                                                </label>
+                                                <p>Estatutos</p>  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row gx-3">
+                                        <div class="col-md-4">
+                                            <div class="mb-3 col-md-12 form-group">
+                                                <label class="btn btn-primary btn-file mt-4">
+                                                    Cargar Archivo <span class="requerido" >*</span>
+                                                    <input type="file" id="certificado_inscripcion" required name="certificado_inscripcion" style="display: none;" accept='file_extension|image/*' class="input_file">
+                                                </label>
+                                                <p>Certificado de Inscripción en el Registro Central de Colaboradores del Estado y Municipalidades</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3 col-md-12 form-group">
+                                                <label class="btn btn-primary btn-file mt-4">
+                                                    Cargar Archivo <span class="requerido" >*</span>
+                                                    <input type="file" id="fotocopia_rut" required name="fotocopia_rut" style="display: none;" accept='file_extension|image/*' class="input_file">
+                                                </label>
+                                                <p>Fotocopia del RUT de la organización</p>  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3 col-md-12 form-group">
+                                                <label class="btn btn-primary btn-file mt-4">
+                                                    Cargar Archivo <span class="requerido" >*</span>
+                                                    <input type="file" id="fotocopia_cedula" required name="fotocopia_cedula" style="display: none;" accept='file_extension|image/*' class="input_file">
+                                                </label>
+                                                <p>Fotocopia Cédula de Identidad del representante legal</p>  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row gx-3">
+                                        <div class="col-md-3">
+                                            <div class="mb-3 col-md-12 form-group">
+                                                <label class="btn btn-primary btn-file mt-4">
+                                                    Cargar Archivo <span class="requerido" >*</span>
+                                                    <input type="file" id="fotocopia_libreta" required name="fotocopia_libreta" style="display: none;" accept='file_extension|image/*' class="input_file">
+                                                </label>
+                                                <p>Fotocopia de la libreta de ahorro o cuenta corriente a nombre de la organización</p>  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mb-3 col-md-12 form-group">
+                                                <label class="btn btn-primary btn-file mt-4">
+                                                    Cargar Archivo<span class="requerido" >*</span>
+                                                    <input type="file" id="fotocopia_registro" required name="fotocopia_registro" style="display: none;" accept='file_extension|image/*' class="input_file">
+                                                </label>
+                                                <p>Fotocopia de registro de propiedad o comodato de Sede Comunitaria (cuando corresponda)</p>  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mb-3 col-md-12 form-group">
+                                                <label class="btn btn-primary btn-file mt-4">
+                                                    Cargar Archivo <span class="requerido" >*</span>
+                                                    <input type="file" id="fotocopia_caratula" required name="fotocopia_caratula" style="display: none;" accept='file_extension|image/*' class="input_file">
+                                                </label>
+                                                <p>Fotocopia de la carátula de la rendición de cuentas de la última subvención (si corresponde)</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mb-3 col-md-12 form-group">
+                                                <label class="btn btn-primary btn-file mt-4">
+                                                    Cargar Archivo <span class="requerido" >*</span>
+                                                    <input type="file" id="antecedentes" required name="antecedentes" style="display: none;" accept='file_extension|image/*' class="input_file">
+                                                </label>
+                                                <p>Otros Antecedentes</p>  
+                                            </div>
                                         </div>
                                     </div>
                                     <hr class="my-4">
@@ -320,7 +406,7 @@
 	</div>
 </div> 
 
-<!-- <script src="https://www.gstatic.com/firebasejs/6.1.0/firebase.js"></script> -->
+<script src="https://www.gstatic.com/firebasejs/8.6.2/firebase.js"></script>
 
 <script src="../controllers/subvention_add.js"></script>
 

@@ -3,7 +3,7 @@ var dataTable = '';
 
 var subventionController = {
     init: () => {      
-
+        console.log("awdaw")
         dataTable = $('#subventionDataTable').DataTable({
             "processing": true,
             "serverSide": true,
@@ -52,42 +52,12 @@ var subventionController = {
             window.location.href = 'subvention_add.php';
             // $("#btn_newSubvention").modal('show');
         });
-
-       
     },
     edit: function(id) {
         event.preventDefault();
-        subventionController.clean();
-        
-        var dt = { method: 'editSubvention', id: id };
-        preloader('show');
-        $.post(MODEL, dt,
-            function(data) {
-                if (data.code == 200) {
-                    preloader('hide');
-                    $("#id_user").val(data.id_user);
-                    $("#add_name").val(data.name);
-                    $("#add_last_name").val(data.last_name);
-                    $("#add_rut").val(data.rut);
-                    $("#add_username").val(data.username);
-                    $("#add_email").val(data.email);
-                    $("#add_role").val(data.type_role);
-
-                    $("#add_phone").val(data.phone);
-                    
-                    $("#modalCreateUser").modal("show");
-                }
-                if(data.code == 204){
-                    $("#modalCreateUser").modal("hide");
-                    preloader("hide",data.message,'error');
-                }
-                if (data.code == 440) {
-                    $("#modalCreateUser").modal("hide");
-                    loginTimeout();
-                }
-            },
-            "json"
-        );
+        sessionStorage.setItem('id_subvention', id);
+        sessionStorage.setItem('action', 2);
+        window.location.href = 'subvention_add.php';
     },
     deleted: function (id){
 
@@ -155,6 +125,28 @@ $(function() {
 
 document.addEventListener("DOMContentLoaded", function(event) {
 
-    //CARGA DE FIREBASE
+    var firebaseConfig = {
+        apiKey: "AIzaSyCmnFyY7sLJNiv92AyjFpz5sSwSXk4uHis",
+        authDomain: "subvenciones10-cf172.firebaseapp.com",
+        projectId: "subvenciones10-cf172",
+        storageBucket: "subvenciones10-cf172.appspot.com",
+        messagingSenderId: "481679333484",
+        appId: "1:481679333484:web:4946059b19a02bb5ec2049",
+        measurementId: "G-VWBS15M1TN"
+    };
+
+    if (!firebase.apps.length) { 
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+    }
+
+    var email = 'subvenciones10@gmail.com';
+    var password = 'subvenciones10@gmail.com';
+
+    firebase.auth().signInWithEmailAndPassword(email, password).catch(function(error) {
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        console.log("Error autenticating Firebase!"+ errorCode + ' - ' + errorMessage, "error");
+    });
 
 });

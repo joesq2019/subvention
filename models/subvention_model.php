@@ -17,23 +17,22 @@ switch ($method) {
         $requestData = $_REQUEST;
 
         $columns = array(
-            0 => 's.id',
-            1 => 'or.rut',
-            2 => 'or.name',
-            3 => 'or.email',
+            0 => 'su.id',
+            1 => 'o.name',
+            2 => 'su.created_at',
+            3 => 'ac.date_admission'
         );
 
         $id_user = $_SESSION['id_user'];
 
-        $sql = "SELECT u.*, r.name as type_role FROM user u LEFT JOIN role r on r.id = u.id_role WHERE u.id <> $id_user";
+        $sql = "SELECT su.id as subvention_id, su.created_at, o.name, ac.date_admission, ac.status FROM subvention su INNER JOIN organitation o on o.id = su.id_organitation LEFT JOIN accountability ac on ac.id_subvention = su.id";
         $query = $obj_bdmysql->query($sql, $dbconn);
         $totalData = is_array($query) ? count($query) : 0;
         //print_r($sql);exit();
         if (!empty($requestData['search']['value'])) {
-            $sql .= " WHERE p.rut LIKE '%" . $requestData['search']['value'] . "%' ";
-            $sql .= " OR u.name LIKE '%" . $requestData['search']['value'] . "%'";
-            $sql .= " OR u.last_name LIKE '%" . $requestData['search']['value'] . "%'";
-            $sql .= " OR u.email LIKE '%" . $requestData['search']['value'] . "%'";
+            $sql .= " WHERE o.name LIKE '%" . $requestData['search']['value'] . "%' ";
+            $sql .= " OR su.created_at LIKE '%" . $requestData['search']['value'] . "%'";
+            $sql .= " OR ac.date_admission LIKE '%" . $requestData['search']['value'] . "%'";
         } 
         
         $query = $obj_bdmysql->query($sql, $dbconn);
@@ -41,26 +40,31 @@ switch ($method) {
         
         $sql .= " ORDER BY " . $columns[$requestData['order'][0]['column']] . " " . $requestData['order'][0]['dir'] . "  LIMIT " . $requestData['start'] . " ," . $requestData['length'];
         $query = $obj_bdmysql->query($sql, $dbconn);
-
+        //print_r($sql);exit();
         $data = array();
         if (is_array($query)) {
             foreach ($query as $row) {
                 $s = array();
                 $botones = '';
 
-                if($obj_function->validarPermiso($_SESSION['permissions'],'user_edit')){
+                /*if($obj_function->validarPermiso($_SESSION['permissions'],'user_edit')){
                     $botones .= '<button class="btn btn-primary btn-sm mr-1" onclick="userController.edit(' . $row["id"] . ')"><i class="fas fa-edit" aria-hidden="true"></i></a></button>';
                 }
                 if($obj_function->validarPermiso($_SESSION['permissions'],'user_delete')){
                     $botones .= '<button class="btn btn-primary btn-sm mr-1" onclick="userController.deleted(' . $row["id"] . ')"><i class="fas fa-trash-alt" aria-hidden="true"></i></a></button>';
-                }
+                }*/
+
+
+                $botones .= '<button class="btn btn-primary btn-sm mr-1" onclick="subventionController.view(' . $row["subvention_id"] . ')"><i class="fas fa-eye" aria-hidden="true"></i></a></button>';
+
+                $botones .= '<button class="btn btn-primary btn-sm mr-1" title="Editar Subvención" onclick="subventionController.edit(' . $row["subvention_id"] . ')"><i class="fas fa-edit" aria-hidden="true"></i></a></button>';                
 
                 $nestedData = array();
-                $nestedData[] = $row['id'];
-                $nestedData[] = $row['rut'];
-                $nestedData[] = '<center>' . html_entity_decode($row['name'], ENT_QUOTES | ENT_HTML401, "UTF-8") .' '. html_entity_decode($row['last_name'], ENT_QUOTES | ENT_HTML401, "UTF-8") . '</center>';    
-                $nestedData[] = '<center>' . utf8_encode($row['email']) . '</center>';
-                $nestedData[] = '<center>' . html_entity_decode($row['type_role'], ENT_QUOTES | ENT_HTML401, "UTF-8") . '</center>'; 
+                $nestedData[] = $row['subvention_id'];
+                $nestedData[] = '<center>' . html_entity_decode($row['name'], ENT_QUOTES | ENT_HTML401, "UTF-8") . '</center>';    
+                $nestedData[] = '<center>' . $row['created_at'] . '</center>';
+                $nestedData[] = '<center>' . $row['date_admission'] . '</center>';
+                $nestedData[] = '<center>' . $row['status'] . '</center>'; 
                 $nestedData[] = '<center>' . $botones . '</center>'; 
 
                 $data[] = $nestedData;
@@ -154,12 +158,69 @@ switch ($method) {
             if ($subvention_id > 0) {
                 $out['code'] = 200;
                 $out['message'] = 'La subvención fué creada exitosamente..!';
+                $out['subvention_id'] = $subvention_id;
             }           
     	 } else if ($id != 0) { 
 
     	 }
 
     	echo json_encode($out);
+    break;
+
+    case 'saveFinancingFiles':
+        
+        $out['code'] = 204;
+        $out['message'] = 'Error..!';
+
+        $campo = "id_subvention, name, path, url";
+        $valor = "$subvention_id, '$name', '$path', '$url'";
+        //$sql = "INSERT INTO financing_files ($campo) VALUES ($valor)";
+        //print_r($sql);exit;
+        $id = $obj_bdmysql->insert("financing_files", $campo, $valor, $dbconn);
+
+        if ($id > 0) {
+            $out['code'] = 200;
+            $out['message'] = 'El Archivo fué creado exitosamente..!';
+        }
+        
+        echo json_encode($out);
+    break;
+
+    case 'saveDocumentsFiles':
+        
+        $out['code'] = 204;
+        $out['message'] = 'Error..!';
+
+        $sql = "SELECT `id`, `path` FROM subvention_files WHERE id_subvention = $subvention_id AND type = '$type'";
+        $query = $obj_bdmysql->query($sql, $dbconn);
+
+        if(is_array($query)){
+            $id_subvention_file = $query[0]['id'];
+            $old_path = $query[0]['path'];
+
+            $campo = "name='$name', path='$path', url='$url'";
+            $where = "id = $id_subvention_file";
+            $update_subvention_file = $obj_bdmysql->update("subvention_files", $campo, $where, $dbconn);
+
+            if ($update_subvention_file > 0) {
+                $out['code'] = 200;
+                $out['message'] = 'El Archivo fué actualizado exitosamente..!';
+                $out['path'] = $old_path;
+            }
+        }else{
+            $campo = "id_subvention, type, name, path, url";
+            $valor = "$subvention_id, '$type', '$name', '$path', '$url'";
+            //$sql = "INSERT INTO financing_files ($campo) VALUES ($valor)";
+            //print_r($sql);exit;
+            $id = $obj_bdmysql->insert("subvention_files", $campo, $valor, $dbconn);
+
+            if ($id > 0) {
+                $out['code'] = 200;
+                $out['message'] = 'El Archivo fué creado exitosamente..!';
+            }
+        }
+
+        echo json_encode($out);
     break;
 
 }

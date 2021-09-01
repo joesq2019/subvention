@@ -1,10 +1,16 @@
 var MODEL = '../models/subvention_model.php';
 var dataTable = '';
 var formCreateSubvention = $("#formCreateSubvention");
+var action_subvention = sessionStorage.getItem('action');
+var id_subvention = sessionStorage.getItem('id');
 
 var subventionAddController = {
     init: () => {
-      
+        
+        if (action_subvention == 2) {
+            subventionAddController.edit(id_subvention)
+        }
+
         // jQuery.validator.addMethod("alphanumeric", function(value, element) {
         //     return this.optional(element) || /^[a-zA-Z0-9]*$/.test(value);
         // }, "Solo letras y números");
@@ -231,7 +237,7 @@ var subventionAddController = {
             }
         });
 
-         $('.btn-next-4').click(function() {   
+        $('.btn-next-4').click(function() {   
             var fail = false, fail_log = '', name = '', $div_alert = '';
             $('#wizard4').find('select, textarea, input').each(function() {
                 if (!$(this).prop('required')) {
@@ -286,14 +292,15 @@ var subventionAddController = {
                 }
             }
         });
+
         $('.btnPrevious').click(function() {
             $('.inner_form').prop('required',false);
             $('.nav-pills > .active').prev('a').trigger('click');
         });
 
-        $("#imagenes").on('change', function () {
+        $("#financing_files").on('change', function () {
             if(this.files.length>5){
-                Swal.fire('No pueden ser mas de 5 imagenes');
+                Swal.fire('No pueden ser mas de 5 archivos');
             }
             else {
                 //Get count of selected files
@@ -386,14 +393,16 @@ var subventionAddController = {
             $('#inputTotalSumBene').val(total_suma);
         });
 
-         $(document).on('focusout', '#inputIndirectAmount', function(){             
+        $(document).on('focusout', '#inputIndirectAmount', function(){             
             var directos = $('#inputDirectAmount').val();
             var indirectos = $(this).val();    
 
             var total_suma = parseFloat(directos) + parseFloat(indirectos);
             $('#inputTotalSumBene').val(total_suma);
         });
+
         var j = 0;
+
         $('#add_act').click(function(){
             j++;
             $('#dynamic_activities').append(
@@ -443,7 +452,7 @@ var subventionAddController = {
                                     $(`<div class="col-md-3 text-center"><img src="../assets/img/file.png" class="rounded img-fluid" style="height:150px;width:150px"><br><small>${files[i].name}</small></div>`).appendTo(image_holder);
                                 // }
                             }else{
-                               reader.onload = function (e) {
+                                reader.onload = function (e) {
                                     $("<img />", {
                                         "src": e.target.result,
                                             "class": "col-md-3 rounded img-fluid",
@@ -451,7 +460,6 @@ var subventionAddController = {
                                     }).appendTo(image_holder);
                                 } 
                             }
-                            
             
                             image_holder.show();
                             reader.readAsDataURL($(this)[0].files[i]);
@@ -464,19 +472,19 @@ var subventionAddController = {
             }
         });
         
-
         $("#btnSavedSubvention").click(function(event){
             event.preventDefault();
-            // if ($("#formCreateSubvention").valid()) {
-                 var form_data = new FormData();
-                var step3images = document.getElementById('imagenes').files.length;
-                var step5files = document.getElementById('archivos').files.length;
-                for (var i = 0; i < step3images; i++) {
-                      form_data.append("files[]", document.getElementById('imagenes').files[i]);
-                }
-                for (var j = 0; j < step5files; j++) {
-                      form_data.append("files_2[]", document.getElementById('archivos').files[j]);
-                } 
+
+            if ($("#formCreateSubvention").valid()) {
+                // var form_data = new FormData();
+                // var step3images = document.getElementById('financing_files').files.length;
+                // var step5files = document.getElementById('archivos').files.length;
+                // for (var i = 0; i < step3images; i++) {
+                //       form_data.append("files[]", document.getElementById('imagenes').files[i]);
+                // }
+                // for (var j = 0; j < step5files; j++) {
+                //       form_data.append("files_2[]", document.getElementById('archivos').files[j]);
+                // } 
 
                 var financing_array = [];
                 $( ".dynamic_field" ).each(function( index ) {
@@ -489,7 +497,6 @@ var subventionAddController = {
                     var inputs_data = $(this).find(":input").serializeArray();
                     activities_array.push(inputs_data);
                 });
-              
  
                 var dt = {
                     method: 'saveNewSubvention',
@@ -550,10 +557,65 @@ var subventionAddController = {
                 $.post(MODEL, dt,
                     function(data) {                      
                         if (data.code == 200) {
-                            preloader("hide",data.message,'success');
-                            // $("#modalCreateUser").modal('hide');
-                            window.location.href = 'subvention.php';
-                            dataTable.draw();
+                            uploadDocuments(data.subvention_id, function (response) {
+                                var file = document.getElementById("financing_files").files;
+                                if (file.length > 0) {
+                                    preloaderTwo("Guardando documentos del financiamiento, por favor espere..!");
+                                    var storageRef = firebase.storage().ref();                            
+
+                                    $.each( file, function( key, value ) {
+                                        console.log('KEY: '+key)
+                                        var ext = '.'+value.name.split('.').pop();
+                                        var new_name = data.subvention_id+'-'+key+ext;
+                                        var path = 'financing/'+new_name;
+                                        var name_file = value.name;
+
+                                        var uploadTask = storageRef.child(path).put(file[key]);                                
+
+                                        uploadTask.on('state_changed', function(snapshot){
+                                        }, function(error) {
+                                            console.log(error);
+                                        }, function() {
+                                            uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+                                                var parametros = {
+                                                    "method": "saveFinancingFiles",
+                                                    "subvention_id": data.subvention_id,
+                                                    "name": name_file,
+                                                    "path": path,
+                                                    "url": downloadURL
+                                                };
+                                                $.post(MODEL, parametros, function(data2) {
+                                                    if(data2.path != ''){
+                                                        var desertRef = storageRef.child(data2.path);
+                                                        desertRef.delete().then(function() {
+                                                        }).catch(function(error) {
+                                                        });
+                                                    }
+                                                },'json');
+
+                                                if (key+1 === file.length) { ///terminó el ciclo each
+                                                    preloader("hide","La subvencion y los documentos fueron guardados con éxito..!","success");
+                                                    setTimeout(function(){
+                                                        window.location.href = 'subvention.php';
+                                                    },2000);
+                                                }
+                                            });
+                                        });
+                                    });
+                                } else {
+                                    if(response == 1){
+                                        preloader("hide","La subvencion y los documentos fueron guardados con éxito..!","success");
+                                        setTimeout(function(){
+                                            window.location.href = 'subvention.php';
+                                        },2000);
+                                    } else {
+                                        preloader("hide","La subvencion fue guardada con éxito..!","success");
+                                        setTimeout(function(){
+                                            window.location.href = 'subvention.php';
+                                        },2000);
+                                    }
+                                }
+                            });
                         }
                         if(data.code == 204){
                             preloader("hide",data.message,'error');
@@ -564,10 +626,9 @@ var subventionAddController = {
                     },
                     "json"
                 );
-            // }
+            }
         });
        
-
         $('#add_rut').blur(function() {
             var parametros = {
                 "method": "checkRut",
@@ -586,41 +647,7 @@ var subventionAddController = {
         });
     },
     edit: function(id) {
-        event.preventDefault();
-        userController.clean();
-
-        $( "#add_password" ).rules( "add", { required: false });
-        $( "#add_repeat_password" ).rules( "add", { required: false });  
-        
-        var dt = { method: 'editUser', id: id };
-        preloader('show');
-        $.post(MODEL, dt,
-            function(data) {
-                if (data.code == 200) {
-                    preloader('hide');
-                    $("#id_user").val(data.id_user);
-                    $("#add_name").val(data.name);
-                    $("#add_last_name").val(data.last_name);
-                    $("#add_rut").val(data.rut);
-                    $("#add_username").val(data.username);
-                    $("#add_email").val(data.email);
-                    $("#add_role").val(data.type_role);
-
-                    $("#add_phone").val(data.phone);
-                    
-                    $("#modalCreateUser").modal("show");
-                }
-                if(data.code == 204){
-                    $("#modalCreateUser").modal("hide");
-                    preloader("hide",data.message,'error');
-                }
-                if (data.code == 440) {
-                    $("#modalCreateUser").modal("hide");
-                    loginTimeout();
-                }
-            },
-            "json"
-        );
+        alert("EDITANDO")
     },
     deleted: function (id){
 
@@ -697,10 +724,98 @@ $(function() {
     subventionAddController.init();
     subventionAddController.events();
 });
- 
+
+function uploadDocuments(id_subvention, callback) {
+    var isset = 0;
+    $(".input_file").each(function( index, value ) {
+        if(value.files[0] !== undefined){
+            isset++;
+        }
+    });
+
+    if (isset > 0) {
+        preloaderTwo("Guardando documentos, por favor espere..!");
+        var storageRef = firebase.storage().ref();
+        var count = 0;
+        $(".input_file").each(function( index, value ) {
+            if(value.files[0] !== undefined){
+                var ext = '.'+value.files[0].name.split('.').pop();
+                var new_name = id_subvention+'_'+value.id+ext;
+                var path = 'documents/'+new_name;
+                
+                var uploadTask = storageRef.child(path).put(value.files[0]);
+                uploadTask.on('state_changed', function(snapshot){
+                    var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    console.log('Upload is ' + progress + '% done');
+                    switch (snapshot.state) {
+                        case firebase.storage.TaskState.PAUSED: // or 'paused'
+                            console.log('Upload is paused');
+                        break;
+                        case firebase.storage.TaskState.RUNNING: // or 'running'
+                            console.log('Upload is running');
+                        break;
+                    }
+                }, function(error) {
+                    console.log(error);
+                    //$('#file_foto').val('');
+                    preloader("hide","Ha ocurrido un error, intente nuevamente...",'warning');
+                }, function() {
+                    uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+                        var parametros = {
+                            "method": "saveDocumentsFiles",
+                            "subvention_id": id_subvention,
+                            "type": value.id,
+                            "name": value.files[0].name,
+                            "path": path,
+                            "url": downloadURL
+                        };
+                        $.post(MODEL, parametros, function(data2) {
+                            if(data2.path != ''){
+                                var desertRef = storageRef.child(data2.path);
+                                desertRef.delete().then(function() {
+                                }).catch(function(error) {
+                                });
+                            }
+                        },'json');
+
+                        count++;
+
+                        if (count === isset) { ///terminó el ciclo each
+                            callback(1);
+                        }                                  
+                    });
+                });
+            }
+        });
+    } else {
+        callback(0);
+    }
+}
 
 document.addEventListener("DOMContentLoaded", function(event) {
 
-    //CARGA DE FIREBASE
+    var firebaseConfig = {
+        apiKey: "AIzaSyAO6Rdrv7ZhLayWR0QINZu48DDJyONz7YY",
+        authDomain: "subvention10.firebaseapp.com",
+        projectId: "subvention10",
+        storageBucket: "subvention10.appspot.com",
+        messagingSenderId: "755390448628",
+        appId: "1:755390448628:web:7c15442186ae1b25f26fa1",
+        measurementId: "G-T1HP4SMLSG"
+    };
+
+    if (!firebase.apps.length) { 
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+    }
+
+    var email = 'subvenciones10@gmail.com';
+    var password = 'subvenciones10@gmail.com';
+
+    firebase.auth().signInWithEmailAndPassword(email, password).catch(function(error) {
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        console.log("Error autenticating Firebase!"+ errorCode + ' - ' + errorMessage, "error");
+    });
 
 });
