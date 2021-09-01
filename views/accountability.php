@@ -1,5 +1,5 @@
 <?php require_once '../common/header.php'; ?>
-<?php if($obj_function->validarPermiso($_SESSION['permissions'],'user_list')): ?>
+<?php if($obj_function->validarPermiso($_SESSION['permissions'],'accountability_list')): ?>
 <div class="card shadow mb-4">
 	<div class="card-header py-3">
 		<div class="row">
@@ -7,8 +7,8 @@
 				<h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-users"></i> Rendicion de Cuentas </h6>
 			</div>
 			<div class="col-md-6">
-				<?php if($obj_function->validarPermiso($_SESSION['permissions'],'user_add')): ?>
-				<button type="button" class="btn btn-primary btn-sm float-right" id="btn_newUser"> <i class="fas fa-user"></i> Nueva Rendicion
+				<?php if($obj_function->validarPermiso($_SESSION['permissions'],'accountability_add')): ?>
+				<button type="button" class="btn btn-primary btn-sm float-right" id="btn_newAccountability"> <i class="fas fa-user"></i> Nueva Rendicion
 				</button>
 				<?php endif; ?>
 			</div>
@@ -16,14 +16,17 @@
 	</div>
 	<div class="card-body border-bottom-primary">
 	    <div class="table-responsive">
-	        <table class="table table-bordered" id="usersDataTable" cellspacing="0">
+	        <table class="table table-bordered" id="accountabilityDataTable" cellspacing="0">
 	            <thead>
 	                <tr>
 	                	<th>#</th>
 	                    <th>Rut</th>
-	                    <th>Nombre</th>
-	                    <th>Email</th>
-	                    <th>Rol</th>
+	                    <th>Organización</th>
+	                    <th>Representante</th>
+	                    <th>Monto Entregado</th>
+	                    <th>Monto Rendido</th>
+	                    <th>Fecha Ingreso</th>
+	                    <th>Status</th>
 	                    <th>Acciones</th>
 	                </tr>
 	            </thead>
@@ -33,36 +36,37 @@
 	    </div>
 	</div>
 </div>
-<?php if($obj_function->validarPermiso($_SESSION['permissions'],'user_add') OR $obj_function->validarPermiso($_SESSION['permissions'],'user_edit')): ?>
-<div class="modal fade" id="modalCreateUser" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<?php if($obj_function->validarPermiso($_SESSION['permissions'],'accountability_add') OR $obj_function->validarPermiso($_SESSION['permissions'],'accountability_edit')): ?>
+<div class="modal fade" id="modalCreateAccountability" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Nueva Rendicion</h5>
-                <input type="hidden" name="id_user" id="id_user" value="0">
+                <h5 class="modal-title" id="exampleModalLabel"><span id="titleModelAccountability">Nueva Rendicion</span></h5>
+                <input type="hidden" name="id_accountability" id="id_accountability" value="0">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <form id="formCreateUser">
+                <form id="formCreateAccountability">
                 	<div class="row">
                 		<div class="col-md-4">
                     		<div class="form-group m-form__group"> 
 		                        <label>Rut</label>
 		                        <input type="text" name="add_rut_organization" id="add_rut_organization" class="form-control" required>
+		                        <input type="hidden" name="id_subvention" id="id_subvention">
 		                    </div>
                     	</div>
                 		<div class="col-md-4">
                 			<div class="form-group m-form__group"> 
 		                        <label>Nombre de la Organizacion</label>
-		                        <input type="text" name="add_name_organization" id="add_name_organization" class="form-control" required="">
+		                        <input type="text" name="add_name_organization" id="add_name_organization" class="form-control" readonly="">
 		                    </div>
                 		</div>
                 		<div class="col-md-4">
                 			<div class="form-group m-form__group"> 
 		                        <label>Nombre del Proyecto</label>
-		                        <input type="text" name="add_name_project" id="add_name_project" class="form-control">
+		                        <input type="text" name="add_name_project" id="add_name_project" class="form-control" readonly="">
 		                    </div>
                 		</div>
                 	</div>
@@ -76,13 +80,13 @@
                     	<div class="col-md-3">
                     		<div class="form-group m-form__group"> 
 		                        <label>Telefono</label>
-		                        <input type="text" name="add_phone" id="add_phone" class="form-control" required>
+		                        <input type="text" name="add_phone" id="add_phone" class="form-control" readonly required>
 		                    </div>
                     	</div>
                     	<div class="col-md-4">
                     		<div class="form-group m-form__group"> 
 		                        <label>Email</label>
-		                        <input type="text" name="add_email" id="add_email" class="form-control" required>
+		                        <input type="text" name="add_email" id="add_email" class="form-control" readonly required>
 		                    </div>
                     	</div>
                     	<div class="col-md-2">
@@ -113,22 +117,17 @@
 		                        </select>
 		                    </div>
                     	</div>
-                    	<!-- <div class="col-md-1">
-                    		<div class="form-group m-form__group" style="margin-top: 37px"> 
-		                        <i class="fas fa-plus pr-2" style="cursor: pointer" id="more_invoice"></i>
-		                        <i class="fas fa-minus" style="cursor: pointer" id="less_invoice"></i>
-		                    </div>
-                    	</div> -->
                     </div>
 
-                    <div id="invoices">
-
-                    </div>
+                    <table class="table table-bordered" >
+                    	<tbody id="invoices">
+                    	</tbody>
+                    </table>
                     <div class="row">
                     	<div class="col-md-4">
                     		<div class="form-group m-form__group"> 
 		                        <label>Monto Entregado</label>
-		                        <input type="email" name="add_email" id="add_email" class="form-control" required>
+		                        <input type="number" name="add_mount_delivered" id="add_mount_delivered" class="form-control" step="0.1" required>
 		                    </div>
                     	</div>
                     	<div class="col-md-4">
@@ -140,7 +139,8 @@
                     	<div class="col-md-4">
                     		<div class="form-group m-form__group"> 
 		                        <label>Monto Reintegrado</label>
-		                        <input type="text" name="add_phone" id="add_phone" class="form-control" required>
+		                        <input type="number" name="add_amount_refunded" id="add_amount_refunded" class="form-control" step="0.1" required>
+		                        <small id="span_amount_refunded" class="text-danger" style="display: none;">Subir comprobante de restitución de fondos</small>
 		                    </div>
                     	</div>
                     </div>
@@ -148,13 +148,13 @@
                     	<div class="col-md-6">
                     		<div class="form-group m-form__group"> 
 		                        <label>Saldo</label>
-		                        <input type="text" name="add_phone" id="add_phone" class="form-control" required>
+		                        <input type="text" name="add_balance" id="add_balance" class="form-control" readonly required>
 		                    </div>
                     	</div>
                     	<div class="col-md-6">
                     		<div class="form-group m-form__group"> 
-		                        <label>Ingreso de Rendición</label>
-		                        <input type="text" name="add_phone" id="add_phone" class="form-control" required>
+		                        <label>Fecha Ingreso de Rendición</label>
+		                        <input type="text" name="add_date_surrender_income" id="add_date_surrender_income" class="form-control dateAcc" required>
 		                    </div>
                     	</div>
                     </div>
@@ -162,7 +162,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary tr" key="" data-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-success" id="btn_saveUser">Guardar</button>
+                <button type="button" class="btn btn-success" id="btn_saveAccountability">Guardar</button>
             </div>
         </div>
     </div>
@@ -170,8 +170,6 @@
 
 
 <?php endif; ?>
-
-<script src="https://www.gstatic.com/firebasejs/6.1.0/firebase.js"></script>
 
 <script src="../controllers/accountability.js"></script>
 

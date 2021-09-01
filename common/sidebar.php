@@ -37,11 +37,13 @@
             <?php endif; ?>
             <!-- Nav Item - Utilities Collapse Menu -->
 
+            <?php if($obj_function->validarPermiso($_SESSION['permissions'],'accountability_list')): ?>
             <li class="nav-item">
                 <a class="nav-link" href="accountability.php">
                     <i class="fas fa-file-invoice-dollar"></i>
                     <span>Rendición de Cuentas</span></a>
             </li>
+            <?php endif; ?>
             <!-- Divider -->
             <hr class="sidebar-divider">
 
