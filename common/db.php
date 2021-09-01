@@ -11,6 +11,7 @@ define('DB_CONNECTION','mysql');
 define('DB_HOST','localhost');
 define('DB_DATABASE','subvenciones');
 define('DB_USERNAME','root');
+// define('DB_PASSWORD','');
 define('DB_PASSWORD','123456789');
 
 

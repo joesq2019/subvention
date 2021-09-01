@@ -1,4 +1,3 @@
-/* FileInput */
 .js .inputfile {
     width: 0.1px;
     height: 0.1px;
@@ -10,7 +9,7 @@
 
 .inputfile + label {
     max-width: 80%;
-    font-size: 1.25rem;
+    font-size: 0.9rem;
     /* 20px */
     font-weight: 700;
     text-overflow: ellipsis;
@@ -32,6 +31,10 @@
     outline: -webkit-focus-ring-color auto 5px;
 }
 
+.inputfile + label * {
+    /* pointer-events: none; */
+    /* in case of FastClick lib use */
+}
 
 .inputfile + label svg {
     width: 1em;

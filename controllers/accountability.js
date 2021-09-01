@@ -317,6 +317,135 @@ var accountabilityController = {
             $('#add_balance').val(balance);   
         });
 
+        ///////////////////////////////////////////////////////////////////////
+        $('.inputfile').each( function(){
+            var $input   = $( this ),
+                $label   = $input.next( 'label' ),
+                labelVal = $label.html();
+
+            $input.on( 'change', function( e )
+            {
+                var fileName = '';
+
+                if( this.files && this.files.length > 1 )
+                    fileName = ( this.getAttribute('data-multiple-caption') || '' ).replace('{count}', this.files.length );
+                else if( e.target.value )
+                    fileName = e.target.value.split( '\\' ).pop();
+
+                if( fileName )
+                    $label.find('span').html( fileName );
+                else
+                    $label.html( labelVal );
+            });
+
+            // Firefox bug fix
+            $input
+            .on( 'focus', function(){ $input.addClass('has-focus'); })
+            .on( 'blur', function(){ $input.removeClass('has-focus'); });
+        }); 
+
+         // Validar y Previsualizar la imagen
+        $("#file-1").change(function(event) { //validar que sea imagen
+            console.log('imagen change');
+            var fileInput = document.getElementById('file-1');
+            var imagen = this.files[0];
+            var filePath = fileInput.value;
+            var allowedExtensions = /(.jpg|.jpeg|.png|.gif)$/i;
+            if (!allowedExtensions.exec(filePath)) {
+                Swal.fire("Ups..", 'Sube un archivo que tenga extensiones .jpeg/.jpg/.png/.gif Only.', "warning");
+                $("#imagen1").val('');
+            }
+            var datosImagen = new FileReader();
+            datosImagen.readAsDataURL(imagen);
+            $(datosImagen).on("load", function(event) {
+                var rutaImagen = event.target.result;
+                $(".previsualizar1").attr("src", rutaImagen);
+            });
+        });
+
+         //////////////////////////////////////////////////////////////////
+        $('#accountabilityDataTable tbody').on('click', '.button_uploadBeneficiaries', function () {
+            var $tr = $(this).closest('tr');
+            var data = dataTable.row($(this).parents($tr)).data();
+            var id = data[0];
+            // console.log(data[0])
+            $('#modalAddBeneficiaries').modal({
+                backdrop: 'static',
+                keyboard: false
+            });
+           $('#add_id_accountability').val(id);
+        });
+
+        //////////////////////////////////////////////////////////////////
+        $('#accountabilityDataTable tbody').on('click', '.button_uploadDocumentation', function () {
+            var $tr = $(this).closest('tr');
+            var data = dataTable.row($(this).parents($tr)).data();
+            var id = data[0];
+            console.log(data[0])
+            $('#modalAddDocumentation').modal({
+                backdrop: 'static',
+                keyboard: false
+            });
+           $('#add_id_accountability1').val(id);
+        });
+
+        ///////////////////////////////////////////////////////////////////
+        $('#btnSaveBeneficiarie').click(function (e) {
+            e.preventDefault();
+            var dt = new Date();
+            var time = dt.getHours() + "" + dt.getMinutes() + "" + dt.getSeconds() + "" + dt.getDay() + "" + dt.getMonth() + "" + dt.getYear();
+            preloaderTwo("Guardando documentos del beneficiarios, por favor espere..!");
+          
+            var storageRef = firebase.storage().ref();
+            var file = document.getElementById("file-1").files;
+            var id_accountability = $('#add_id_accountability').val();
+            var ext = '.'+file[0].name.split('.').pop();
+            var new_name = id_accountability+'_'+time+'_'+ext;
+            var path = 'beneficiaries/'+new_name;
+            var name_file = file[0].name;
+                                
+            var uploadTask = storageRef.child(path).put(file[0]);
+            uploadTask.on('state_changed', function(snapshot) {
+                var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                console.log('Upload is ' + progress + '% done');
+                switch (snapshot.state) {
+                    case firebase.storage.TaskState.PAUSED: // or 'paused'
+                        console.log('Upload is paused');
+                        break;
+                    case firebase.storage.TaskState.RUNNING: // or 'running'
+                        console.log('Upload is running');
+                        break;
+                }
+            },
+            function(error) {
+                // Handle unsuccessful uploads
+            }, function() {
+
+                uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {                        
+                     $.post(MODEL, {
+                        "method": 'updateFileBeneficiarie',
+                        "id_accountability": id_accountability,
+                        "name": name_file,
+                        "path": path,
+                        "url": downloadURL
+                        },function(response) {
+                            if (response.code == 440) {
+                                loginTimeout(response.message);
+                                return;
+                            } else if (response.code == 200) {
+                                preloader('hide', response.message, 'success');
+                                $('#modalAddBeneficiaries').modal('hide');
+                                dataTable.ajax.reload();
+                            } else if (response.code == 204) {    
+                                storageRef.child(path).delete();                         
+                                preloader('hide', response.message, 'error');
+                            }
+                    }, "json");                                    
+                     
+                });
+            });
+        });
+
         
     },
     edit: function(id) {
@@ -446,6 +575,28 @@ $(function() {
 
 document.addEventListener("DOMContentLoaded", function(event) {
 
-    //CARGA DE FIREBASE
+    var firebaseConfig = {
+        apiKey: "AIzaSyAO6Rdrv7ZhLayWR0QINZu48DDJyONz7YY",
+        authDomain: "subvention10.firebaseapp.com",
+        projectId: "subvention10",
+        storageBucket: "subvention10.appspot.com",
+        messagingSenderId: "755390448628",
+        appId: "1:755390448628:web:7c15442186ae1b25f26fa1",
+        measurementId: "G-T1HP4SMLSG"
+    };
+
+    if (!firebase.apps.length) { 
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+    }
+
+    var email = 'subvenciones10@gmail.com';
+    var password = 'subvenciones10@gmail.com';
+
+    firebase.auth().signInWithEmailAndPassword(email, password).catch(function(error) {
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        console.log("Error autenticating Firebase!"+ errorCode + ' - ' + errorMessage, "error");
+    });
 
 });

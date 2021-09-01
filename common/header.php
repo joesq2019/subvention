@@ -10,7 +10,7 @@ $obj_function = new coFunction();
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html class="no-js">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -29,7 +29,9 @@ $obj_function = new coFunction();
     <?php else: ?>
         <link href="../assets/css/sb-admin-2.min.css" class="estilo" rel="stylesheet">
     <?php endif; ?>
-    <link href="../assets/css/dataTables.bootstrap4.css" rel="stylesheet" type="text/css"/> 
+    <link href="../assets/css/dataTables.bootstrap4.css" rel="stylesheet" type="text/css"/>
+
+    <link href="../assets/css/common.css" rel="stylesheet" type="text/css"/>
 
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
 
@@ -54,7 +56,8 @@ $obj_function = new coFunction();
     <script src="../assets/js/jquery.validate.js"></script>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
-    <!-- <script src="../assets/js/additionalvalidations.js"></script> -->
+    <!-- <script src="../assets/js/additionalvalidations.js"></script> --> 
+    <script>(function(e,t,n){var r=e.querySelectorAll("html")[0];r.className=r.className.replace(/(^|\s)no-js(\s|$)/,"$1js$2")})(document,window,0);</script>
 </head>
 
 <body id="page-top">

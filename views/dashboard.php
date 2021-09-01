@@ -12,6 +12,5 @@
 </div>
 
 
-
 <script src="../controllers/dashboard.js"></script>
 <?php require_once '../common/footer.php' ?>                    

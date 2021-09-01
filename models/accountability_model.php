@@ -57,14 +57,27 @@ switch ($method) {
                 $s = array();
                 $botones = '';
                 $status = '';
+                $sql = "SELECT id AS id_accou_file, type FROM `accountability_files` WHERE id_accountability = ".$row['id'];
+                $queryFile1 = $obj_bdmysql->query($sql, $dbconn);
+
                 if($obj_function->validarPermiso($_SESSION['permissions'],'user_edit')){
                     $botones .= '<button class="btn btn-primary btn-sm mr-1" onclick="accountabilityController.edit(' . $row["id"] . ')"><i class="fas fa-edit" aria-hidden="true"></i></a></button>';
                     
                 }
                 if($obj_function->validarPermiso($_SESSION['permissions'],'user_delete')){
                     $botones .= '<button class="btn btn-primary btn-sm mr-1" onclick="accountabilityController.deleted(' . $row["id"] . ')"><i class="fas fa-trash-alt" aria-hidden="true"></i></a></button>';
-                    $botones .= '<button class="btn btn-info btn-sm mr-1 mb-1" onclick="accountabilityController.uploadFileBeneficiaries(' . $row["id"] . ')"><i class="fas fa-upload" aria-hidden="true"></i> Beneficiarios</a></button>';
-                    $botones .= '<button class="btn btn-info btn-sm mr-1" onclick="accountabilityController.uploadDocumentation(' . $row["id"] . ')"><i class="fas fa-upload" aria-hidden="true"></i> Documentación</a></button>';
+                    if ($queryFile1[0]['type'] == 1) {
+                        $botones .= '<button class="btn btn-success btn-sm mr-1 mb-1" > Lista de Beneficiarios Subida</a></button>';
+                    }else{
+                        $botones .= '<button class="btn btn-primary btn-sm mr-1 mb-1 button_uploadBeneficiaries" ><i class="fas fa-upload" aria-hidden="true"></i> Beneficiarios</a></button>';
+                    }
+                    if ($queryFile1[0]['type'] == 2) {
+                        $botones .= '<button class="btn btn-success btn-sm mr-1 mb-1" ><i class="fas fa-upload" aria-hidden="true"></i> Documentación Subida</a></button>';
+                    }
+                    else{                        
+                        $botones .= '<button class="btn btn-primary btn-sm mr-1 button_uploadDocumentation"><i class="fas fa-upload" aria-hidden="true"></i> Documentación</a></button>';
+                    }
+                    
                 }
 
                 if($row['status'] == 1) $status = '<span class="badge badge-warning">Pendiente</span>';
@@ -316,4 +329,22 @@ switch ($method) {
         }
         echo json_encode($out);
     break;
+
+    case 'updateFileBeneficiarie':
+        
+        $out['code'] = 204;
+        $out['message'] = 'Error..!';
+
+        $campo = "id_accountability, name, path, url, type";
+        $valor = "$id_accountability, '$name', '$path', '$url', '1'";
+        //$sql = "INSERT INTO financing_files ($campo) VALUES ($valor)";
+        //print_r($sql);exit;
+        $id = $obj_bdmysql->insert("accountability_files", $campo, $valor, $dbconn);
+
+        if ($id > 0) {
+            $out['code'] = 200;
+            $out['message'] = 'El Archivo fué creado exitosamente..!';
+        }
+        
+        echo json_encode($out);
 }
