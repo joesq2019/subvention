@@ -66,13 +66,8 @@ switch ($method) {
                 }
                 if($obj_function->validarPermiso($_SESSION['permissions'],'user_delete')){
                     $botones .= '<button class="btn btn-primary btn-sm mr-1" onclick="accountabilityController.deleted(' . $row["id"] . ')"><i class="fas fa-trash-alt" aria-hidden="true"></i></a></button>';
-                    if ($queryFile1[0]['type'] == 1) {
-                        $botones .= '<button class="btn btn-success btn-sm mr-1 mb-1" > Lista de Beneficiarios Subida</a></button>';
-                    }else{
-                        $botones .= '<button class="btn btn-primary btn-sm mr-1 mb-1 button_uploadBeneficiaries" ><i class="fas fa-upload" aria-hidden="true"></i> Beneficiarios</a></button>';
-                    }
                     if ($queryFile1[0]['type'] == 2) {
-                        $botones .= '<button class="btn btn-success btn-sm mr-1 mb-1" ><i class="fas fa-upload" aria-hidden="true"></i> Documentación Subida</a></button>';
+                        $botones .= '<button class="btn btn-success btn-sm mr-1 button_viewDocumentation" > Documentación Subida</a></button>';
                     }
                     else{                        
                         $botones .= '<button class="btn btn-primary btn-sm mr-1 button_uploadDocumentation"><i class="fas fa-upload" aria-hidden="true"></i> Documentación</a></button>';
@@ -146,6 +141,7 @@ switch ($method) {
             if ($accountability_id > 0) {
                 $out['code'] = 200;
                 $out['message'] = 'La rendición de cuenta fué creada exitosamente..!';
+                $out['accountability_id'] = $accountability_id;
             }           
         }
 
@@ -184,6 +180,7 @@ switch ($method) {
             if ($update_accountability > 0) {
                 $out['code'] = 200;
                 $out['message'] = 'La rendición de cuenta fué actualizada exitosamente..!';
+                $out['accountability_id'] = $id;
             }
             
         }
@@ -215,6 +212,13 @@ switch ($method) {
             $out['balance'] = $obj['balance'];
             $out['date_admission']      = $obj['date_admission'];
             $out['status']      = $obj['status'];
+
+            $sql = "SELECT * FROM `accountability_files` WHERE id_accountability = $id";
+            $query = $obj_bdmysql->query($sql, $dbconn);
+            $beneficiaries = $query[0];
+            $out['beneficiarie_name']      = $beneficiaries['name'];
+            $out['beneficiarie_path']      = $beneficiaries['path'];
+            $out['beneficiarie_url']      = $beneficiaries['url'];
 
             $sql = "SELECT * FROM `invoices` WHERE id_accountability = $id";
             $result = $obj_bdmysql->query($sql, $dbconn);
@@ -347,4 +351,94 @@ switch ($method) {
         }
         
         echo json_encode($out);
+        break;
+
+    case 'saveImagesFiles':
+        
+        $out['code'] = 204;
+        $out['message'] = 'Error..!';
+
+        $campo = "id_accountability, name, path, url, type";
+        $valor = "$id_accountability, '$name', '$path', '$url', '$type'";
+        //$sql = "INSERT INTO financing_files ($campo) VALUES ($valor)";
+        //print_r($sql);exit;
+        $id = $obj_bdmysql->insert("accountability_files", $campo, $valor, $dbconn);
+
+        if ($id > 0) {
+            $out['code'] = 200;
+            $out['message'] = 'El Archivo fué creado exitosamente..!';
+        }
+        
+        echo json_encode($out);
+    break;
+
+     case 'saveDocumentFiles':
+        
+        $out['code'] = 204;
+        $out['message'] = 'Error..!';
+
+        $sql = "SELECT `id`, `path` FROM accountability_files WHERE id_accountability = $id_accountability AND related = '$related'";
+        $query = $obj_bdmysql->query($sql, $dbconn);
+        // print_r(is_array($query));exit;
+        if(is_array($query)){
+            $id_accountability_file = $query[0]['id'];
+            $old_path = $query[0]['path'];
+
+            $campo = "name='$name', path='$path', url='$url'";
+            $where = "id = $id_accountability_file";
+            $update_accountability_file = $obj_bdmysql->update("accountability_files", $campo, $where, $dbconn);
+
+            if ($update_subvention_file > 0) {
+                $out['code'] = 200;
+                $out['message'] = 'El Archivo fué actualizado exitosamente..!';
+                $out['path'] = $old_path;
+            }
+        }else{
+            $campo = "id_accountability, name, path, url, type, related";
+            $valor = "$id_accountability, '$name', '$path', '$url', '$type', '$related'";
+            // $sql = "INSERT INTO accountability_files ($campo) VALUES ($valor)";
+            // print_r($sql);exit;
+            $id = $obj_bdmysql->insert("accountability_files", $campo, $valor, $dbconn);
+
+            if ($id > 0) {
+                $out['code'] = 200;
+                $out['message'] = 'El Archivo fué creado exitosamente..!';
+                $old_path = '';
+            }
+        }
+
+        echo json_encode($out);
+    break;
+
+    case 'viewDocuments':
+        $sql = "SELECT * FROM accountability_files WHERE id_accountability = $id";
+        $query = $obj_bdmysql->query($sql, $dbconn);
+        if (is_array($query)) {
+            $out['id_accountability'] = $query[0]['id_accountability'];
+
+            $documents = '';
+            $images = '';
+            foreach($query as $row){
+                if ($row['type'] == 2) {
+                    $documents .= '<div class="col-md-3 text-center">
+                                    <img src="../assets/img/file.png" class="rounded img-fluid" style="height:150px;width:150px"><br><small>'.$row['name'].'</small>
+                                </div>';
+                }
+
+                if ($row['type'] == 3) {
+                    $images .= '<img src="'.$row['url'].'" class="col-md-3 rounded img-fluid" style="height:150px;width:150px">';
+                }
+            }
+       
+      
+            $out['documents'] = $documents;            
+            $out['images'] = $images;
+            $out['code'] = 200;
+            $out['message'] = "Ok";
+        }else{
+            $out['code'] = 204;
+            $out['message'] = "Error";
+        }
+        echo json_encode($out);
+        break;
 }

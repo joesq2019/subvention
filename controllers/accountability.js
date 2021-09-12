@@ -216,6 +216,8 @@ var accountabilityController = {
             accountabilityController.add_dynamic_input_field(1,number_invoice);        
         });
 
+
+
         //ESTO ES
         // var invoices_array = [];
         // $( ".test" ).each(function( index ) {
@@ -264,9 +266,65 @@ var accountabilityController = {
                 $.post(MODEL, dt,
                     function(data) {                      
                         if (data.code == 200) {
-                            preloader("hide",data.message,'success');
-                            $("#modalCreateAccountability").modal('hide');
-                            dataTable.draw();
+                            var file = document.getElementById("file-1").files;
+                            if (file.length > 0) {
+                                var dt = new Date();
+                                var time = dt.getHours() + "" + dt.getMinutes() + "" + dt.getSeconds() + "" + dt.getDay() + "" + dt.getMonth() + "" + dt.getYear();
+                                preloaderTwo("Guardando documentos del beneficiarios, por favor espere..!");
+                                var storageRef = firebase.storage().ref();                                    
+                                var id_accountability = data.accountability_id;
+                                var ext = '.'+file[0].name.split('.').pop();
+                                var new_name = id_accountability+'_'+time+'_'+ext;
+                                var path = 'beneficiaries/'+new_name;
+                                var name_file = file[0].name;
+                                                    
+                                var uploadTask = storageRef.child(path).put(file[0]);
+                                uploadTask.on('state_changed', function(snapshot) {
+                                    var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                                    console.log('Upload is ' + progress + '% done');
+                                    switch (snapshot.state) {
+                                        case firebase.storage.TaskState.PAUSED: // or 'paused'
+                                            console.log('Upload is paused');
+                                            break;
+                                        case firebase.storage.TaskState.RUNNING: // or 'running'
+                                            console.log('Upload is running');
+                                            break;
+                                    }
+                                },
+                                function(error) {
+                                    // Handle unsuccessful uploads
+                                }, function() {
+
+                                    uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {                        
+                                         $.post(MODEL, {
+                                            "method": 'updateFileBeneficiarie',
+                                            "id_accountability": id_accountability,
+                                            "name": name_file,
+                                            "path": path,
+                                            "url": downloadURL
+                                            },function(response) {
+                                                if (response.code == 440) {
+                                                    loginTimeout(response.message);
+                                                    return;
+                                                } else if (response.code == 200) {
+                                                    // preloader("hide","La rendición de cuenta y la lista de beneficiarios fue guardada con éxito..!","success");
+                                                    preloader("hide",data.message,'success');
+                                                    $("#modalCreateAccountability").modal('hide');
+                                                    dataTable.ajax.reload();
+                                                } else if (response.code == 204) {    
+                                                    storageRef.child(path).delete();                         
+                                                    preloader('hide', response.message, 'error');
+                                                }
+                                        }, "json");                                    
+                                         
+                                    });
+                                });
+                            }else{
+                                // preloader("hide","La rendición de cuenta fue guardada con éxito..!","success");
+                                preloader("hide",data.message,'success');
+                                $("#modalCreateAccountability").modal('hide');
+                                dataTable.ajax.reload(); 
+                            }
                         }
                         if(data.code == 204){
                             preloader("hide",data.message,'error');
@@ -344,7 +402,7 @@ var accountabilityController = {
             .on( 'blur', function(){ $input.removeClass('has-focus'); });
         }); 
 
-         // Validar y Previsualizar la imagen
+         // Validar y Previsualizar la imagen 1
         $("#file-1").change(function(event) { //validar que sea imagen
             console.log('imagen change');
             var fileInput = document.getElementById('file-1');
@@ -363,89 +421,197 @@ var accountabilityController = {
             });
         });
 
-         //////////////////////////////////////////////////////////////////
-        $('#accountabilityDataTable tbody').on('click', '.button_uploadBeneficiaries', function () {
-            var $tr = $(this).closest('tr');
-            var data = dataTable.row($(this).parents($tr)).data();
-            var id = data[0];
-            // console.log(data[0])
-            $('#modalAddBeneficiaries').modal({
-                backdrop: 'static',
-                keyboard: false
-            });
-           $('#add_id_accountability').val(id);
+        $("#accountability_photos").on('change', function () {
+            if(this.files.length>10){
+                Swal.fire('No pueden ser mas de 10 archivos');
+            }
+            else {
+                //Get count of selected files
+                var files = $(this)[0].files;
+
+                var imgPath = $(this)[0].value;
+                var extn = imgPath.substring(imgPath.lastIndexOf('.') + 1).toLowerCase();
+                var div = $("#lista");
+                var image_holder = $("#lista");
+                image_holder.empty();
+            
+                if (extn == "gif" || extn == "png" || extn == "jpg" || extn == "jpeg" || extn == "pdf" || extn == "doc" || extn == "docx") {
+                    if (typeof (FileReader) != "undefined") {
+            
+                        //loop for each file selected for uploaded.
+                        for (var i = 0; i < files.length; i++) {
+                           console.log(files[i].name+'_'+Date.now())
+                           // var xx = ;
+                            var reader = new FileReader();
+                            
+                            if (extn == "pdf" || extn == "doc" || extn == "docx") {
+                                // reader.onload = function (e) {
+                                    $(`<div class="col-md-3 text-center"><img src="../assets/img/file.png" class="rounded img-fluid" style="height:150px;width:150px"><br><small>${files[i].name}</small></div>`).appendTo(image_holder);
+                                // }
+                            }else{
+                               reader.onload = function (e) {
+                                    $("<img />", {
+                                        "src": e.target.result,
+                                            "class": "col-md-3 rounded img-fluid",
+                                            "style": "height:150px;width:150px"
+                                    }).appendTo(image_holder);
+                                } 
+                            }
+                            
+            
+                            image_holder.show();
+                            reader.readAsDataURL($(this)[0].files[i]);
+                        }
+            
+                    }
+                } else {
+                    Swal.fire("Por favor seleccione un archivo");
+                }
+
+            }
+        });
+
+        /////////////////////////////////////////////////////////////
+        $("#comprobante_restitucion_fondos").on('change', function () {
+            if(this.files.length>1){
+                Swal.fire('No pueden ser mas de 1 archivo');
+            }
+            else {
+                //Get count of selected files
+                var files = $(this)[0].files;
+
+                var imgPath = $(this)[0].value;
+                var extn = imgPath.substring(imgPath.lastIndexOf('.') + 1).toLowerCase();
+                var div = $("#lista_2");
+                var image_holder = $("#lista_2");
+                image_holder.empty();
+            
+                if (extn == "gif" || extn == "png" || extn == "jpg" || extn == "jpeg" || extn == "pdf" || extn == "doc" || extn == "docx") {
+                    if (typeof (FileReader) != "undefined") {
+            
+                        //loop for each file selected for uploaded.
+                        for (var i = 0; i < files.length; i++) {
+                           console.log(files[i].name+'_'+Date.now())
+                           // var xx = ;
+                            var reader = new FileReader();
+                            
+                            if (extn == "pdf" || extn == "doc" || extn == "docx") {
+                                // reader.onload = function (e) {
+                                    $(`<div class="col-md-3 text-center"><img src="../assets/img/file.png" class="rounded img-fluid" style="height:150px;width:150px"><br><small>${files[i].name}</small></div>`).appendTo(image_holder);
+                                // }
+                            }else{
+                                reader.onload = function (e) {
+                                    $("<img />", {
+                                        "src": e.target.result,
+                                            "class": "col-md-3 rounded img-fluid",
+                                            "style": "height:150px;width:150px"
+                                    }).appendTo(image_holder);
+                                } 
+                            }
+            
+                            image_holder.show();
+                            reader.readAsDataURL($(this)[0].files[i]);
+                        }
+            
+                    }
+                } else {
+                    Swal.fire("Por favor seleccione un archivo");
+                }
+            }
         });
 
         //////////////////////////////////////////////////////////////////
         $('#accountabilityDataTable tbody').on('click', '.button_uploadDocumentation', function () {
+            accountabilityController.clean();
             var $tr = $(this).closest('tr');
             var data = dataTable.row($(this).parents($tr)).data();
             var id = data[0];
-            console.log(data[0])
+             
+            $('#titleAddDocumentation').html('Subir Archivos');
             $('#modalAddDocumentation').modal({
                 backdrop: 'static',
                 keyboard: false
             });
-           $('#add_id_accountability1').val(id);
+           $('#add_id_accountability').val(id);
+           
         });
+
+        //////////////////////////////////////////////////////////////////
+        $('#accountabilityDataTable tbody').on('click', '.button_viewDocumentation', function () {
+            var $tr = $(this).closest('tr');
+            var data = dataTable.row($(this).parents($tr)).data();
+            var id = data[0];
+            console.log(data[0])
+           accountabilityController.viewDocuments(id);
+           
+        });
+        
 
         ///////////////////////////////////////////////////////////////////
-        $('#btnSaveBeneficiarie').click(function (e) {
+        $('#btnSaveDocumentation').click(function (e) {
             e.preventDefault();
-            var dt = new Date();
-            var time = dt.getHours() + "" + dt.getMinutes() + "" + dt.getSeconds() + "" + dt.getDay() + "" + dt.getMonth() + "" + dt.getYear();
-            preloaderTwo("Guardando documentos del beneficiarios, por favor espere..!");
-          
-            var storageRef = firebase.storage().ref();
-            var file = document.getElementById("file-1").files;
+            var isset = 0;
             var id_accountability = $('#add_id_accountability').val();
-            var ext = '.'+file[0].name.split('.').pop();
-            var new_name = id_accountability+'_'+time+'_'+ext;
-            var path = 'beneficiaries/'+new_name;
-            var name_file = file[0].name;
-                                
-            var uploadTask = storageRef.child(path).put(file[0]);
-            uploadTask.on('state_changed', function(snapshot) {
-                var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                console.log('Upload is ' + progress + '% done');
-                switch (snapshot.state) {
-                    case firebase.storage.TaskState.PAUSED: // or 'paused'
-                        console.log('Upload is paused');
-                        break;
-                    case firebase.storage.TaskState.RUNNING: // or 'running'
-                        console.log('Upload is running');
-                        break;
-                }
-            },
-            function(error) {
-                // Handle unsuccessful uploads
-            }, function() {
+            var file = document.getElementById("accountability_photos").files;
+            uploadDocuments(id_accountability, function (response) {
+                if (file.length > 0) {                    
+                    preloaderTwo("Guardando documentos del beneficiarios, por favor espere..!");
+                    var storageRef = firebase.storage().ref();                                          
+                    $.each(file, function( key, value ) {
+                        console.log('KEY: '+key)
+                        var dt = new Date();
+                        var time = dt.getHours() + "" + dt.getMinutes() + "" + dt.getSeconds() + "" + dt.getDay() + "" + dt.getMonth() + "" + dt.getYear();
+                        var ext = '.'+value.name.split('.').pop();
+                        var new_name = id_accountability+'-'+time+'_'+key+ext;
+                        var path = 'photos/'+new_name;
+                        var name_file = value.name;
 
-                uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {                        
-                     $.post(MODEL, {
-                        "method": 'updateFileBeneficiarie',
-                        "id_accountability": id_accountability,
-                        "name": name_file,
-                        "path": path,
-                        "url": downloadURL
-                        },function(response) {
-                            if (response.code == 440) {
-                                loginTimeout(response.message);
-                                return;
-                            } else if (response.code == 200) {
-                                preloader('hide', response.message, 'success');
-                                $('#modalAddBeneficiaries').modal('hide');
-                                dataTable.ajax.reload();
-                            } else if (response.code == 204) {    
-                                storageRef.child(path).delete();                         
-                                preloader('hide', response.message, 'error');
-                            }
-                    }, "json");                                    
-                     
-                });
+                        var uploadTask = storageRef.child(path).put(file[key]);                                
+
+                        uploadTask.on('state_changed', function(snapshot){
+                        }, function(error) {
+                            console.log(error);
+                        }, function() {
+                            uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+                                var parametros = {
+                                    "method": "saveImagesFiles",
+                                    "id_accountability": id_accountability,
+                                    "name": name_file,
+                                    "path": path,
+                                    "url": downloadURL,
+                                    "type": 3,
+                                };
+                                $.post(MODEL, parametros, function(data2) {
+                                    if(data2.path != ''){
+                                        var desertRef = storageRef.child(data2.path);
+                                        desertRef.delete().then(function() {
+                                        }).catch(function(error) {
+                                        });
+                                    }
+                                },'json');
+
+                                if (key+1 === file.length) { ///terminó el ciclo each
+                                    preloader("hide","La subvencion y los documentos fueron guardados con éxito..!","success");
+                                    $("#modalAddDocumentation").modal('hide');
+                                    dataTable.ajax.reload();
+                                }
+                            });
+                        });
+                    });
+                }
+                else{
+                    if(response == 1){
+                        preloader("hide","Las fotografias y el comprobante fueron guardados con éxito..!","success");
+                        $("#modalAddDocumentation").modal('hide');
+                        dataTable.ajax.reload(); 
+                    } else {
+                        preloader("hide","El comprobante fue guardado con éxito..!","success");
+                        $("#modalAddDocumentation").modal('hide');
+                        dataTable.ajax.reload(); 
+                    }
+                }    
             });
         });
-
         
     },
     edit: function(id) {
@@ -473,6 +639,7 @@ var accountabilityController = {
                     $("#add_balance").val(data.balance);
                     $("#add_date_surrender_income").val(data.date_admission);
                     $('#invoices').html(data.invoices);
+                    $(".previsualizar1").attr("src", data.beneficiarie_url);
                     $('#titleModelAccountability').html('Editar Rendición');
                     
                     $('#modalCreateAccountability').modal({
@@ -487,6 +654,41 @@ var accountabilityController = {
                 }
                 if (data.code == 440) {
                     $("#modalCreateAccountability").modal("hide");
+                    loginTimeout();
+                }
+            },
+            "json"
+        );
+    },
+    viewDocuments: function (id) {
+        accountabilityController.clean();
+        
+        var dt = { method: 'viewDocuments', id: id };
+        preloader('show');
+        $.post(MODEL, dt,
+            function(data) {
+                if (data.code == 200) {
+                    preloader('hide');
+                    $("#id_accountability").val(data.id_accountability);
+                    $('.button-cargar').css('display', 'none');
+                    $('#btnSaveDocumentation').css('display', 'none');
+                    $('#lista').html(data.images);
+                    $('#lista_2').html(data.documents);                    
+
+                    $('#titleAddDocumentation').html('Ver documentos Rendición');
+                    
+                     $('#modalAddDocumentation').modal({
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+
+                }
+                if(data.code == 204){
+                    $("#modalAddDocumentation").modal("hide");
+                    preloader("hide",data.message,'error');
+                }
+                if (data.code == 440) {
+                    $("#modalAddDocumentation").modal("hide");
                     loginTimeout();
                 }
             },
@@ -564,7 +766,13 @@ var accountabilityController = {
         $("#add_date_surrender_income").val("");
 
         $('#invoices').html('');
-    },
+
+        //
+        $('.button-cargar').css('display', 'block');
+        $('#btnSaveDocumentation').css('display', 'block');
+        $('#lista').html('');
+        $('#lista_2').html('');
+    }
 };
 
 $(function() {
@@ -572,6 +780,76 @@ $(function() {
     accountabilityController.events();
 });
 
+function uploadDocuments(id_accountability, callback) {
+    var isset = 0;
+    $(".input_file").each(function( index, value ) {
+        console.log(value)
+        if(value.files[0] !== undefined){
+            isset++;
+        }
+    });
+    // console.log(isset)
+    if (isset > 0) {
+        preloaderTwo("Guardando documentos, por favor espere..!");
+        var storageRef = firebase.storage().ref();
+        var count = 0;
+        $(".input_file").each(function( index, value ) {
+            if(value.files[0] !== undefined){
+                var dt = new Date();
+                var time = dt.getHours() + "" + dt.getMinutes() + "" + dt.getSeconds() + "" + dt.getDay() + "" + dt.getMonth() + "" + dt.getYear();
+                var ext = '.'+value.files[0].name.split('.').pop();
+                var new_name = id_accountability+'_'+time+'_'+ext;
+                var path = 'comprobantes/'+new_name;
+                
+                var uploadTask = storageRef.child(path).put(value.files[0]);
+                uploadTask.on('state_changed', function(snapshot){
+                    var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    console.log('Upload is ' + progress + '% done');
+                    switch (snapshot.state) {
+                        case firebase.storage.TaskState.PAUSED: // or 'paused'
+                            console.log('Upload is paused');
+                        break;
+                        case firebase.storage.TaskState.RUNNING: // or 'running'
+                            console.log('Upload is running');
+                        break;
+                    }
+                }, function(error) {
+                    console.log(error);
+                    //$('#file_foto').val('');
+                    preloader("hide","Ha ocurrido un error, intente nuevamente...",'warning');
+                }, function() {
+                    uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+                        var parametros = {
+                            "method": "saveDocumentFiles",
+                            "id_accountability": id_accountability,
+                            "related": value.id,
+                            "name": value.files[0].name,
+                            "path": path,
+                            "url": downloadURL,
+                            "type": 2,
+                        };
+                        $.post(MODEL, parametros, function(data2) {
+                            if(data2.path != ''){
+                                var desertRef = storageRef.child(data2.path);
+                                desertRef.delete().then(function() {
+                                }).catch(function(error) {
+                                });
+                            }
+                        },'json');
+
+                        count++;
+
+                        if (count === isset) { ///terminó el ciclo each
+                            callback(1);
+                        }                                  
+                    });
+                });
+            }
+        });
+    } else {
+        callback(0);
+    }
+}
 
 document.addEventListener("DOMContentLoaded", function(event) {
 
