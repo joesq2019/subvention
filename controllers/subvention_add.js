@@ -2,7 +2,7 @@ var MODEL = '../models/subvention_model.php';
 var dataTable = '';
 var formCreateSubvention = $("#formCreateSubvention");
 var action_subvention = sessionStorage.getItem('action');
-var id_subvention = sessionStorage.getItem('id');
+var id_subvention = sessionStorage.getItem('id_subvention');
 
 var subventionAddController = {
     init: () => {
@@ -55,7 +55,7 @@ var subventionAddController = {
                 $(element).removeClass('is-invalid');
             }
         });
-         $(".month_list").datepicker( {
+        $(".month_list").datepicker( {
             format: "mm-yyyy",
             startView: "months", 
             minViewMode: "months"
@@ -323,14 +323,14 @@ var subventionAddController = {
                             
                             if (extn == "pdf" || extn == "doc" || extn == "docx") {
                                 // reader.onload = function (e) {
-                                    $(`<div class="col-md-3 text-center"><img src="../assets/img/file.png" class="rounded img-fluid" style="height:150px;width:150px"><br><small>${files[i].name}</small></div>`).appendTo(image_holder);
+                                    $(`<div class="col-md-3 text-center"><img src="../assets/img/file.png" class="rounded img-fluid" style="height:75px;width:75px"><br><small>${files[i].name}</small></div>`).appendTo(image_holder);
                                 // }
                             }else{
                                reader.onload = function (e) {
                                     $("<img />", {
                                         "src": e.target.result,
                                             "class": "col-md-3 rounded img-fluid",
-                                            "style": "height:150px;width:150px"
+                                            "style": "height:75px;width:75px"
                                     }).appendTo(image_holder);
                                 } 
                             }
@@ -348,17 +348,31 @@ var subventionAddController = {
             }
         });
 
-        var i=1;
+        var i1 = 1;
+        var i2 = 100;
         $('#add').click(function(){
-            i++;
-            $('#dynamic_field').append(
-                `<tr id="row${i}" class="dynamic_field">
-                <td><input type="text" name="inputDetails_${i}" id="inputDetails_${i}" placeholder="Detalle inversión 1" class="form-control inner_form detalle_list" /></td>
-                <td><input type="number" name="inputUnityPrice_${i}" id="inputUnityPrice_${i}" data-op="${i}" placeholder="Precio unitario" class="form-control inner_form " /></td>
-                <td><input type="number" name="inputQuantity_${i}" id="inputQuantity_${i}" data-op="${i}" placeholder="Cantidad" class="form-control inner_form quantity_list" /></td>
-                <td><input type="text" name="inputTotalPrice_${i}" id="inputTotalPrice_${i}" data-op="${i}" placeholder="Precio Total" class="form-control inner_form total_price_list" readonly="" /></td>
-                <td><button type="button" name="remove" id="${i}" class="btn btn-danger btn_remove">X</button></td>
-                </tr>`);           
+            if (action_subvention == 2) {
+                i2++;
+                $('#dynamic_field').append(
+                `<tr id="row${i2}" class="dynamic_field">
+                <td><input type="text" name="inputDetails_${i2}" id="inputDetails_${i2}" placeholder="Detalle inversión 1" class="form-control inner_form detalle_list" /></td>
+                <td><input type="number" name="inputUnityPrice_${i2}" id="inputUnityPrice_${i2}" data-op="${i2}" placeholder="Precio unitario" class="form-control inner_form " /></td>
+                <td><input type="number" name="inputQuantity_${i2}" id="inputQuantity_${i2}" data-op="${i2}" placeholder="Cantidad" class="form-control inner_form quantity_list" /></td>
+                <td><input type="text" name="inputTotalPrice_${i2}" id="inputTotalPrice_${i2}" data-op="${i2}" placeholder="Precio Total" class="form-control inner_form total_price_list" readonly="" /></td>
+                <td><button type="button" name="remove" id="${i2}" class="btn btn-danger btn_remove">X</button></td>
+                </tr>`);
+            }else{
+                i1++;
+                $('#dynamic_field').append(
+                `<tr id="row${i1}" class="dynamic_field">
+                <td><input type="text" name="inputDetails_${i1}" id="inputDetails_${i1}" placeholder="Detalle inversión 1" class="form-control inner_form detalle_list" /></td>
+                <td><input type="number" name="inputUnityPrice_${i1}" id="inputUnityPrice_${i1}" data-op="${i1}" placeholder="Precio unitario" class="form-control inner_form " /></td>
+                <td><input type="number" name="inputQuantity_${i1}" id="inputQuantity_${i1}" data-op="${i1}" placeholder="Cantidad" class="form-control inner_form quantity_list" /></td>
+                <td><input type="text" name="inputTotalPrice_${i1}" id="inputTotalPrice_${i1}" data-op="${i1}" placeholder="Precio Total" class="form-control inner_form total_price_list" readonly="" /></td>
+                <td><button type="button" name="remove" id="${i1}" class="btn btn-danger btn_remove">X</button></td>
+                </tr>`);  
+            }
+         
         });
         
         $(document).on('click', '.btn_remove', function(){
@@ -401,22 +415,39 @@ var subventionAddController = {
             $('#inputTotalSumBene').val(total_suma);
         });
 
-        var j = 0;
+        var j1 = 1;
+        var j2 = 100;
 
         $('#add_act').click(function(){
-            j++;
-            $('#dynamic_activities').append(
-                `<tr id="row${j}" class="dynamic_activities">
-                <td class="col-md-8"><input type="text" name="inputActivity_${j}" id="inputActivity_${j}" data-op="${j}" placeholder="Descripción de actividad" class="form-control inner_form activity_list" /></td>
-                <td><input type="text" name="inputMonthAct_${j}" id="inputMonthAct_${j}" data-op="${j}" placeholder="Mes" class="form-control inner_form month_list" /></td>
-                <td><button type="button" name="remove" id="${j}" class="btn btn-danger btn_remove_act">X</button></td>
-                </tr>`);
+            if (action_subvention == 2) {
+                j2++;
+                $('#dynamic_activities').append(
+                    `<tr id="row${j2}" class="dynamic_activities">
+                    <td class="col-md-8"><input type="text" name="inputActivity_${j2}" id="inputActivity_${j2}" data-op="${j2}" placeholder="Descripción de actividad" class="form-control inner_form activity_list" /></td>
+                    <td><input type="text" name="inputMonthAct_${j2}" id="inputMonthAct_${j2}" data-op="${j2}" placeholder="Mes" class="form-control inner_form month_list" /></td>
+                    <td><button type="button" name="remove" id="${j2}" class="btn btn-danger btn_remove_act">X</button></td>
+                    </tr>`);
 
-            $(".month_list").datepicker( {
-                format: "mm-yyyy",
-                startView: "months", 
-                minViewMode: "months"
-            });           
+                $(".month_list").datepicker( {
+                    format: "mm-yyyy",
+                    startView: "months", 
+                    minViewMode: "months"
+                }); 
+            }else{
+                j1++;
+                $('#dynamic_activities').append(
+                    `<tr id="row${j1}" class="dynamic_activities">
+                    <td class="col-md-8"><input type="text" name="inputActivity_${j1}" id="inputActivity_${j1}" data-op="${j1}" placeholder="Descripción de actividad" class="form-control inner_form activity_list" /></td>
+                    <td><input type="text" name="inputMonthAct_${j1}" id="inputMonthAct_${j1}" data-op="${j1}" placeholder="Mes" class="form-control inner_form month_list" /></td>
+                    <td><button type="button" name="remove" id="${j1}" class="btn btn-danger btn_remove_act">X</button></td>
+                    </tr>`);
+
+                $(".month_list").datepicker( {
+                    format: "mm-yyyy",
+                    startView: "months", 
+                    minViewMode: "months"
+                }); 
+            }
         });
 
         $(document).on('click', '.btn_remove_act', function(){
@@ -476,6 +507,7 @@ var subventionAddController = {
             event.preventDefault();
 
             if ($("#formCreateSubvention").valid()) {
+                $("#btnSavedSubvention").attr('disabled','disabled');//deshabilitar el boton
                 // var form_data = new FormData();
                 // var step3images = document.getElementById('financing_files').files.length;
                 // var step5files = document.getElementById('archivos').files.length;
@@ -500,7 +532,8 @@ var subventionAddController = {
  
                 var dt = {
                     method: 'saveNewSubvention',
-                    id: $('#id_subvention').val() == '' ? 0 : $('#id_subvention').val(),
+                    id_subvention: $('#id_subvention').val() == '' ? 0 : $('#id_subvention').val(),
+                    id_organitation: $('#id_organitation').val() == '' ? 0 : $('#id_organitation').val(),
                     year: $("#inputYearSubvention").val(),
                     organitation:{//Step 1
                         name: $("#inputOrgName").val(),
@@ -557,6 +590,8 @@ var subventionAddController = {
                 $.post(MODEL, dt,
                     function(data) {                      
                         if (data.code == 200) {
+                            console.log("200")
+                            console.log(data)
                             uploadDocuments(data.subvention_id, function (response) {
                                 var file = document.getElementById("financing_files").files;
                                 if (file.length > 0) {
@@ -565,8 +600,12 @@ var subventionAddController = {
 
                                     $.each( file, function( key, value ) {
                                         console.log('KEY: '+key)
+
+                                        var randonfunction = (min, max) => Math.floor(Math.random() * (max - min)) + min;
+                                        var numero = randonfunction(10000, 99999);
+
                                         var ext = '.'+value.name.split('.').pop();
-                                        var new_name = data.subvention_id+'-'+key+ext;
+                                        var new_name = data.subvention_id+'-'+key+'-'+numero+ext;
                                         var path = 'financing/'+new_name;
                                         var name_file = value.name;
 
@@ -585,12 +624,12 @@ var subventionAddController = {
                                                     "url": downloadURL
                                                 };
                                                 $.post(MODEL, parametros, function(data2) {
-                                                    if(data2.path != ''){
+                                                    /*if(data2.path != ''){
                                                         var desertRef = storageRef.child(data2.path);
                                                         desertRef.delete().then(function() {
                                                         }).catch(function(error) {
                                                         });
-                                                    }
+                                                    }*/
                                                 },'json');
 
                                                 if (key+1 === file.length) { ///terminó el ciclo each
@@ -647,7 +686,141 @@ var subventionAddController = {
         });
     },
     edit: function(id) {
-        alert("EDITANDO")
+        //$( "#financing_files" ).rules( "add", { required: false });
+        //$( "#add_repeat_password" ).rules( "add", { required: false });
+        $(".btn-next-4").hide();//hide siguiente
+        $("#btnSavedSubventionEdit").show(); //show guardar
+        $("#wizard5-tab").remove();
+
+        $('#id_subvention').val(id);
+        var parametros = {
+            "method": "findSubvention",
+            "id": id
+        };
+        $.post(MODEL, parametros, function(data) {
+            console.log(data)
+            $('#id_organitation').val(data.subvention_data.id_organitation);
+
+            //paso 1
+            $("#inputYearSubvention").val(data.subvention_data.year);
+            $("#inputOrgName").val(data.subvention_data.name);
+            $("#inputOrgRut").val(data.subvention_data.name);
+            $("#inputAddress").val(data.subvention_data.address);
+            $("#inputEmailAddress").val(data.subvention_data.email);
+            $("#inputPhone").val(data.subvention_data.phone);
+            $("#inputProName").val(data.subvention_data.name_proyect);
+            $("#inputProObj").val(data.subvention_data.objetive_proyect);
+            //paso 1
+
+            //paso 2
+            $("#id_presidente").val(data.members_data[0].id);
+            $("#inputRepreName1").val(data.members_data[0].name);
+            $("#inputRepreAddress1").val(data.members_data[0].address);
+            $("#inputReprePhone1").val(data.members_data[0].phone);
+
+            $("#id_vicepresidente").val(data.members_data[1].id);
+            $("#inputRepreName2").val(data.members_data[1].name);
+            $("#inputRepreAddress2").val(data.members_data[1].address);
+            $("#inputReprePhone2").val(data.members_data[1].phone);
+
+            $("#id_secretario").val(data.members_data[2].id);
+            $("#inputRepreName3").val(data.members_data[2].name);
+            $("#inputRepreAddress3").val(data.members_data[2].address);
+            $("#inputReprePhone3").val(data.members_data[2].phone);
+            
+            $("#id_tesorero").val(data.members_data[3].id);
+            $("#inputRepreName4").val(data.members_data[3].name);
+            $("#inputRepreAddress4").val(data.members_data[3].address);
+            $("#inputReprePhone4").val(data.members_data[3].phone);
+            //paso 2
+
+            //paso 3
+            var image_holder = $("#listaEdit");
+            $.each(data.financing_files_data, function( index, value ) {
+                $(`<div class="col-md-2 text-center"><i class="fas fa-trash-alt delete_financing_file" title="Eliminar archivo" data-id="${value.id}" style="font-size: 25px; cursor: pointer; color: black; position: relative; top: -30px; left: 85px;"></i><img src="../assets/img/file.png" class="rounded img-fluid" style="height:75px;width:75px"><br><small>${value.name}</small></div>`).appendTo(image_holder);
+            });
+
+            $("#inputDetails_1").val(data.financing_details_data[0].details);
+            $("#inputUnityPrice_1").val(data.financing_details_data[0].unit_price);
+            $("#inputQuantity_1").val(data.financing_details_data[0].quantity);
+            $("#inputTotalPrice_1").val(data.financing_details_data[0].total_price);
+
+            $("#inputCantCompras").val(data.subvention_data.quantity_purchases);
+            $("#inputOrgAmount").val(data.subvention_data.organization_contribution);
+
+            $("#inputDirectAmount").val(data.subvention_data.amount_direct);
+            $("#inputIndirectAmount").val(data.subvention_data.amount_indirect);
+            $("#inputTotalSumBene").val(data.subvention_data.total_beneficiaries);
+
+            var number_input = 2;
+            $.each(data.financing_details_data, function( index, value ) {
+                if(index > 0){
+                    $('#dynamic_field').append(
+                    `<tr id="row${number_input}" class="dynamic_field">
+                    <td>
+                        <input type="text" name="inputDetails_${number_input}" id="inputDetails_${number_input}" placeholder="Detalle inversión 1" class="form-control inner_form detalle_list" value="${value.details}"/>
+                    </td>
+                    <td>
+                        <input type="number" name="inputUnityPrice_${number_input}" id="inputUnityPrice_${number_input}" data-op="${number_input}" placeholder="Precio unitario" class="form-control inner_form"  value="${value.unit_price}"/>
+                    </td>
+                    <td>
+                        <input type="number" name="inputQuantity_${number_input}" id="inputQuantity_${number_input}" data-op="${number_input}" placeholder="Cantidad" class="form-control inner_form quantity_list"  value="${value.quantity}"/>
+                    </td>
+                    <td>
+                        <input type="text" name="inputTotalPrice_${number_input}" id="inputTotalPrice_${number_input}" data-op="${number_input}" placeholder="Precio Total" class="form-control inner_form total_price_list" readonly="" value="${value.total_price}" />
+                    </td>
+                    <td>
+                        <button type="button" name="remove" id="${number_input}" class="btn btn-danger btn_remove">X</button>
+                    </td>
+                    </tr>`);
+                    number_input++;
+                }
+            });
+
+            var inputs = $(".total_price_list");
+            var tot = 0;
+            for(var i = 0; i < inputs.length; i++){
+                tot += parseFloat($(inputs[i]).val());                
+            }
+            $('#inputTotalSumPrice').val(tot);
+
+            setTimeout(function(){
+                subventionAddController.eventsDinamic();
+            },1000);            
+            //paso 3
+
+
+            //paso 4
+            $("#inputCantActivities").val(data.subvention_data.quantity_activities);
+
+            $("#inputActivity_1").val(data.schedule_data[0].activities);
+            $("#inputMonthAct_1").val(data.schedule_data[0].month);
+
+            var number_input_schedule = 2;
+            $.each(data.schedule_data, function( index, value ) {
+                if(index > 0){
+                    $('#dynamic_activities').append(
+                    `<tr id="row${number_input_schedule}" class="dynamic_activities">
+                    <td class="col-md-8">
+                        <input type="text" name="inputActivity_${number_input_schedule}" id="inputActivity_${number_input_schedule}" data-op="${number_input_schedule}" placeholder="Descripción de actividad" class="form-control inner_form activity_list" value="${value.activities}"/>
+                    </td>
+                    <td>
+                        <input type="text" name="inputMonthAct_${number_input_schedule}" id="inputMonthAct_${number_input_schedule}" data-op="${number_input_schedule}" placeholder="Mes" class="form-control inner_form month_list" value="${value.month}"/>
+                    </td>
+                    <td>
+                        <button type="button" name="remove" id="${number_input_schedule}" class="btn btn-danger btn_remove_act">X</button>
+                    </td>
+                    </tr>`);
+                    number_input_schedule++;
+                }
+            });
+            $(".month_list").datepicker( {
+                format: "mm-yyyy",
+                startView: "months", 
+                minViewMode: "months"
+            }); 
+            //paso 4
+        },'json');
     },
     deleted: function (id){
 
@@ -718,6 +891,192 @@ var subventionAddController = {
         $( "#add_password" ).rules( "add", { required: true });
         $( "#add_repeat_password" ).rules( "add", { required: true }); 
     },
+    eventsDinamic: function() {
+        $(".delete_financing_file").click(function(){
+            event.preventDefault();
+            var id_file = $(this).data('id');
+            var element = $(this);
+            Swal.fire({
+                title: "Estas seguro de realizar esta accion?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Sí, Hazlo!",
+                cancelButtonText: 'Cancelar!',
+            }).then(result => {
+                if (result.value) {
+                    preloader("show");
+                    var parametros = {
+                        "method": "deleteFinancingFile",
+                        "id_file": id_file,
+                    };
+                    $.post(MODEL, parametros, function(data) {
+                        console.log(data)
+                        if (data.code == 200) {
+                            element.parents("div:first").remove();
+                            var storageRef = firebase.storage().ref();
+                            var desertRef = storageRef.child(data.path);
+                            console.log(data.path)
+                            desertRef.delete().then(function() {
+                            }).catch(function(error) {
+                            });
+                            preloader("hide", data.message, 'success');
+                        }
+                        if(data.code == 204){
+                            preloader("hide",data.message,'error');
+                        }
+                        if(data.code == 440) {
+                            loginTimeout();
+                        }
+                    },'json');
+                }
+            });
+        });
+
+        $("#btnSavedSubventionEdit").click(function(event){
+            event.preventDefault();
+            if ($("#formCreateSubvention").valid()) {
+                $("#btnSavedSubventionEdit").attr('disabled','disabled');//deshabilitar el boton
+                var financing_array = [];
+                $( ".dynamic_field" ).each(function( index ) {
+                    var inputs_data = $(this).find(":input").serializeArray();
+                    financing_array.push(inputs_data);
+                });
+
+                var activities_array = [];
+                $( ".dynamic_activities" ).each(function( index ) {
+                    var inputs_data = $(this).find(":input").serializeArray();
+                    activities_array.push(inputs_data);
+                });
+ 
+                var dt = {
+                    method: 'saveNewSubvention',
+                    id_subvention: $('#id_subvention').val() == '' ? 0 : $('#id_subvention').val(),
+                    id_organitation: $('#id_organitation').val() == '' ? 0 : $('#id_organitation').val(),
+                    year: $("#inputYearSubvention").val(),
+                    organitation:{//Step 1
+                        name: $("#inputOrgName").val(),
+                        rut: $("#inputOrgRut").val(),
+                        address: $("#inputAddress").val(),
+                        email: $("#inputEmailAddress").val(),
+                        phone: $("#inputPhone").val()
+                    },
+                    name_proyect: $("#inputProName").val(),
+                    objetive_proyect: $("#inputProObj").val(),
+                    beneficiarios:[ //Step 2
+                        {// 1
+                            type:$("#type1").val(),
+                            name:$("#inputRepreName1").val(),
+                            address:$("#inputRepreAddress1").val(),
+                            phone: $("#inputReprePhone1").val()
+                        },
+                        {// 2
+                            type:$("#type2").val(),
+                            name:$("#inputRepreName2").val(),
+                            address:$("#inputRepreAddress2").val(),
+                            phone: $("#inputReprePhone2").val()
+                        },
+                        {// 3
+                            type:$("#type3").val(),
+                            name:$("#inputRepreName3").val(),
+                            address:$("#inputRepreAddress3").val(),
+                            phone: $("#inputReprePhone3").val()
+                        },
+                        {// 4
+                            type:$("#type4").val(),
+                            name:$("#inputRepreName4").val(),
+                            address:$("#inputRepreAddress4").val(),
+                            phone: $("#inputReprePhone4").val()
+                        }         
+                    ],
+                    //Step 3
+                    
+                    quantity_purchases: $('#inputCantCompras').val(),
+                    financing: financing_array,          
+                    amount_organitation: $('#inputOrgAmount').val(),   
+                    total_sum_price: $('#inputTotalSumPrice').val(), 
+                    amount_direct: $('#inputDirectAmount').val(),   
+                    amount_indirect: $('#inputIndirectAmount').val(),   
+                    total_sum_bene: $('#inputTotalSumBene').val(),
+                    //Step 4
+                    quantity_activities: $('#inputCantActivities').val(),  
+                    activities: activities_array,
+                    // Step 5
+                    // files: form_data, // archivos tanto del step 3 como del step 5
+                };
+                console.log(dt);
+                // preloader("show");
+                $.post(MODEL, dt,
+                    function(data) {                      
+                        if (data.code == 200) {
+                            var file = document.getElementById("financing_files").files;
+                            if (file.length > 0) {
+                                preloaderTwo("Guardando documentos del financiamiento, por favor espere..!");
+                                var storageRef = firebase.storage().ref();                            
+
+                                $.each( file, function( key, value ) {
+                                    console.log('KEY: '+key)
+
+                                    var randonfunction = (min, max) => Math.floor(Math.random() * (max - min)) + min;
+                                    var numero = randonfunction(10000, 99999);
+
+                                    var ext = '.'+value.name.split('.').pop();
+                                    var new_name = data.subvention_id+'-'+key+'-'+numero+ext;
+                                    var path = 'financing/'+new_name;
+                                    var name_file = value.name;
+
+                                    var uploadTask = storageRef.child(path).put(file[key]);                                
+
+                                    uploadTask.on('state_changed', function(snapshot){
+                                    }, function(error) {
+                                        console.log(error);
+                                    }, function() {
+                                        uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+                                            var parametros = {
+                                                "method": "saveFinancingFiles",
+                                                "subvention_id": data.subvention_id,
+                                                "name": name_file,
+                                                "path": path,
+                                                "url": downloadURL
+                                            };
+                                            $.post(MODEL, parametros, function(data2) {
+                                                /*if(data2.path != ''){
+                                                    var desertRef = storageRef.child(data2.path);
+                                                    desertRef.delete().then(function() {
+                                                    }).catch(function(error) {
+                                                    });
+                                                }*/
+                                            },'json');
+
+                                            if (key+1 === file.length) { ///terminó el ciclo each
+                                                preloader("hide","La subvencion y los documentos fueron guardados con éxito..!","success");
+                                                setTimeout(function(){
+                                                    window.location.href = 'subvention.php';
+                                                },2000);
+                                            }
+                                        });
+                                    });
+                                });
+                            } else {
+                                preloader("hide","La subvencion fue guardada con éxito..!","success");
+                                setTimeout(function(){
+                                    window.location.href = 'subvention.php';
+                                },2000);
+                            }
+                        }
+                        if(data.code == 204){
+                            preloader("hide",data.message,'error');
+                        }
+                        if (data.code == 440) {
+                            loginTimeout();
+                        }
+                    },
+                    "json"
+                );
+            }
+        });
+    }
 };
 
 $(function() {
@@ -770,12 +1129,12 @@ function uploadDocuments(id_subvention, callback) {
                             "url": downloadURL
                         };
                         $.post(MODEL, parametros, function(data2) {
-                            if(data2.path != ''){
-                                var desertRef = storageRef.child(data2.path);
-                                desertRef.delete().then(function() {
-                                }).catch(function(error) {
-                                });
-                            }
+                            // if(data2.path != ''){
+                            //     var desertRef = storageRef.child(data2.path);
+                            //     desertRef.delete().then(function() {
+                            //     }).catch(function(error) {
+                            //     });
+                            // }
                         },'json');
 
                         count++;

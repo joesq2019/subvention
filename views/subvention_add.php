@@ -2,20 +2,20 @@
 <?php if($obj_function->validarPermiso($_SESSION['permissions'],'subvention_add') OR $obj_function->validarPermiso($_SESSION['permissions'],'subvention_edit')): ?>
  
 <div class="card shadow mb-4">
-	<div class="card-header py-3">
-		<div class="row">
-			<div class="col-md-6">
-				<h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-file-contract"></i> Crear Subvención </h6>
-			</div>
-			<div class="col-md-6">
-				<?php if($obj_function->validarPermiso($_SESSION['permissions'],'subvention_list')): ?>
-					<a href="subvention.php" class="btn btn-primary btn-sm float-right"> <i class="fas fa-arrow-left"></i> Volver </a>
-				<?php endif; ?>
-			</div>
-		</div>	    		
-	</div>
-	<div class="card-body border-bottom-primary">
-	    <form id="formCreateSubvention">
+    <div class="card-header py-3">
+        <div class="row">
+            <div class="col-md-6">
+                <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-file-contract"></i> Crear Subvención </h6>
+            </div>
+            <div class="col-md-6">
+                <?php if($obj_function->validarPermiso($_SESSION['permissions'],'subvention_list')): ?>
+                    <a href="subvention.php" class="btn btn-primary btn-sm float-right"> <i class="fas fa-arrow-left"></i> Volver </a>
+                <?php endif; ?>
+            </div>
+        </div>              
+    </div>
+    <div class="card-body border-bottom-primary">
+        <form id="formCreateSubvention">
 
 
             <div class="card">
@@ -69,7 +69,7 @@
                                     <h5 class="card-title mb-4">Ingresar los datos generales</h5>
                                                             
                                     <div class="row gx-3">
-                                    	<div class="offset-8 col-md-4 mb-0">
+                                        <div class="offset-8 col-md-4 mb-0">
                                             <label class="small mb-1" for="inputBirthday">Año de la subvención</label>
                                             <input class="form-control" id="inputYearSubvention" type="date" name="inputYearSubvention" placeholder="06/10/1988"  required>
                                         </div>
@@ -95,7 +95,7 @@
                                         </div>                            
                                         <div class="col-md-6 mb-md-0">
                                             <label class="small mb-1" for="inputPhone">Teléfono</label>
-                                            <input class="form-control" id="inputPhone" name="inputPhone" type="text" >
+                                            <input class="form-control" id="inputPhone" name="inputPhone" type="text" required>
                                         </div>
                                        
                                     </div>
@@ -111,7 +111,7 @@
                                     <div class="row gx-3">
                                         <div class="mb-3 col-md-12">
                                             <label class="small mb-1" for="inputAddress">Objetivo del proyecto</label>
-                                            <textarea class="form-control" id="inputProObj" name="inputProObj" rows="2" style="resize: none;"></textarea>
+                                            <textarea class="form-control" id="inputProObj" name="inputProObj" required rows="2" style="resize: none;"></textarea>
                                         </div>
                                     </div>                      
 
@@ -129,53 +129,57 @@
                                     <h3 class="text-primary">Paso 2</h3>
                                     <h5 class="card-title mb-4">Ingresar representates de la organización</h5>
                                     <table class="table">
-            							<thead>
-            							    <tr>
-            							      	<th scope="col">#</th>
-            							      	<th scope="col">Nombre Completo</th>
-            							      	<th scope="col">Dirección</th>
-            							      	<th scope="col">Teléfono</th>
-            							    </tr>
-            							</thead>
-            						  	<tbody>
-            							    <tr>
-            							      	<th scope="row">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">#</th>
+                                                <th scope="col">Nombre Completo</th>
+                                                <th scope="col">Dirección</th>
+                                                <th scope="col">Teléfono</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <th scope="row">
                                                     PRESIDENTE
                                                     <input type="hidden" id="type1" value="Presidente">
+                                                    <input type="hidden" id="id_presidente" value="">
                                                 </th>
-            							      	<td><input class="form-control inner_form" id="inputRepreName1" name="inputRepreName1" type="text"></td>
-            							      	<td><textarea class="form-control inner_form" id="inputRepreAddress1" name="inputRepreAddress1" rows="2" style="resize: none;"></textarea></td>
-            							      	<td><input class="form-control inner_form" id="inputReprePhone1" name="inputReprePhone1" type="text"></td>
-            							    </tr>
-            							    <tr>
-            							      	<th scope="row">
+                                                <td><input class="form-control inner_form" id="inputRepreName1" name="inputRepreName1" type="text" required=""></td>
+                                                <td><textarea class="form-control inner_form" id="inputRepreAddress1" name="inputRepreAddress1" rows="2" style="resize: none;" required></textarea></td>
+                                                <td><input class="form-control inner_form" id="inputReprePhone1" name="inputReprePhone1" type="text" required></td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">
                                                     VICEPRESIDENTE
                                                     <input type="hidden" id="type2" value="Vicepresidente">
+                                                    <input type="hidden" id="id_vicepresidente" value="">
                                                 </th>
-            							      	<td><input class="form-control inner_form" id="inputRepreName2" name="inputRepreName2" type="text"></td>
-            							      	<td><textarea class="form-control inner_form" id="inputRepreAddress2" name="inputRepreAddress2" rows="2" style="resize: none;"></textarea></td>
-            							      	<td><input class="form-control inner_form" id="inputReprePhone2" name="inputReprePhone2" type="text"></td>
-            							    </tr>
-            							    <tr>
-            							      	<th scope="row">
+                                                <td><input class="form-control inner_form" id="inputRepreName2" name="inputRepreName2" type="text"></td>
+                                                <td><textarea class="form-control inner_form" id="inputRepreAddress2" name="inputRepreAddress2" rows="2" style="resize: none;"></textarea></td>
+                                                <td><input class="form-control inner_form" id="inputReprePhone2" name="inputReprePhone2" type="text"></td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">
                                                     SECRETARIO
                                                     <input type="hidden" id="type3" value="Secretario">
+                                                    <input type="hidden" id="id_secretario" value="">
                                                 </th>
-            							      	<td><input class="form-control inner_form" id="inputRepreName3" name="inputRepreName3" type="text"></td>
-            							      	<td><textarea class="form-control inner_form" id="inputRepreAddress3" name="inputRepreAddress3" rows="2" style="resize: none;"></textarea></td>
-            							      	<td><input class="form-control inner_form" id="inputReprePhone3" name="inputReprePhone3" type="text"></td>
-            							    </tr>
-            							    <tr>
-            							      	<th scope="row">
+                                                <td><input class="form-control inner_form" id="inputRepreName3" name="inputRepreName3" type="text" required></td>
+                                                <td><textarea class="form-control inner_form" id="inputRepreAddress3" name="inputRepreAddress3" rows="2" style="resize: none;" required></textarea></td>
+                                                <td><input class="form-control inner_form" id="inputReprePhone3" name="inputReprePhone3" type="text" required></td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">
                                                     TESORERO
                                                     <input type="hidden" id="type4" value="Tesorero">
+                                                    <input type="hidden" id="id_tesorero" value="">
                                                 </th>
-            							      	<td><input class="form-control inner_form" id="inputRepreName4" name="inputRepreName4" type="text"></td>
-            							      	<td><textarea class="form-control inner_form" id="inputRepreAddress4" name="inputRepreAddress4" rows="2" style="resize: none;"></textarea></td>
-            							      	<td><input class="form-control inner_form" id="inputReprePhone4" name="inputReprePhone4" type="text"></td>
-            							    </tr>
-            						  	</tbody>
-            						</table>
+                                                <td><input class="form-control inner_form" id="inputRepreName4" name="inputRepreName4" type="text" required></td>
+                                                <td><textarea class="form-control inner_form" id="inputRepreAddress4" name="inputRepreAddress4" rows="2" style="resize: none;" required></textarea></td>
+                                                <td><input class="form-control inner_form" id="inputReprePhone4" name="inputReprePhone4" type="text" required></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                     <hr class="my-4">
                                     <div class="d-flex justify-content-between">
                                         <button class="btn btn-light disabled btnPrevious b-1" type="button">Anterior</button>
@@ -201,6 +205,9 @@
                                         </div>
                                         <div class="mb-3 col-md-9 form-group row gx-3" id="lista">
                                             <p>Debe Cargar 1 foto minimo</p>
+                                        </div>
+                                        <div class="mb-3 col-md-12 form-group row gx-3" id="listaEdit">
+
                                         </div>
                                     </div>
                                     <div class="row gx-3">
@@ -280,6 +287,9 @@
                                     <div class="d-flex justify-content-between">
                                         <button class="btn btn-light disabled btnPrevious b-3" type="button">Anterior</button>
                                         <button class="btn btn-primary btn-next-4" type="button">Siguiente</button>
+                                        <button class="btn btn-primary" id="btnSavedSubventionEdit" style="display:none" type="button">Guardar</button>
+                                        <input type="hidden" id="id_subvention">
+                                        <input type="hidden" id="id_organitation">
                                     </div>
                                 </div>
                             </div>
@@ -391,6 +401,7 @@
                                     <hr class="my-4">
                                     <div class="d-flex justify-content-between">
                                         <input type="hidden" id="id_subvention">
+                                        <input type="hidden" id="id_organitation">
                                         <button class="btn btn-light btnPrevious b-3" type="button">Anterior</button>
                                         <button class="btn btn-primary" id="btnSavedSubvention" type="button">Guardar</button>
                                     </div>
@@ -402,8 +413,8 @@
             </div>
 
 
-	    </form>
-	</div>
+        </form>
+    </div>
 </div> 
 
 <script src="https://www.gstatic.com/firebasejs/8.6.2/firebase.js"></script>
@@ -412,8 +423,8 @@
 
 <?php else: ?>
     <div class="alert alert-danger" role="alert">
-    	<i class="fas fa-exclamation-triangle ml-5" style="font-size: 75px"></i>
-    	<br><br>
+        <i class="fas fa-exclamation-triangle ml-5" style="font-size: 75px"></i>
+        <br><br>
         No tienes acceso a esta área. <br>
         Serás enviado al inicio del sistema.
     </div>

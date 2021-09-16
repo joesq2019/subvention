@@ -34,9 +34,95 @@
 	</div>
 </div>
 <?php if($obj_function->validarPermiso($_SESSION['permissions'],'subvention_add') OR $obj_function->validarPermiso($_SESSION['permissions'],'subvention_edit')): ?>
-
-
 <?php endif; ?>
+
+<div class="modal fade" id="modalListDocuments" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            	<div class="col-md-6">
+            		<h5 class="modal-title" id="exampleModalLabel">Lista de Documentos</h5>
+            	</div>
+            	<div class="col-md-5">
+            		<button class="btn btn-success btn-sm float-right" id="uploadNewDocument"><i class="fas fa-file-contract"></i> Cargar nuevo documento</button>
+            	</div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+			    <div class="table-responsive">
+			        <table class="table table-bordered" id="dataTableListDocuments" cellspacing="0" width="100%">
+			            <thead>
+			                <tr>
+			                	<th>#</th>
+			                    <th>Tipo</th>
+			                    <th>Nombre del archivo</th>
+			                    <th>Acciones</th>
+			                </tr>
+			            </thead>
+			            <tbody>
+		                </tbody>
+			        </table>
+			    </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary tr" key="" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-success" id="btn_saveUser">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalUploadDocuments" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            	<div class="col-md-6">
+            		<h5 class="modal-title" id="exampleModalLabel">Cargar nuevo Documento</h5>
+            	</div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+            	<input type="hidden" name="id_subvention" id="id_subvention">
+            	<form id="formUploadDocument">
+					<div class="col-md-12">
+						<div class="form-group m-form__group">
+							<label for="">Tipo de archivo</label>
+		        			<select name="select_type_documents" id="select_type_documents" class="form-control">
+		        				<option value="">Selecciona una opción</option>
+		        				<option value="certificado_persolidad_juridica">Certificado de Personalidad Jurídica Vigentes</option>
+		        				<option value="certificado_directorio">Certificado de Directorio Vigente</option>
+		        				<option value="estatutos">Estatutos</option>
+		        				<option value="certificado_inscripcion">Certificado de Inscripción en el Registro Central de Colaboradores del Estado y Municipalidades</option>
+		        				<option value="fotocopia_rut">Fotocopia del RUT de la organización</option>
+		        				<option value="fotocopia_cedula">Fotocopia Cédula de Identidad del representante legal</option>
+		        				<option value="fotocopia_libreta">Fotocopia de la libreta de ahorro o cuenta corriente a nombre de la organización</option>
+		        				<option value="fotocopia_registro">Fotocopia de registro de propiedad o comodato de Sede Comunitaria (cuando corresponda)</option>
+		        				<option value="fotocopia_caratula">Fotocopia de la carátula de la rendición de cuentas de la última subvención (si corresponde)</option>
+		        				<option value="antecedentes">Otros Antecedentes</option>
+		        			</select>
+						</div>
+	        		</div>
+	        		<div class="col-md-12">
+	        			<div class="form-group m-form__group">
+	        				<label for="">Tipo de archivo</label>
+	        				<input type="file" class="form-control" name="input_upload_document" id="input_upload_document">
+						</div>
+	        		</div>
+            	</form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary tr" key="" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-success" id="btnSaveNewDocument">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/6.1.0/firebase.js"></script>
 
