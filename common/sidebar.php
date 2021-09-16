@@ -44,6 +44,14 @@
                     <span>Rendición de Cuentas</span></a>
             </li>
             <?php endif; ?>
+
+             <?php if($obj_function->validarPermiso($_SESSION['permissions'],'budget_information_list')): ?>
+            <li class="nav-item">
+                <a class="nav-link" href="budget_information.php">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span>Información Presupuestaria</span></a>
+            </li>
+            <?php endif; ?>
             <!-- Divider -->
             <hr class="sidebar-divider">
 

@@ -298,6 +298,7 @@ var accountabilityController = {
                                     uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {                        
                                          $.post(MODEL, {
                                             "method": 'updateFileBeneficiarie',
+                                            "id_accountability_file": $('#id_accountability_file').val(),
                                             "id_accountability": id_accountability,
                                             "name": name_file,
                                             "path": path,
@@ -403,22 +404,53 @@ var accountabilityController = {
         }); 
 
          // Validar y Previsualizar la imagen 1
-        $("#file-1").change(function(event) { //validar que sea imagen
-            console.log('imagen change');
-            var fileInput = document.getElementById('file-1');
-            var imagen = this.files[0];
-            var filePath = fileInput.value;
-            var allowedExtensions = /(.jpg|.jpeg|.png|.gif)$/i;
-            if (!allowedExtensions.exec(filePath)) {
-                Swal.fire("Ups..", 'Sube un archivo que tenga extensiones .jpeg/.jpg/.png/.gif Only.', "warning");
-                $("#imagen1").val('');
+        /////////////////////////////////////////////////////////////
+        $("#file-1").on('change', function () {
+            if(this.files.length>1){
+                Swal.fire('No pueden ser mas de 1 archivo');
             }
-            var datosImagen = new FileReader();
-            datosImagen.readAsDataURL(imagen);
-            $(datosImagen).on("load", function(event) {
-                var rutaImagen = event.target.result;
-                $(".previsualizar1").attr("src", rutaImagen);
-            });
+            else {
+                //Get count of selected files
+                var files = $(this)[0].files;
+
+                var imgPath = $(this)[0].value;
+                var extn = imgPath.substring(imgPath.lastIndexOf('.') + 1).toLowerCase();
+                var div = $("#lista_1");
+                var image_holder = $("#lista_1");
+                image_holder.empty();
+            
+                if (extn == "gif" || extn == "png" || extn == "jpg" || extn == "jpeg" || extn == "pdf" || extn == "doc" || extn == "docx") {
+                    if (typeof (FileReader) != "undefined") {
+            
+                        //loop for each file selected for uploaded.
+                        for (var i = 0; i < files.length; i++) {
+                           console.log(files[i].name+'_'+Date.now())
+                           // var xx = ;
+                            var reader = new FileReader();
+                            
+                            if (extn == "pdf" || extn == "doc" || extn == "docx") {
+                                // reader.onload = function (e) {
+                                    $(`<div class="col-md-3 text-center"><img src="../assets/img/file.png" class="rounded img-fluid" style="height:150px;width:150px"><br><small>${files[i].name}</small></div>`).appendTo(image_holder);
+                                // }
+                            }else{
+                                reader.onload = function (e) {
+                                    $("<img />", {
+                                        "src": e.target.result,
+                                            "class": "col-md-3 rounded img-fluid",
+                                            "style": "height:150px;width:150px"
+                                    }).appendTo(image_holder);
+                                } 
+                            }
+            
+                            image_holder.show();
+                            reader.readAsDataURL($(this)[0].files[i]);
+                        }
+            
+                    }
+                } else {
+                    Swal.fire("Por favor seleccione un archivo");
+                }
+            }
         });
 
         $("#accountability_photos").on('change', function () {
@@ -623,6 +655,7 @@ var accountabilityController = {
         $.post(MODEL, dt,
             function(data) {
                 if (data.code == 200) {
+                    // console.log(data)
                     preloader('hide');
                     $("#id_accountability").val(data.id_accountability);
                     $('#add_rut_organization').val(data.rut);
@@ -640,6 +673,12 @@ var accountabilityController = {
                     $("#add_date_surrender_income").val(data.date_admission);
                     $('#invoices').html(data.invoices);
                     $(".previsualizar1").attr("src", data.beneficiarie_url);
+
+                    $('#id_accountability_file').val(data.id_accountability_file);
+
+                    $('#lista_1').html('');
+                    $(`<div class="col-md-3 text-center"><img src="../assets/img/file.png" class="rounded img-fluid" style="height:150px;width:150px"><br><small>${data.beneficiarie_name}</small></div>`).appendTo('#lista_1');
+
                     $('#titleModelAccountability').html('Editar Rendición');
                     
                     $('#modalCreateAccountability').modal({
@@ -766,12 +805,14 @@ var accountabilityController = {
         $("#add_date_surrender_income").val("");
 
         $('#invoices').html('');
-
+        $('#id_accountability_file').val(0);
         //
         $('.button-cargar').css('display', 'block');
         $('#btnSaveDocumentation').css('display', 'block');
         $('#lista').html('');
+        $('#lista_1').html('');
         $('#lista_2').html('');
+        
     }
 };
 

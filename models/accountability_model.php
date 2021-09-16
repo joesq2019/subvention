@@ -189,8 +189,9 @@ switch ($method) {
     break;
 
     case 'editAccountability':
-        $sql = "SELECT a.*, r.rut, r.name, r.phone, r.email, s.name_proyect 
+        $sql = "SELECT a.*, r.rut, r.name, r.phone, r.email, s.name_proyect
         FROM accountability a
+        INNER JOIN accountability_files af ON af.id_accountability  = a.id
         INNER JOIN subvention s ON a.id_subvention = s.id 
         INNER JOIN organitation r ON s.id_organitation = r.id WHERE a.id = $id";
         $query = $obj_bdmysql->query($sql, $dbconn);
@@ -216,6 +217,7 @@ switch ($method) {
             $sql = "SELECT * FROM `accountability_files` WHERE id_accountability = $id";
             $query = $obj_bdmysql->query($sql, $dbconn);
             $beneficiaries = $query[0];
+            $out['id_accountability_file']      = $beneficiaries['id'];
             $out['beneficiarie_name']      = $beneficiaries['name'];
             $out['beneficiarie_path']      = $beneficiaries['path'];
             $out['beneficiarie_url']      = $beneficiaries['url'];
@@ -335,19 +337,37 @@ switch ($method) {
     break;
 
     case 'updateFileBeneficiarie':
-        
-        $out['code'] = 204;
-        $out['message'] = 'Error..!';
 
-        $campo = "id_accountability, name, path, url, type";
-        $valor = "$id_accountability, '$name', '$path', '$url', '1'";
-        //$sql = "INSERT INTO financing_files ($campo) VALUES ($valor)";
-        //print_r($sql);exit;
-        $id = $obj_bdmysql->insert("accountability_files", $campo, $valor, $dbconn);
+        if($id_accountability_file == 0){
 
-        if ($id > 0) {
-            $out['code'] = 200;
-            $out['message'] = 'El Archivo fué creado exitosamente..!';
+            $out['code'] = 204;
+            $out['message'] = 'Error Insert..!';
+
+            $campo = "id_accountability, name, path, url, type";
+            $valor = "$id_accountability, '$name', '$path', '$url', '1'";
+            //$sql = "INSERT INTO financing_files ($campo) VALUES ($valor)";
+            //print_r($sql);exit;
+            $id = $obj_bdmysql->insert("accountability_files", $campo, $valor, $dbconn);
+
+            if ($id > 0) {
+                $out['code'] = 200;
+                $out['message'] = 'El Archivo fué creado exitosamente..!';
+            }  
+        }
+       
+        if($id_accountability_file != 0){
+
+            $out['code'] = 204;
+            $out['message'] = 'Error Update..!';
+
+            $campo = "name='$name', path='$path', url='$url'";           
+            $where = "id = '$id_accountability_file'";
+            $update_accountability_file = $obj_bdmysql->update("accountability_files", $campo, $where, $dbconn);
+
+            if ($update_accountability_file > 0) {
+                $out['code'] = 200;
+                $out['message'] = 'El Archivo fué creado exitosamente..!';
+            }  
         }
         
         echo json_encode($out);

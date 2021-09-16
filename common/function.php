@@ -209,6 +209,16 @@ class coFunction{
                     'accountability_edit' => 'Puede editar rendicion de cuenta',
                     'accountability_delete' => 'Puede borrar rendicion de cuenta'
                 ]
+            ],
+            'budget_information' => [
+                'icon' => '<i class="fas fa-file-invoice-dollar"></i>',
+                'title' => 'Modulo Información Presupuestaria',
+                'keys' => [
+                    'budget_information_list' => 'Puede ver la lista de informaciones presupuestarias',
+                    'budget_information_add' => 'Puede agregar informacion presupuestaria',
+                    'budget_information_edit' => 'Puede editar informacion presupuestaria',
+                    'budget_information_delete' => 'Puede borrar informacion presupuestaria'
+                ]
             ]
         ];
         return $p;
