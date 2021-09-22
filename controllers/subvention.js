@@ -158,12 +158,27 @@ var subventionController = {
                 }, 'json');
             } 
         });
+
+        ///////////////////////////////////////////
+        $('#subventionDataTable tbody').on('click', '.button_view', function () {
+            var $tr = $(this).closest('tr');
+            var data = dataTable.row($(this).parents($tr)).data();
+            var id = data[0];
+            subventionController.view(id)
+        });
     },
     edit: function(id) {
         event.preventDefault();
         sessionStorage.setItem('id_subvention', id);
         sessionStorage.setItem('action', 2);
         window.location.href = 'subvention_add.php';
+    },
+    view: function (id){
+        
+        event.preventDefault();
+        sessionStorage.setItem('id_subvention', id);
+        sessionStorage.setItem('action', 2);
+        window.location.href = 'subvention_view.php';
     },
     deleted: function (id){
 

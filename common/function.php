@@ -219,6 +219,16 @@ class coFunction{
                     'budget_information_edit' => 'Puede editar informacion presupuestaria',
                     'budget_information_delete' => 'Puede borrar informacion presupuestaria'
                 ]
+            ],
+            'approval_subsidy' => [
+                'icon' => '<i class="fas fa-check-double"></i>',
+                'title' => 'Modulo Aprovación de Subvención',
+                'keys' => [
+                    'approval_subsidy_list' => 'Puede ver la lista de aprobaciones de subvenciones',
+                    'approval_subsidy_add' => 'Puede agregar una aprovación de subvencion',
+                    'approval_subsidy_edit' => 'Puede editar una aprovación de subvencion',
+                    'approval_subsidy_delete' => 'Puede borrar una aprovación de subvencion'
+                ]
             ]
         ];
         return $p;

@@ -55,7 +55,7 @@ switch ($method) {
                 }*/
 
 
-                $botones .= '<button class="btn btn-primary btn-sm mr-1" onclick="subventionController.view(' . $row["subvention_id"] . ')"><i class="fas fa-eye" aria-hidden="true"></i></a></button>';
+                $botones .= '<button class="btn btn-primary btn-sm mr-1 button_view"><i class="fas fa-eye" aria-hidden="true"></i></a></button>';
 
                 $botones .= '<button class="btn btn-primary btn-sm mr-1" title="Editar Subvención" onclick="subventionController.edit(' . $row["subvention_id"] . ')"><i class="fas fa-edit" aria-hidden="true"></i></a></button>'; 
 
@@ -123,7 +123,7 @@ switch ($method) {
 
                 //$botones .= '<button class="btn btn-primary btn-sm mr-1" title="Editar Subvención" onclick="subventionController.editDocuments(' . $row["id"] . ')"><i class="fas fa-edit" aria-hidden="true"></i></a></button>'; 
 
-                $botones .= '<button class="btn btn-primary btn-sm mr-1" title="Eliminar Documento" onclick="subventionController.deleteDocument(' . $row["id"] . ')"><i class="fas fa-trash-alt" aria-hidden="true"></i></a></button>';               
+                // $botones .= '<button class="btn btn-primary btn-sm mr-1" title="Eliminar Documento" onclick="subventionController.deleteDocument(' . $row["id"] . ')"><i class="fas fa-trash-alt" aria-hidden="true"></i></a></button>';               
 
                 $nestedData = array();
                 $nestedData[] = $row['id'];
@@ -332,8 +332,8 @@ switch ($method) {
 
         $campo = "id_subvention, type, name, path, url";
         $valor = "$subvention_id, '$type', '$name', '$path', '$url'";
-        //$sql = "INSERT INTO financing_files ($campo) VALUES ($valor)";
-        //print_r($sql);exit;
+        // $sql = "INSERT INTO subvention_files ($campo) VALUES ($valor)";
+        // print_r($sql);exit;
         $id = $obj_bdmysql->insert("subvention_files", $campo, $valor, $dbconn);
 
         if ($id > 0) {
@@ -403,7 +403,7 @@ switch ($method) {
             $schedule_data = '';
         }
         //echo "e";exit();
-        echo json_encode(array('subvention_data' => $data_subvention, 'financing_details_data' => $financing_details_data, 'financing_files_data' => $financing_files_data, 'members_data' => $members_data, 'schedule_data' => $schedule_data));
+        echo json_encode(array('code' => 200, 'subvention_data' => $data_subvention, 'financing_details_data' => $financing_details_data, 'financing_files_data' => $financing_files_data, 'members_data' => $members_data, 'schedule_data' => $schedule_data));
     break;
 
     case 'deleteFinancingFile':

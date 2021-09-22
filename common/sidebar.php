@@ -27,6 +27,15 @@
                 Interfaz
             </div>
 
+            <?php if($obj_function->validarPermiso($_SESSION['permissions'],'approval_subsidy_list')): ?>
+            <li class="nav-item">
+                <a class="nav-link" href="approval_subsidy.php">
+                    <i class="fas fa-check-double"></i>
+                    <span>Antecedentes de aprobacion de subvención</span>
+                </a>
+            </li>
+            <?php endif; ?>
+
             <!-- Nav Item - Pages Collapse Menu -->
             <?php if($obj_function->validarPermiso($_SESSION['permissions'],'subvention_list')): ?>
             <li class="nav-item">
@@ -45,7 +54,7 @@
             </li>
             <?php endif; ?>
 
-             <?php if($obj_function->validarPermiso($_SESSION['permissions'],'budget_information_list')): ?>
+            <?php if($obj_function->validarPermiso($_SESSION['permissions'],'budget_information_list')): ?>
             <li class="nav-item">
                 <a class="nav-link" href="budget_information.php">
                     <i class="fas fa-file-invoice-dollar"></i>
