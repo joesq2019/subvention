@@ -25,7 +25,7 @@ switch ($method) {
 
         $id_user = $_SESSION['id_user'];
 
-        $sql = "SELECT su.id as subvention_id, su.created_at, o.name, ac.date_admission, ac.status FROM subvention su INNER JOIN organitation o on o.id = su.id_organitation LEFT JOIN accountability ac on ac.id_subvention = su.id";
+        $sql = "SELECT su.id as subvention_id, su.created_at, o.name, ac.date_admission, su.status FROM subvention su INNER JOIN organitation o on o.id = su.id_organitation LEFT JOIN accountability ac on ac.id_subvention = su.id";
         $query = $obj_bdmysql->query($sql, $dbconn);
         $totalData = is_array($query) ? count($query) : 0;
         //print_r($sql);exit();
@@ -46,7 +46,7 @@ switch ($method) {
             foreach ($query as $row) {
                 $s = array();
                 $botones = '';
-
+                $status = '';
                 /*if($obj_function->validarPermiso($_SESSION['permissions'],'user_edit')){
                     $botones .= '<button class="btn btn-primary btn-sm mr-1" onclick="userController.edit(' . $row["id"] . ')"><i class="fas fa-edit" aria-hidden="true"></i></a></button>';
                 }
@@ -59,14 +59,23 @@ switch ($method) {
 
                 $botones .= '<button class="btn btn-primary btn-sm mr-1" title="Editar Subvención" onclick="subventionController.edit(' . $row["subvention_id"] . ')"><i class="fas fa-edit" aria-hidden="true"></i></a></button>'; 
 
-                $botones .= '<button class="btn btn-primary btn-sm mr-1" title="Editar Documentos" onclick="subventionController.editDocuments(' . $row["subvention_id"] . ')"><i class="fas fa-folder"></i></a></button>';               
+                $botones .= '<button class="btn btn-primary btn-sm mr-1" title="Editar Documentos" onclick="subventionController.editDocuments(' . $row["subvention_id"] . ')"><i class="fas fa-folder"></i></a></button>'; 
+
+                //change status
+                $botones .= '<button class="btn btn-primary btn-sm mr-1 button_status" title="Cambiar Estatus"><i class="fas fa-sync"></i></a></button>';  
+
+                if ($row['status'] == 0) { $status = '<button class="btn btn-sm text-white bg-gray-600">Error</button>';}
+                elseif ($row['status'] == 1) { $status = '<button class="btn btn-sm text-white bg-gradient-primary">En Evaluación</button>';} 
+                elseif ($row['status'] == 2) { $status = '<button class="btn btn-sm text-white bg-gradient-info">Pre-Aprobada</button>';}             
+                elseif ($row['status'] == 3) { $status = '<button class="btn btn-sm text-white bg-gradient-success">Aprobada</button>';}
+                elseif ($row['status'] == 4) { $status = '<button class="btn btn-sm text-white bg-gradient-danger">Rechazada</button>';}
 
                 $nestedData = array();
                 $nestedData[] = $row['subvention_id'];
                 $nestedData[] = '<center>' . html_entity_decode($row['name'], ENT_QUOTES | ENT_HTML401, "UTF-8") . '</center>';    
                 $nestedData[] = '<center>' . $row['created_at'] . '</center>';
                 $nestedData[] = '<center>' . $row['date_admission'] . '</center>';
-                $nestedData[] = '<center>' . $row['status'] . '</center>'; 
+                $nestedData[] = '<center>' . $status . '</center>'; 
                 $nestedData[] = '<center>' . $botones . '</center>'; 
 
                 $data[] = $nestedData;
@@ -453,6 +462,23 @@ switch ($method) {
         } else {
             $out['code'] = 200;
             $out['message'] = 'ok..!';
+        }
+
+        echo json_encode($out);
+    break;
+
+    case 'changeStatus':
+
+        $out['code'] = 204;
+        $out['message'] = 'Error..!';
+
+        $fields = "status= '$status'";
+        $where = "id = '$id'"; 
+        $update_status = $obj_bdmysql->update('subvention', $fields, $where, $dbconn);
+
+        if ($update_status > 0) {
+            $out['code']    = 200;
+            $out['message'] = 'Estatus actualizado..!';
         }
 
         echo json_encode($out);

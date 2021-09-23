@@ -72,6 +72,30 @@ var subventionController = {
                 $(element).removeClass('is-invalid');
             }
         });
+
+        $("#formChangeStatus").validate({
+            rules: {
+                select_change_status: {
+                    required: true
+                }
+            },
+            messages: {
+                select_change_status: {
+                    required: "El estado es requerido.",
+                }
+            },
+            errorElement: 'span',
+            errorPlacement: function (error, element) {
+                error.addClass('invalid-feedback');
+                element.closest('.form-group').append(error);
+            },
+            highlight: function (element, errorClass, validClass) {
+                $(element).addClass('is-invalid');
+            },
+            unhighlight: function (element, errorClass, validClass) {
+                $(element).removeClass('is-invalid');
+            }
+        });
         //preloader('show');
     },
     events: function() {
@@ -166,6 +190,50 @@ var subventionController = {
             var id = data[0];
             subventionController.view(id)
         });
+
+        ///////////////////////////////////////////
+        $('#subventionDataTable tbody').on('click', '.button_status', function () {
+            var $tr = $(this).closest('tr');
+            var data = dataTable.row($(this).parents($tr)).data();
+            var id = data[0];
+            
+            subventionController.clean();
+            $('#id_subvention_status').val(id);
+            $("#modalChangeStatus").modal('show');
+        });
+
+        //////////////////////////////////////////////
+        $("#btnSaveChangeStatus").click(function(event){
+            event.preventDefault();
+            if ($("#formChangeStatus").valid()) {
+                var dt = {
+                    method: 'changeStatus',
+                    id: $('#id_subvention_status').val(),
+                    status: $('#select_change_status').val()
+                };
+                preloader("show");
+                $.post(MODEL, dt,
+                    function(data) {     
+                    console.log(data)                 
+                        if (data.code == 200) {
+                            preloader("hide",data.message,'success');
+                            $("#modalChangeStatus").modal('hide');
+                            dataTable.draw();
+                        }
+                        if(data.code == 204){
+                            preloader("hide",data.message,'error');
+                        }
+                        if (data.code == 440) {
+                            loginTimeout();
+                        }
+                    },
+                    "json"
+                );
+            }
+        });        
+
+
+        
     },
     edit: function(id) {
         event.preventDefault();
@@ -261,25 +329,6 @@ var subventionController = {
         });
         $("#modalListDocuments").modal('show');
     },
-    status: function(id) {
-        var parametros = {
-            "method": "changeStatus",
-            "id": id
-        }
-        preloader('show');
-        $.post(MODEL, parametros, function(data) {
-            if (data.code == 200) {
-                preloader('hide', data.message, 'success');
-                dataTable.draw();  
-            }
-            if(data.code == 204){
-                preloader("hide",data.message,'error');
-            }
-            if (data.code == 440) {
-                loginTimeout();
-            }
-        }, 'json');
-    },
     deleteDocument: function (id){
 
         event.preventDefault();
@@ -322,7 +371,7 @@ var subventionController = {
     },
     clean: function() {
         $("#id_user").val(0);
-
+        $('#id_subvention_status').val(0);
         $("#select_type_documents").val('');
         $("#input_upload_document").val('');
     },
