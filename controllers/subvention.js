@@ -72,6 +72,36 @@ var subventionController = {
                 $(element).removeClass('is-invalid');
             }
         });
+
+        $("#formAction").validate({
+            rules: {
+                select_action: {
+                    required: true
+                },
+                textarea_reason: {
+                    required: true
+                }
+            },
+            messages: {
+                select_action: {
+                    required: "Este campo es requerido.",
+                },
+                textarea_reason: {
+                    required: "Este campo es requerido.",
+                }
+            },
+            errorElement: 'span',
+            errorPlacement: function (error, element) {
+                error.addClass('invalid-feedback');
+                element.closest('.form-group').append(error);
+            },
+            highlight: function (element, errorClass, validClass) {
+                $(element).addClass('is-invalid');
+            },
+            unhighlight: function (element, errorClass, validClass) {
+                $(element).removeClass('is-invalid');
+            }
+        });
         //preloader('show');
     },
     events: function() {
@@ -91,6 +121,71 @@ var subventionController = {
                 var validator = $("#formUploadDocument").validate();
                 validator.resetForm();
             },100);
+        });
+
+        $("#select_action").change(function(){
+            if($("#select_action").val() == 0 || $("#select_action").val() == 1 || $("#select_action").val() == 4){
+                $( "#textarea_reason" ).rules( "add", { required: true });
+            } else {
+                $( "#textarea_reason" ).rules( "add", { required: false });
+                $( "#textarea_reason" ).removeClass('is-invalid');
+            }
+        });
+
+        $("#btnSaveAction").click(function(){
+            if ($("#formAction").valid()) {
+                var subvention_id = $("#id_subvention_action").val();
+                var parametros = {
+                    "method": "updateSubventionStatus",
+                    "subvention_id": subvention_id,
+                    "status": $("#select_action").val(),
+                    "reason": $("#textarea_reason").val()
+                }
+                if($("#select_action").val() == 3){
+                    Swal.fire({
+                        title: "Estas seguro de realizar esta acción?",
+                        text: "Vas a aprobar esta subvención, lo que restará el monto de la misma al monto acumulado de disponibilidad presupuestaria",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#3085d6",
+                        cancelButtonColor: "#d33",
+                        confirmButtonText: "Sí, Hazlo!",
+                        cancelButtonText: 'Cancelar!',
+                    }).then(result => {
+                        if (result.value) {
+                            preloader("show");
+                            $.post(MODEL, parametros, function(data) {
+                                if (data.code == 200) {
+                                    preloader("hide",data.message,'success');
+                                    dataTable.draw();
+                                    $("#modalActions").modal('hide');
+                                }
+                                if(data.code == 204){
+                                    preloader("hide",data.message,'error');
+                                }
+                                if (data.code == 440) {
+                                    loginTimeout();
+                                }
+                            }, 'json');
+                        }
+                    });
+                } else {
+                    preloader('show');
+                    $.post(MODEL, parametros, function(data) {
+                        if (data.code == 200) {
+                            preloader("hide",data.message,'success');
+                            dataTable.draw();
+                            $("#modalActions").modal('hide');
+                        }
+                        if(data.code == 204){
+                            preloader("hide",data.message,'error');
+                        }
+                        if (data.code == 440) {
+                            loginTimeout();
+                        }
+                    }, 'json');
+                }
+            }
         });
 
         $("#btnSaveNewDocument").click(function(){
@@ -246,6 +341,21 @@ var subventionController = {
         });
         $("#modalListDocuments").modal('show');
     },
+    actions: function(id) {
+        $("#id_subvention_action").val('');
+        $("#select_action").val('');
+        $("#textarea_reason").val('');
+
+        setTimeout(function(){
+            var validator = $("#formAction").validate();
+            validator.resetForm();
+            $('#formAction .form-control').removeClass('is-invalid');
+
+            $("#id_subvention_action").val(id);
+        },100);
+
+        $("#modalActions").modal('show');
+    },
     status: function(id) {
         var parametros = {
             "method": "changeStatus",
@@ -317,7 +427,6 @@ $(function() {
     subventionController.init();
     subventionController.events();
 });
- 
 
 document.addEventListener("DOMContentLoaded", function(event) {
 

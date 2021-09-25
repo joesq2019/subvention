@@ -1,5 +1,10 @@
 <?php require_once '../common/header.php'; ?>
 <?php if($obj_function->validarPermiso($_SESSION['permissions'],'accountability_list')): ?>
+<style>
+.error{
+	max-width: 10rem;
+}	
+</style>
 <div class="card shadow mb-4">
 	<div class="card-header py-3">
 		<div class="row">
@@ -80,42 +85,25 @@
                     	<div class="col-md-3">
                     		<div class="form-group m-form__group"> 
 		                        <label>Telefono</label>
-		                        <input type="text" name="add_phone" id="add_phone" class="form-control" readonly required>
+		                        <input type="text" name="add_phone" id="add_phone" class="form-control" readonly >
 		                    </div>
                     	</div>
                     	<div class="col-md-4">
                     		<div class="form-group m-form__group"> 
 		                        <label>Email</label>
-		                        <input type="text" name="add_email" id="add_email" class="form-control" readonly required>
+		                        <input type="text" name="add_email" id="add_email" class="form-control" readonly>
 		                    </div>
                     	</div>
-                    	<div class="col-md-2">
+                    	<div class="">
                     		<div class="form-group m-form__group"> 
 		                        <label>Facturas</label>
-		                        <select name="add_invoice_number" id="add_invoice_number" class="form-control" required="">
-		                        	<option value="0">0</option>
-		                        	<option value="1">1</option>
-		                        	<option value="2">2</option>
-		                        	<option value="3">3</option>
-		                        	<option value="4">4</option>
-		                        	<option value="5">5</option>
-		                        	<option value="6">6</option>
-		                        	<option value="7">7</option>
-		                        	<option value="8">8</option>
-		                        	<option value="9">9</option>
-		                        	<option value="10">10</option>
-		                        	<option value="11">11</option>
-		                        	<option value="12">12</option>
-		                        	<option value="13">13</option>
-		                        	<option value="14">14</option>
-		                        	<option value="15">15</option>
-		                        	<option value="16">16</option>
-		                        	<option value="17">17</option>
-		                        	<option value="18">18</option>
-		                        	<option value="19">19</option>
-		                        	<option value="20">20</option>
-		                        </select>
+		                        <input type="text" name="add_invoice_number" id="add_invoice_number" min="1" class="form-control" style="max-width: 60px" readonly>
 		                    </div>
+                    	</div>
+                    	<div class="col-md-1" title="Agregar factura">
+                    		<div class="row" style="margin-top: 35px; margin-left:10px" title=>
+                    			<i class="fas fa-plus" id="btn_add_invoice" style="font-size: 28px; cursor: pointer;" title="Agregar factura"></i>
+                    		</div>                     		
                     	</div>
                     </div>
 
@@ -159,21 +147,66 @@
                     	</div>
                     </div>
                     <div class="row">
-                    	<div class="col-md-4">
+                    	<div class="col-md-4" id="div_lista_beneficiarios">
                     		<div class="form-group m-form__group"> 
-		                        <label>Lista de Beneficiarios</label>
-		                        <div class='form-group text-left'>
-				                    <input type="hidden" id="id_accountability_file">
-				                  	<label class="btn btn-primary btn-file">
-			                            Cargar Archivo
-			                            <input type="file" id="file-1" name="file-1" style="display: none;" class="" accept='file_extension|image/*'>
-			                        </label> 
-				            	</div>
+		                        <label class="pb-4">Lista de Beneficiarios</label>
+			                    <input type="file" id="lista_beneficiarios" name="lista_beneficiarios" style="display: block;" class="form-control" accept='file_extension|image/*' required>
 		                    </div>
+		                    <div class="col-md-12 form-group row" id="lista_1" style="display:none">
+		                    	<div class="col-md-4 text-center">
+		                    		<img src="../assets/img/file.png" class="rounded img-fluid" style="">
+		                    		<small>test 1</small>
+		                    	</div>
+		                    	<div class="col-md-4 text-center">
+		                    		<img src="../assets/img/file.png" class="rounded img-fluid" style="">
+		                    		<small>test 2</small>
+		                    	</div>
+		                    	<div class="col-md-4 text-center">
+		                    		<img src="../assets/img/file.png" class="rounded img-fluid" style="">
+		                    		<small>test 3</small>
+		                    	</div>
+		                	</div>
                     	</div>
-                    	<div class="mb-3 col-md-8 form-group row " id="lista_1">
-		                    <p>Debe Cargar 1 foto minimo</p>
-		                </div> 
+                    	<div class="col-md-4" id="div_accountability_photos">
+                    		<div class="form-group m-form__group"> 
+		                        <label class="pb-4">Fotografías de lo adquirido</label>
+		                        <input type="file" id="accountability_photos" name="accountability_photos[]" style="display: block;" multiple class="form-control">
+		                    </div>
+		                    <div class="col-md-12 form-group row" id="lista_2" style="display:none">
+		                    	<div class="col-md-4 text-center">
+		                    		<img src="../assets/img/file.png" class="rounded img-fluid" style="">
+		                    		<small>test 1</small>
+		                    	</div>
+		                    	<div class="col-md-4 text-center">
+		                    		<img src="../assets/img/file.png" class="rounded img-fluid" style="">
+		                    		<small>test 2</small>
+		                    	</div>
+		                    	<div class="col-md-4 text-center">
+		                    		<img src="../assets/img/file.png" class="rounded img-fluid" style="">
+		                    		<small>test 3</small>
+		                    	</div>
+		                	</div>
+                    	</div>
+                    	<div class="col-md-4" id="div_comprobante_restitucion_fondos" style="display:none">
+                    		<div class="form-group m-form__group"> 
+		                        <label class="">Comprobante de restitución de fondos</label>
+		                        <input type="file" id="comprobante_restitucion_fondos" name="comprobante_restitucion_fondos" class="form-control" accept='file_extension|image/*'>
+		                    </div>
+		                    <div class="col-md-12 form-group row" id="lista_3" style="display:none">
+		                    	<div class="col-md-4 text-center">
+		                    		<img src="../assets/img/file.png" class="rounded img-fluid" style="">
+		                    		<small>test 1</small>
+		                    	</div>
+		                    	<div class="col-md-4 text-center">
+		                    		<img src="../assets/img/file.png" class="rounded img-fluid" style="">
+		                    		<small>test 2</small>
+		                    	</div>
+		                    	<div class="col-md-4 text-center">
+		                    		<img src="../assets/img/file.png" class="rounded img-fluid" style="">
+		                    		<small>test 3</small>
+		                    	</div>
+		                	</div>
+                    	</div>
                     </div>
                 </form>
             </div>
@@ -185,51 +218,84 @@
     </div>
 </div>
  
-<div class="modal fade" id="modalAddDocumentation">
-    <div class="modal-dialog modal-lg">
+<div class="modal fade" id="modalListDocuments" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title"><span id="titleAddDocumentation">Subir Archivos</span></h4>
+            	<div class="col-md-6">
+            		<h5 class="modal-title" id="exampleModalLabel">Lista de Documentos</h5>
+            	</div>
+            	<div class="col-md-5">
+            		<button class="btn btn-success btn-sm float-right" id="uploadNewDocument"><i class="fas fa-file-contract"></i> Cargar nuevo documento</button>
+            	</div>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-            	<input type="hidden" class="form-control" id="add_id_accountability">
-            	<h6 class="card-title mb-4">Fotografías de lo adquirido </h6>
-            	<div class="row">
+			    <div class="table-responsive">
+			        <table class="table table-bordered" id="dataTableListDocuments" cellspacing="0" width="100%">
+			            <thead>
+			                <tr>
+			                	<th>#</th>
+			                    <th>Nombre</th>
+			                    <th>Tipo</th>
+			                    <th>Acciones</th>
+			                </tr>
+			            </thead>
+			            <tbody>
+		                </tbody>
+			        </table>
+			    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary tr" key="" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-success" id="btn_saveUser">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-	                <div class="mb-3 col-md-4 form-group "><!-- button-cargar-->
-	                    <label class="btn btn-primary btn-file">
-	                        Cargar Archivos
-	                        <input type="file" id="accountability_photos" name="accountability_photos[]" style="display: none;" multiple >
-	                    </label>
-	                    <p>Seleccione hasta 10 imagenes</p>  
-	                </div>
-	                <div class="mb-3 col-md-8 form-group row gx-3" id="lista">
-	                    <p>Debe Cargar 1 foto minimo</p>
-	                </div>
-                </div>
-                <h6 class="card-title mb-4">Comprobante de restitución de fondos </h6>
-                <div class="row">
-                    <div class="mb-3 col-md-3 form-group "> <!-- button-cargar-->
-                        <label class="btn btn-primary btn-file">
-                            Cargar Archivo
-                            <input type="file" id="comprobante_restitucion_fondos" name="comprobante_restitucion_fondos" style="display: none;" class="input_file" accept='file_extension|image/*'>
-                        </label> 
-                        <p>Seleccione hasta 1 imagen</p> 
-                    </div>
-                    <div class="mb-3 col-md-8 form-group row gx-3" id="lista_2">
-	                    <p>Debe Cargar 1 foto minimo</p>
-	                </div> 
-                </div>
+<div class="modal fade" id="modalUploadDocuments" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            	<div class="col-md-6">
+            		<h5 class="modal-title" id="exampleModalLabel">Cargar nuevo Documento</h5>
+            	</div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-            <div class="modal-footer justify-content-between">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="btnSaveDocumentation">Subir</button>
+            <div class="modal-body">
+            	<input type="hidden" name="id_accountability_documents" id="id_accountability_documents">
+            	<form id="formUploadDocument">
+					<div class="col-md-12">
+						<div class="form-group m-form__group">
+							<label for="">Tipo de archivo</label>
+		        			<select name="select_type_documents" id="select_type_documents" class="form-control">
+		        				<option value="">Selecciona una opción</option>
+		        				<option value="1">Lista de beneficiarios</option>
+		        				<option value="2">Comprobante de restitución de fondos</option>
+		        				<option value="3">Fotografías de lo adquirido</option>
+		        			</select>
+						</div>
+	        		</div>
+	        		<div class="col-md-12">
+	        			<div class="form-group m-form__group">
+	        				<label for="">Tipo de archivo</label>
+	        				<input type="file" class="form-control" name="input_upload_document" id="input_upload_document">
+						</div>
+	        		</div>
+            	</form>
             </div>
-        </div>         
-    </div>        
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary tr" key="" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-success" id="btnSaveNewDocument">Guardar</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <?php endif; ?>

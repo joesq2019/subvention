@@ -4,7 +4,7 @@
 	<div class="card-header py-3">
 		<div class="row">
 			<div class="col-md-6">
-				<h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-file-contract"></i> Tabla de Usuarios </h6>
+				<h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-file-contract"></i> Tabla de Subvenciones </h6>
 			</div>
 			<div class="col-md-6">
 				<?php if($obj_function->validarPermiso($_SESSION['permissions'],'subvention_add')): ?>
@@ -16,7 +16,7 @@
 	</div>
 	<div class="card-body border-bottom-primary">
 	    <div class="table-responsive">
-	        <table class="table table-bordered" id="subventionDataTable" cellspacing="0">
+	        <table class="table table-bordered" id="subventionDataTable" cellspacing="0" width="100%">
 	            <thead>
 	                <tr>
 	                	<th># Folio</th>
@@ -24,6 +24,7 @@
 	                    <th>Fecha solicitud subvención</th>
 	                    <th>Fecha rendición</th>
 	                    <th>Estado de rendición</th>
+	                    <th>Estado de de la Subvención</th>
 	                    <th>Acciones</th>
 	                </tr>
 	            </thead>
@@ -119,6 +120,50 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary tr" key="" data-dismiss="modal">Cerrar</button>
                 <button type="button" class="btn btn-success" id="btnSaveNewDocument">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalActions" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            	<div class="col-md-6">
+            		<h5 class="modal-title" id="number_folio">Subvención</h5>
+            	</div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+            	<input type="hidden" name="id_subvention_action" id="id_subvention_action">
+            	<form id="formAction">
+					<div class="col-md-12">
+						<div class="form-group m-form__group">
+							<label for="">Acción:</label>
+		        			<select name="select_action" id="select_action" class="form-control">
+		        				<option value="">Seleccione 1 opción</option>
+		        				<option value="0">Error</option>
+		        				<option value="1">En evaluación</option>
+		        				<option value="2">Pre-Aprobada</option>
+		        				<option value="3">Aprobada</option>
+		        				<option value="4">Rechazada</option>
+		        			</select>
+						</div>
+	        		</div>
+	        		<div class="col-md-12">
+	        			<div class="form-group m-form__group">
+	        				<label for="">Motivo:</label>
+	        				<textarea name="" class="form-control" name="textarea_reason" id="textarea_reason"></textarea>
+						</div>
+	        		</div>
+            	</form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary tr" key="" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-success" id="btnSaveAction">Guardar</button>
             </div>
         </div>
     </div>

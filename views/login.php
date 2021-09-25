@@ -31,9 +31,9 @@ $_SESSION['key'] = $obj_function->randString(20);
     <script src="../assets/js/sweetalert2.all.min.js"></script>
 
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="../assets/js/jquery.min.js"></script>
 
-	<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.min.js"></script>
+	<script src="../assets/js/jquery.validate.min.js"></script>
 </head>
 <style>
 body, html {

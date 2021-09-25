@@ -28,7 +28,7 @@ switch ($method) {
 
         $id_user = $_SESSION['id_user'];
 
-         $sql   = "SELECT a.*, r.rut, r.name, r.phone, r.email, s.name_proyect FROM accountability a
+        $sql   = "SELECT a.*, r.rut, r.name, r.phone, r.email, s.name_proyect FROM accountability a
         INNER JOIN subvention s ON a.id_subvention = s.id 
         INNER JOIN organitation r ON s.id_organitation = r.id ";
         $query = $obj_bdmysql->query($sql, $dbconn);
@@ -60,18 +60,23 @@ switch ($method) {
                 $sql = "SELECT id AS id_accou_file, type FROM `accountability_files` WHERE id_accountability = ".$row['id'];
                 $queryFile1 = $obj_bdmysql->query($sql, $dbconn);
 
-                if($obj_function->validarPermiso($_SESSION['permissions'],'user_edit')){
+                if($obj_function->validarPermiso($_SESSION['permissions'],'accountability_edit')){
                     $botones .= '<button class="btn btn-primary btn-sm mr-1" onclick="accountabilityController.edit(' . $row["id"] . ')"><i class="fas fa-edit" aria-hidden="true"></i></a></button>';
                     
                 }
+                if($obj_function->validarPermiso($_SESSION['permissions'],'accountability_view_list')){
+                    $botones .= '<button class="btn btn-primary btn-sm mr-1" title="Ver Documentos" onclick="accountabilityController.viewDocuments(' . $row["id"] . ')"><i class="fas fa-folder" title="Ver Documentos" aria-hidden="true"></i></a></button>';
+                    
+                }
                 if($obj_function->validarPermiso($_SESSION['permissions'],'user_delete')){
-                    $botones .= '<button class="btn btn-primary btn-sm mr-1" onclick="accountabilityController.deleted(' . $row["id"] . ')"><i class="fas fa-trash-alt" aria-hidden="true"></i></a></button>';
-                    if ($queryFile1[0]['type'] == 2) {
-                        $botones .= '<button class="btn btn-success btn-sm mr-1 button_viewDocumentation" > Documentación Subida</a></button>';
-                    }
-                    else{                        
-                        $botones .= '<button class="btn btn-primary btn-sm mr-1 button_uploadDocumentation"><i class="fas fa-upload" aria-hidden="true"></i> Documentación</a></button>';
-                    }
+                    //$botones .= '<button class="btn btn-primary btn-sm mr-1" onclick="accountabilityController.deleted(' . $row["id"] . ')"><i class="fas fa-trash-alt" aria-hidden="true"></i></a></button>';
+                    //print_r($queryFile1);exit();
+                    // if ($queryFile1[0]['type'] == 2) {
+                    //     $botones .= '<button class="btn btn-success btn-sm mr-1 button_viewDocumentation" > Documentación Subida</a></button>';
+                    // }
+                    // else{                        
+                         //$botones .= '<button class="btn btn-primary btn-sm mr-1 button_uploadDocumentation"><i class="fas fa-upload" aria-hidden="true"></i> Documentación</a></button>';
+                    // }
                     
                 }
 
@@ -146,7 +151,7 @@ switch ($method) {
         }
 
         if ($id != 0) {
-            // print_r($_POST);
+            //print_r($_POST);
             $out['code'] = 204;
             $out['message'] = 'Error Updated...!';
                 $campo = "id_subvention='$id_subvention', name_represent='$add_name_represent', number_invoices='$add_invoice_number', amount_delivered='$add_mount_delivered', amount_yielded='$add_yielded', amount_refunded='$add_amount_refunded', balance='$add_balance', date_admission='$add_date_surrender_income'";
@@ -154,6 +159,8 @@ switch ($method) {
             $where = "id = '$id'";
             $update_accountability = $obj_bdmysql->update("accountability", $campo, $where, $dbconn);
             //$sql = "UPDATE `user` SET $campo WHERE $where";print($sql);exit();
+
+            $obj_bdmysql->delete("invoices", "id_accountability= $id", $dbconn);
             $cant =   count((array)$_POST['invoices_array']);
             if ($cant > 0) {
                 foreach ($_POST['invoices_array'] as $value ) {
@@ -161,21 +168,13 @@ switch ($method) {
                     $amount = $value[1]['value'];
                     $detail = $value[2]['value'];
 
-                    $sql = "SELECT id FROM invoices WHERE `date`='$date' AND `amount`='$amount' OR `detail` LIKE '%$detail%'";
-                    $r = $obj_bdmysql->query($sql, $dbconn);
-                    $id_invoice = $r[0]['id'];
-                   
-                    if (!is_array($r)) {
-                        $campo = "id_accountability, date, detail, amount";     
-                        $valor = "'$id', '$date', '$detail' ,'$amount'";
-                        $obj_bdmysql->insert("invoices", $campo, $valor, $dbconn);
-                    }else{
-                        $campo = "`date`='$date',`detail`='$detail',`amount`='$amount'";
-                        $where = "id = '$id_invoice'";
-                        $obj_bdmysql->update("invoices", $campo, $where, $dbconn);
-                    }
+                    $campo = "id_accountability, date, detail, amount";     
+                    $valor = "$id, '$date', '$detail' ,'$amount'";
+                    $obj_bdmysql->insert("invoices", $campo, $valor, $dbconn);
+                    // $sql = "INSERT INTO user ($campo) VALUES ($valor)";
+                    // print_r($sql);exit;                       
                 }
-            }
+            }        
             // exit;
             if ($update_accountability > 0) {
                 $out['code'] = 200;
@@ -214,65 +213,27 @@ switch ($method) {
             $out['date_admission']      = $obj['date_admission'];
             $out['status']      = $obj['status'];
 
-            $sql = "SELECT * FROM `accountability_files` WHERE id_accountability = $id";
+            $sql = "SELECT id, name, `path`, url FROM `accountability_files` WHERE id_accountability = $id AND type = 1";
             $query = $obj_bdmysql->query($sql, $dbconn);
-            $beneficiaries = $query[0];
-            $out['id_accountability_file']      = $beneficiaries['id'];
-            $out['beneficiarie_name']      = $beneficiaries['name'];
-            $out['beneficiarie_path']      = $beneficiaries['path'];
-            $out['beneficiarie_url']      = $beneficiaries['url'];
+            $beneficiarios = $query[0];
+            if(is_array($beneficiarios)) $out['beneficiarios_file'] = $beneficiarios;
+
+            $sql = "SELECT id, name, `path`, url FROM `accountability_files` WHERE id_accountability = $id AND type = 2";
+            $query = $obj_bdmysql->query($sql, $dbconn);
+            $comprobante = $query[0];
+            if(is_array($comprobante)) $out['comprobante_file'] = $comprobante;
+
+            $sql = "SELECT id, name, `path`, url FROM `accountability_files` WHERE id_accountability = $id AND type = 3";
+            $query = $obj_bdmysql->query($sql, $dbconn);
+            $fotografias = $query;
+            if(is_array($fotografias)) $out['fotografias_file'] = $fotografias;
+
 
             $sql = "SELECT * FROM `invoices` WHERE id_accountability = $id";
             $result = $obj_bdmysql->query($sql, $dbconn);
-            $invoices = '';
+            if(is_array($result)) $out['invoices'] = $result;  
+
           
-            foreach($result as $row)
-            {     
-
-                $count = 1;
-                
-                    $button = '';
-                    if($count > 1)
-                    {
-                        $button = '<button type="button" name="remove" id="'.$count.'" class="btn btn-danger btn-xs remove">x</button>';
-                    }
-                    else
-                    {
-                        $button = '<button type="button" name="add_more" id="add_more" class="btn btn-success btn-xs">+</button>';
-                    }
-                    $amount = floatval($row['amount']);
-                    $invoices .= '<tr id="row'.$count.'" class="test invoice_'.$count.'">
-                            <td class="col-md-1">
-                                <div class="rotate-15 text-center mt-4">
-                                    <label for="">Factura '.$row['id'].'</label>
-                                </div>                    
-                            </td>
-                            <td class="col-md-3">
-                                <div class="form-group m-form__group"> 
-                                    <label>Fecha</label>
-                                    <input type="text" name="add_date_'.$row['id'].'" id="add_date" class="form-control dateAcc" value="'.$row['date'].'" required>
-                                </div>
-                            </td>
-                            <td class="col-md-3"> 
-                                <div class="form-group m-form__group"> 
-                                    <label>Monto</label>
-                                    <input type="number" name="add_amount_'.$row['id'].'" id="add_amount" class="form-control sum_amount" step="0.1" value="'.$amount.'" required>
-                                </div>
-                            </td>
-                            <td class="col-md-4">
-                                <div class="form-group m-form__group"> 
-                                    <label>Detalle</label>
-                                    <input type="text" name="add_detail_'.$row['id'].'" id="add_detail" class="form-control" value="'.$row['detail'].'" required>
-                                </div>
-                            </td>
-                             
-                        <td align="center">'.$button.'</td>
-                    </tr>';
-                    $count++;
-                
-            }
-            $out['invoices'] = $invoices;            
-
             $out['code'] = 200;
             $out['message'] = "Ok";
         }else{
@@ -392,73 +353,128 @@ switch ($method) {
         echo json_encode($out);
     break;
 
-     case 'saveDocumentFiles':
+    case 'saveDocumentFiles':
         
         $out['code'] = 204;
         $out['message'] = 'Error..!';
+        
+        $campo = "id_accountability, name, path, url, type";
+        $valor = "$id_accountability, '$name', '$path', '$url', '$type'";
+        // $sql = "INSERT INTO accountability_files ($campo) VALUES ($valor)";
+        // print_r($sql);exit;
+        $id = $obj_bdmysql->insert("accountability_files", $campo, $valor, $dbconn);
 
-        $sql = "SELECT `id`, `path` FROM accountability_files WHERE id_accountability = $id_accountability AND related = '$related'";
-        $query = $obj_bdmysql->query($sql, $dbconn);
-        // print_r(is_array($query));exit;
-        if(is_array($query)){
-            $id_accountability_file = $query[0]['id'];
-            $old_path = $query[0]['path'];
-
-            $campo = "name='$name', path='$path', url='$url'";
-            $where = "id = $id_accountability_file";
-            $update_accountability_file = $obj_bdmysql->update("accountability_files", $campo, $where, $dbconn);
-
-            if ($update_subvention_file > 0) {
-                $out['code'] = 200;
-                $out['message'] = 'El Archivo fué actualizado exitosamente..!';
-                $out['path'] = $old_path;
-            }
-        }else{
-            $campo = "id_accountability, name, path, url, type, related";
-            $valor = "$id_accountability, '$name', '$path', '$url', '$type', '$related'";
-            // $sql = "INSERT INTO accountability_files ($campo) VALUES ($valor)";
-            // print_r($sql);exit;
-            $id = $obj_bdmysql->insert("accountability_files", $campo, $valor, $dbconn);
-
-            if ($id > 0) {
-                $out['code'] = 200;
-                $out['message'] = 'El Archivo fué creado exitosamente..!';
-                $old_path = '';
-            }
+        if ($id > 0) {
+            $out['code'] = 200;
+            $out['message'] = 'El Documento fué creado exitosamente..!';
+            $old_path = '';
         }
 
         echo json_encode($out);
     break;
 
-    case 'viewDocuments':
-        $sql = "SELECT * FROM accountability_files WHERE id_accountability = $id";
+    case 'documentsList':
+
+        $requestData = $_REQUEST;
+
+        $columns = array(
+            0 => 'af.id',
+            1 => 'af.name',
+            2 => 'td.name',
+        );
+
+        $sql   = "SELECT af.id, af.name, af.url, td.name as name_document, af.type FROM accountability_files af INNER JOIN type_documents td ON td.id = af.type WHERE af.id_accountability = $id";
         $query = $obj_bdmysql->query($sql, $dbconn);
+        $totalData = is_array($query) ? count($query) : 0;
+        
+        
+        if (!empty($requestData['search']['value'])) {
+            $sql .= " AND (af.id LIKE '%" . $requestData['search']['value'] . "%' ";
+            $sql .= " OR af.name LIKE '%" . $requestData['search']['value'] . "%'";
+            $sql .= " OR td.name LIKE '%" . $requestData['search']['value'] . "%')";
+        } 
+        
+        $query = $obj_bdmysql->query($sql, $dbconn);
+        $totalFiltered = is_array($query) ? count($query) : 0;
+        
+        $sql .= " ORDER BY " . $columns[$requestData['order'][0]['column']] . " " . $requestData['order'][0]['dir'] . "  LIMIT " . $requestData['start'] . " ," . $requestData['length'];
+        $query = $obj_bdmysql->query($sql, $dbconn);
+        //print_r($sql);exit();
+        $data = array();
         if (is_array($query)) {
-            $out['id_accountability'] = $query[0]['id_accountability'];
+            foreach ($query as $row) {
+                $s = array();
+                $botones = '';
 
-            $documents = '';
-            $images = '';
-            foreach($query as $row){
-                if ($row['type'] == 2) {
-                    $documents .= '<div class="col-md-3 text-center">
-                                    <img src="../assets/img/file.png" class="rounded img-fluid" style="height:150px;width:150px"><br><small>'.$row['name'].'</small>
-                                </div>';
-                }
+                $botones .= '<a class="btn btn-primary btn-sm mr-1" href="'.$row['url'].'" target="_blank"><i class="fas fa-external-link-alt"></i></a>';
 
-                if ($row['type'] == 3) {
-                    $images .= '<img src="'.$row['url'].'" class="col-md-3 rounded img-fluid" style="height:150px;width:150px">';
+                if($obj_function->validarPermiso($_SESSION['permissions'],'accountability_view_delete')){
+                    $botones .= '<button class="btn btn-primary btn-sm mr-1" onclick="accountabilityController.deleteDocument(' . $row["id"] . ')"><i class="fas fa-trash-alt" aria-hidden="true"></i></a></button>';
                 }
+                
+
+                if($row['type'] == 1) $status = '<span class="badge badge-warning">Lista de beneficiarios</span>';
+                if($row['type'] == 2) $status = '<span class="badge badge-success">Comprobante de restitución de fondos</span>';
+                if($row['type'] == 3) $status = '<span class="badge badge-info">Fotografías de lo adquirido</span>';
+
+
+                $nestedData = array();
+                $nestedData[] = $row['id'];
+                $nestedData[] = '<center>' . html_entity_decode($row['name'], ENT_QUOTES | ENT_HTML401, "UTF-8") . '</center>'; 
+                $nestedData[] = '<center>' . $status . '</center>';
+                $nestedData[] = '<center>' . $botones . '</center>'; 
+
+                $data[] = $nestedData;
             }
-       
-      
-            $out['documents'] = $documents;            
-            $out['images'] = $images;
-            $out['code'] = 200;
-            $out['message'] = "Ok";
-        }else{
-            $out['code'] = 204;
-            $out['message'] = "Error";
         }
+        
+        ## Response
+        $json_data = array(           
+            "draw" => intval($requestData['draw']),
+            "recordsTotal" => intval($totalData),
+            "recordsFiltered" => intval($totalFiltered),
+            "data" => $data,
+        );//print_r($json_data);exit();
+
+        echo json_encode($json_data);
+        /////////////////////////////////////////////////////////////////////////////////////////
+    break;
+
+    case 'deleteDocumentsFile':
+
+        $sql = "SELECT `path` FROM accountability_files WHERE id = $id";
+        $financing_file = $obj_bdmysql->query($sql, $dbconn);
+
+        if (is_array($financing_file)) {
+            $out['path'] = $financing_file[0]['path'];
+        }
+        
+        $obj_bdmysql->delete("accountability_files", "id= $id", $dbconn);
+
+        $out['code']    = 200;
+        $out['message'] = 'Archivo Eliminado con exito..!';
+        //print_r($out);exit();
+        //print_r($out);exit();
         echo json_encode($out);
-        break;
+    break;
+
+    case 'checkDocumentsFiles':
+        if ($type == 3) {
+            $out['code'] = 200;
+            $out['message'] = 'ok..!';
+        } else{
+            $sql = "SELECT id FROM accountability_files WHERE id_accountability = $id_accountability AND type = '$type'";
+            $query = $obj_bdmysql->query($sql, $dbconn);
+
+            if(is_array($query)){
+                $out['code'] = 204;
+                $out['message'] = 'Ya haz guardado este tipo de documentos en esta rendición..!';
+            } else {
+                $out['code'] = 200;
+                $out['message'] = 'ok..!';
+            }
+        }
+
+        echo json_encode($out);
+    break;
 }

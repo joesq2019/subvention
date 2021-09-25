@@ -45,11 +45,17 @@ switch ($method) {
                 $s = array();
                 $botones = '';
                 $document = '';
-                if($obj_function->validarPermiso($_SESSION['permissions'],'budget_information_edit')){
+                $status = '';
+                /*if($obj_function->validarPermiso($_SESSION['permissions'],'budget_information_edit')){
                     $botones .= '<button class="btn btn-primary btn-sm mr-1" onclick="budgetInformationController.edit(' . $row["id"] . ')"><i class="fas fa-edit" aria-hidden="true"></i></a></button>';
-                }
-                if($obj_function->validarPermiso($_SESSION['permissions'],'budget_information_delete')){
-                    $botones .= '<button class="btn btn-primary btn-sm mr-1" onclick="budgetInformationController.deleted(' . $row["id"] . ')"><i class="fas fa-trash-alt" aria-hidden="true"></i></a></button>';
+                }*/
+
+                if($obj_function->validarPermiso($_SESSION['permissions'],'budget_information_delete') AND $row["status"] == 1){
+                    $botones .= '<button class="btn btn-primary btn-sm mr-1" title="Anular" onclick="budgetInformationController.cancel(' . $row["id"] . ','. $row["amount_available"] .')"><i class="fas fa-ban"></i></a></button>';
+                    $status .= '<i class="fas fa-check" style="color:#62dd6a" title="Activa"></i>';
+                }else{
+                    $botones .= '<button class="btn btn-primary btn-sm mr-1" title="Ya ha sido anulada" disabled><i class="fas fa-ban"></i></a></button>';
+                    $status .= '<i class="fas fa-ban" style="color:red" title="Anulada"></i>';
                 }
 
                 if ($row['url_document'] !== '') {
@@ -62,6 +68,7 @@ switch ($method) {
                 $nestedData[] = '<center>' . html_entity_decode($row['emision_date'], ENT_QUOTES | ENT_HTML401, "UTF-8") . '</center>';
                 $nestedData[] = '<center>' . html_entity_decode($row['amount_available'], ENT_QUOTES | ENT_HTML401, "UTF-8") . '</center>';    
                 $nestedData[] = '<center>' . utf8_encode($document) . '</center>';
+                $nestedData[] = '<center>' . $status . '</center>';
                 $nestedData[] = '<center>' . $botones . '</center>'; 
 
                 $data[] = $nestedData;
@@ -82,7 +89,7 @@ switch ($method) {
 
     case 'saveNewBudgetInformation':
         $fecha = date('Y-m-d');
-
+        //print_r($_SESSION);exit;
         if ($id_budget_information == 0) {
             //print_r("b");exit;
             $out['code'] = 204;
@@ -93,6 +100,17 @@ switch ($method) {
             $budget_information_id = $obj_bdmysql->insert("budge_information", $campo, $valor, $dbconn);          
 
             if ($budget_information_id > 0) {
+                $sql = "SELECT accumulated_amount from data";
+                $result = $obj_bdmysql->query($sql, $dbconn);
+
+                if (is_array($result)) {
+                    $suma = $result[0]['accumulated_amount'] + $add_amount_available;
+
+                    $campo = "accumulated_amount='$suma'";
+                    $where = "";
+                    $update_user = $obj_bdmysql->update("data", $campo, $where, $dbconn);
+                }
+
                 $out['id_user'] = $id_user;
                 $out['id_budget_information'] = $budget_information_id;
                 $out['code'] = 200;
@@ -100,25 +118,25 @@ switch ($method) {
             }           
         }
 
-        if ($id_budget_information != 0) {
-            // print_r($_POST);exit;
-            $out['code'] = 204;
-            $out['message'] = 'Error Updated...!';
+        // if ($id_budget_information != 0) {
+        //     // print_r($_POST);exit;
+        //     $out['code'] = 204;
+        //     $out['message'] = 'Error Updated...!';
              
-            $campo = "budget_certificate_number='$add_budget_certificate_number',emision_date='$add_emision_date', amount_available='$add_amount_available'";
-            $where = "id = '$id_budget_information'";
-            // $sql = "UPDATE `budge_information` SET $campo WHERE $where";
-            // print($sql);exit();
-            $update_budget_information = $obj_bdmysql->update("budge_information", $campo, $where, $dbconn);
+        //     $campo = "budget_certificate_number='$add_budget_certificate_number',emision_date='$add_emision_date', amount_available='$add_amount_available'";
+        //     $where = "id = '$id_budget_information'";
+        //     // $sql = "UPDATE `budge_information` SET $campo WHERE $where";
+        //     // print($sql);exit();
+        //     $update_budget_information = $obj_bdmysql->update("budge_information", $campo, $where, $dbconn);
 
-            if ($update_budget_information > 0) {
-            	$out['id_user'] = $id_user;
-                $out['id_budget_information'] = $id_budget_information;
-                $out['code'] = 200;
-                $out['message'] = 'El certificado fué actualizado exitosamente..!';
-            }
+        //     if ($update_budget_information > 0) {
+        //     	$out['id_user'] = $id_user;
+        //         $out['id_budget_information'] = $id_budget_information;
+        //         $out['code'] = 200;
+        //         $out['message'] = 'El certificado fué actualizado exitosamente..!';
+        //     }
             
-        }
+        // }
 
         echo json_encode($out);
     break;
@@ -149,12 +167,18 @@ switch ($method) {
         echo json_encode($out);
     break;
 
-    case 'delBudgetInformation':
-    // print_r($_POST);
-        $obj_bdmysql->delete("budge_information", "id= $id", $dbconn);
+    case 'cancelBudgetInformation':
+
+        $campo = "accumulated_amount='$resultado'";
+        $where = "id = 1";
+        $update_user = $obj_bdmysql->update("data", $campo, $where, $dbconn);
+
+        $campo = "status='0'";
+        $where = "id = '$id'";
+        $update_user = $obj_bdmysql->update("budge_information", $campo, $where, $dbconn);
 
         $out['code']    = 200;
-        $out['message'] = 'Certificado Eliminado con exito..!';
+        $out['message'] = 'Certificado Presupuestario Cancelado con exito..!';
 
         echo json_encode($out);
     break;
@@ -195,5 +219,28 @@ switch ($method) {
         }        
 
         echo json_encode($out);
-        break;
+    break;
+
+    case 'findAccumulatedAmount':
+        $sql = "SELECT accumulated_amount FROM data WHERE id = 1";
+        $query = $obj_bdmysql->query($sql, $dbconn);
+
+        if (is_array($query)) {
+            $out['accumulated_amount'] = $query[0]['accumulated_amount'];
+            $out['code'] = 200;
+            $out['message'] = 'ok..!';
+        }else{
+            $out['code'] = 204;
+            $out['message'] = 'error find accumulated amount..!';
+        }
+        echo json_encode($out);
+    break;
+
+    case 'new':
+        $suma = 1 + 2;
+
+                    $campo = "accumulated_amount='$suma'";
+                    $where = "WHERE id = 1";
+                    $update_user = $obj_bdmysql->update("data", $campo, $where, $dbconn);
+    break;
 }

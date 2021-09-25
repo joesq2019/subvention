@@ -24,6 +24,7 @@
 	                    <th>Fecha de emisión</th>
 	                    <th>Monto disponible</th>
 	                    <th>Documento de respaldo</th>
+	                    <th>Status</th>
 	                    <th>Acciones</th>
 	                </tr>
 	            </thead>
@@ -62,7 +63,7 @@
                     	<div class="col-md-4">
                     		<div class="form-group m-form__group"> 
 		                        <label>Monto disponible</label>
-		                        <input type="number" name="add_amount_available" id="add_amount_available" class="form-control" step="0.1" min="0" required>		                        
+		                        <input type="text" name="add_amount_available" id="add_amount_available" class="form-control" step="0.1"required>
 		                    </div>
                     	</div>
                     	<div class="col md-12">

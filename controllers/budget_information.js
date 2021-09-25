@@ -52,7 +52,11 @@ var budgetInformationController = {
 
         jQuery.validator.addMethod("nombres", function(value, element) {
             return this.optional(element) || /^[a-zA-ZÀ-ÿ\u00f1\u00d1]+(\s*[a-zA-ZÀ-ÿ\u00f1\u00d1]*)*[a-zA-ZÀ-ÿ\u00f1\u00d1]+$/.test(value);
-        }, "Solo letras");        
+        }, "Solo letras");
+
+        jQuery.validator.addMethod("amount", function(value, element) {
+            return this.optional(element) || /^[0-9]+([.][0-9]+)?$/.test(value);
+        }, "Numeros enteros ó decimales (ejemplo: 3,50)");
 
         jQuery.validator.addMethod("alphaespacios", function(value, element) {
             return this.optional(element) || /^[A-Za-z\s]+$/.test(value);
@@ -71,7 +75,8 @@ var budgetInformationController = {
                     required: true
                 },
                 add_amount_available: {
-                    required: true
+                    required: true,
+                    amount: true
                 },
                 documento_de_respaldo: {
                     required: true
@@ -283,38 +288,56 @@ var budgetInformationController = {
             "json"
         );
     },
-    deleted: function (id){
-
+    cancel: function (id,amount_available){
         event.preventDefault();
-        Swal.fire({
-            title: "Estas seguro de realizar esta accion?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Sí, Hazlo!",
-            cancelButtonText: 'Cancelar!',
-        }).then(result => {
-            if (result.value) {
-                preloader("show");
-                var parametros = {
-                    "method": "delBudgetInformation",
-                    "id": id,
-                };
-                $.post(MODEL, parametros, function(data) {
-                    if (data.code == 200) {
-                        dataTable.draw();
-                        preloader("hide", data.message, 'success');
+        preloader("show");
+        var parametros = {
+            "method": "findAccumulatedAmount",
+            "id": id,
+        };
+        $.post(MODEL, parametros, function(data) {
+            if (data.code == 200) {
+                var resultado = data.accumulated_amount - amount_available;
+                Swal.fire({
+                    title: "Estas seguro de realizar esta accion?",
+                    text: `Si anulas este certificado presupuestario, el monto del mismo(${amount_available}) será descontado al monto total acumulado y este ultimo puede quedar con saldo negativo..!
+                    Ahora mismo el monto total acumulado es de: ${data.accumulated_amount} y luego de anular será: ${resultado}`,
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Sí, Hazlo!",
+                    cancelButtonText: 'Cancelar!',
+                }).then(result => {
+                    if (result.value) {
+                        preloader("show");
+                        var parametros = {
+                            "method": "cancelBudgetInformation",
+                            "id": id,
+                            "resultado": resultado
+                        };
+                        $.post(MODEL, parametros, function(data) {
+                            if (data.code == 200) {
+                                dataTable.draw();
+                                preloader("hide", data.message, 'success');
+                            }
+                            if(data.code == 204){
+                                preloader("hide",data.message,'error');
+                            }
+                            if(data.code == 440) {
+                                loginTimeout();
+                            }
+                        },'json');
                     }
-                    if(data.code == 204){
-                        preloader("hide",data.message,'error');
-                    }
-                    if(data.code == 440) {
-                        loginTimeout();
-                    }
-                },'json');
+                });
             }
-        });
+            if(data.code == 204){
+                preloader("hide",data.message,'error');
+            }
+            if(data.code == 440) {
+                loginTimeout();
+            }
+        },'json');
     },
     status: function(id) {
         var parametros = {

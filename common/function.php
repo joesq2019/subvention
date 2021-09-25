@@ -207,7 +207,10 @@ class coFunction{
                     'accountability_list' => 'Puede ver la lista de rendicion de cuentas',
                     'accountability_add' => 'Puede agregar rendicion de cuenta',
                     'accountability_edit' => 'Puede editar rendicion de cuenta',
-                    'accountability_delete' => 'Puede borrar rendicion de cuenta'
+                    'accountability_delete' => 'Puede borrar rendicion de cuenta',
+                    'accountability_view_list' => 'Puede ver documentos de rendicion de cuenta',
+                    'accountability_view_add' => 'Puede subir documentos de rendicion de cuenta',
+                    'accountability_view_delete' => 'Puede borrar documentos de rendicion de cuenta'
                 ]
             ],
             'budget_information' => [

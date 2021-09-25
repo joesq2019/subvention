@@ -91,7 +91,8 @@
 
             <!-- Sidebar Message -->
             <div class="sidebar-card">
-                <img class="mb-2 img-fluid" src="../assets/img/huachipato2.png" alt="">
+                <!-- <img class="mb-2 img-fluid" src="../assets/img/invalid.png" alt=""> -->
+                <i class="fas fa-smile" style="font-size: 50px;"></i>
             </div>
 
         </ul>

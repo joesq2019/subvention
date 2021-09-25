@@ -11,31 +11,33 @@ var subventionAddController = {
             subventionAddController.edit(id_subvention)
         }
 
-        // jQuery.validator.addMethod("alphanumeric", function(value, element) {
-        //     return this.optional(element) || /^[a-zA-Z0-9]*$/.test(value);
-        // }, "Solo letras y números");
-
         jQuery.validator.addMethod("telefono", function(value, element) {
             return this.optional(element) || /^[0-9+-\s]*$/.test(value);
         }, "Solo números, espacios y guiones");
 
-        // jQuery.validator.addMethod("nombres", function(value, element) {
-        //     return this.optional(element) || /^[a-zA-ZÀ-ÿ\u00f1\u00d1]+(\s*[a-zA-ZÀ-ÿ\u00f1\u00d1]*)*[a-zA-ZÀ-ÿ\u00f1\u00d1]+$/.test(value);
-        // }, "Solo letras");        
-
-        // jQuery.validator.addMethod("alphaespacios", function(value, element) {
-        //     return this.optional(element) || /^[A-Za-z\s]+$/.test(value);
-        // }, "Solo letras y espacios");
+        jQuery.validator.addMethod("amount", function(value, element) {
+            return this.optional(element) || /^[0-9]+([.][0-9]+)?$/.test(value);
+        }, "Numeros enteros ó decimales (ejemplo: 3,50)");
 
         jQuery.validator.addMethod("rut", function(value, element) {
             return this.optional(element) || /^[0-9]+[-|‐]{1}[0-9kK]{1}$/.test(value);
         }, "Instroduzca un rut válido");        
-        
-        $("#formCreateSubvention").validate({
+
+        $(".month_list").datepicker( {
+            format: "mm-yyyy",
+            startView: "months", 
+            minViewMode: "months"
+        });
+
+        $("#formCreateSubventionStep1").validate({
             rules: {
                 inputOrgRut: {
                     required: true,
                     rut: true
+                },
+                inputPhone:{
+                    required: true,
+                    telefono: true
                 }
             },
             messages: {
@@ -55,11 +57,58 @@ var subventionAddController = {
                 $(element).removeClass('is-invalid');
             }
         });
+
+        $("#formCreateSubventionStep2").validate({
+            rules: {
+                inputRepreName1: {
+                    required: true
+                },
+            },
+            messages: {
+                inputRepreName1: {
+                    required: "Este campo es requerido.",
+                }
+            },
+            errorElement: 'span',
+            errorPlacement: function (error, element) {
+                error.addClass('invalid-feedback');
+                element.closest('.form-group').append(error);
+            },
+            highlight: function (element, errorClass, validClass) {
+                $(element).addClass('is-invalid');
+            },
+            unhighlight: function (element, errorClass, validClass) {
+                $(element).removeClass('is-invalid');
+            }
+        });
+
+        $("#formCreateSubventionStep3").validate({
+            rules: {
+                inputQuantity_1: {
+                    amount: true,
+                }
+            },
+            messages: {
+            },
+            errorElement: 'span',
+            errorPlacement: function (error, element) {
+                error.addClass('invalid-feedback');
+                element.closest('.form-group').append(error);
+            },
+            highlight: function (element, errorClass, validClass) {
+                $(element).addClass('is-invalid');
+            },
+            unhighlight: function (element, errorClass, validClass) {
+                $(element).removeClass('is-invalid');
+            }
+        });
+
         $(".month_list").datepicker( {
             format: "mm-yyyy",
             startView: "months", 
             minViewMode: "months"
         });
+
         //Para agregar required cuando se escriba en el campo
         $("#inputRepreName1").keyup(function(){$("#inputRepreAddress1").prop("required",!0),$("#inputReprePhone1").prop("required",!0)});
         $("#inputRepreName2").keyup(function(){$("#inputRepreAddress2").prop("required",!0),$("#inputReprePhone2").prop("required",!0)});
@@ -69,171 +118,24 @@ var subventionAddController = {
     },
     events: function() {
         //Wizard
-        $('.btn-next-1').click(function() {   
-            var fail = false, fail_log = '', name = '', $div_alert = '';
-            $('#wizard1-5556').find('select, textarea, input').each(function() {
-                if (!$(this).prop('required')) {
-                } else {
-                    if (!$(this).val()) {
-                        id_input = $(this).attr('id');
-                        var $label = $("label[for='" + id_input + "']").text();
-                        fail = true;
-                        name = $(this).attr('name');
-                        fail_log += $label + " is required \n";
-                        $('input:focus:invalid').css({
-                            'background': '#fff url(../assets/img/invalid.png) no-repeat 98% center',
-                            'box-shadow': '0 0 5px #d45252',
-                            'border-color': '#b03535'
-                        });
-                        $('select:focus:invalid').css({
-                            'background': '#fff url(../assets/img/invalid.png) no-repeat 98% center',
-                            'box-shadow': '0 0 5px #d45252',
-                            'border-color': '#b03535'
-                        });
-                    } else {
-                        $('input:required:valid').css({
-                            'background': '#fff url(../assets/img/valid.png) no-repeat 98% center',
-                            'box-shadow': '0 0 5px #5cd053',
-                            'border-color': '#28921f'
-                        });
-                        $('select:required:valid').css({
-                            'background': '#fff url(../assets/img/valid.png) no-repeat 98% center',
-                            'box-shadow': '0 0 5px #5cd053',
-                            'border-color': '#28921f'
-                        });
-                    }
-                }
-            });
-            if (!fail) {
+        $('.btn-next-1').click(function() {
+            if ($("#formCreateSubventionStep1").valid()) {
                 $('.nav-pills > .active').next('a').trigger('click');
-                $('.b-1').removeClass('disabled');               
-            } else {
-                $('.b-1').addClass('disabled');
-                if ($('.alert-global').length) {
-                    console.log("ya exite")
-                } else {
-                    $div_alert = '<div class="alert alert-danger alert-global" role="alert">' +
-                        '<strong>Este campo es requerido.</strong>' +
-                        '</div>';
-                    $('input:required:invalid').after($div_alert);
-                    $('select:required:invalid').after($div_alert);
-                    $(".alert-global").fadeTo(4000, 700).slideUp(700, function() {
-                        $(".alert-global").slideUp(700);
-                        $(".alert-global").remove();
-                    });
-                }
+                //$('.b-1').removeClass('disabled'); 
             }
         });
 
-        $('.btn-next-2').click(function() {   
-            var fail = false, fail_log = '', name = '', $div_alert = '';
-            $('#wizard2').find('select, textarea, input').each(function() {
-                if (!$(this).prop('required')) {
-                } else {
-                    if (!$(this).val()) {
-                        id_input = $(this).attr('id');
-                        var $label = $("label[for='" + id_input + "']").text();
-                        fail = true;
-                        name = $(this).attr('name');
-                        fail_log += $label + " is required \n";
-                        $('input:focus:invalid').css({
-                            'background': '#fff url(../assets/img/invalid.png) no-repeat 98% center',
-                            'box-shadow': '0 0 5px #d45252',
-                            'border-color': '#b03535'
-                        });
-                        $('select:focus:invalid').css({
-                            'background': '#fff url(../assets/img/invalid.png) no-repeat 98% center',
-                            'box-shadow': '0 0 5px #d45252',
-                            'border-color': '#b03535'
-                        });
-                    } else {
-                        $('input:required:valid').css({
-                            'background': '#fff url(../assets/img/valid.png) no-repeat 98% center',
-                            'box-shadow': '0 0 5px #5cd053',
-                            'border-color': '#28921f'
-                        });
-                        $('select:required:valid').css({
-                            'background': '#fff url(../assets/img/valid.png) no-repeat 98% center',
-                            'box-shadow': '0 0 5px #5cd053',
-                            'border-color': '#28921f'
-                        });
-                    }
-                }
-            });
-            if (!fail) {
+        $('.btn-next-2').click(function() {
+            if ($("#formCreateSubventionStep2").valid()) {
                 $('.nav-pills > .active').next('a').trigger('click');
-                $('.b-2').removeClass('disabled');
-            } else {
-                if ($('.alert-global').length) {
-                    console.log("ya exite")
-                } else {
-                    $('.b-2').addClass('disabled');
-                    $div_alert = '<div class="alert alert-danger alert-global" role="alert">' +
-                        '<strong>Este campo es requerido.</strong>' +
-                        '</div>';
-                    $('input:required:invalid').after($div_alert);
-                    $('select:required:invalid').after($div_alert);
-                    $(".alert-global").fadeTo(4000, 700).slideUp(700, function() {
-                        $(".alert-global").slideUp(700);
-                        $(".alert-global").remove();
-                    });
-                }
+                //$('.b-1').removeClass('disabled'); 
             }
         });
 
         $('.btn-next-3').click(function() {   
-            var fail = false, fail_log = '', name = '', $div_alert = '';
-            $('#wizard3').find('select, textarea, input').each(function() {
-                if (!$(this).prop('required')) {
-                } else {
-                    if (!$(this).val()) {
-                        id_input = $(this).attr('id');
-                        var $label = $("label[for='" + id_input + "']").text();
-                        fail = true;
-                        name = $(this).attr('name');
-                        fail_log += $label + " is required \n";
-                        $('input:focus:invalid').css({
-                            'background': '#fff url(../assets/img/invalid.png) no-repeat 98% center',
-                            'box-shadow': '0 0 5px #d45252',
-                            'border-color': '#b03535'
-                        });
-                        $('select:focus:invalid').css({
-                            'background': '#fff url(../assets/img/invalid.png) no-repeat 98% center',
-                            'box-shadow': '0 0 5px #d45252',
-                            'border-color': '#b03535'
-                        });
-                    } else {
-                        $('input:required:valid').css({
-                            'background': '#fff url(../assets/img/valid.png) no-repeat 98% center',
-                            'box-shadow': '0 0 5px #5cd053',
-                            'border-color': '#28921f'
-                        });
-                        $('select:required:valid').css({
-                            'background': '#fff url(../assets/img/valid.png) no-repeat 98% center',
-                            'box-shadow': '0 0 5px #5cd053',
-                            'border-color': '#28921f'
-                        });
-                    }
-                }
-            });
-            if (!fail) {
+            if ($("#formCreateSubventionStep3").valid()) {
                 $('.nav-pills > .active').next('a').trigger('click');
-                $('.b-2').removeClass('disabled');
-            } else {
-                if ($('.alert-global').length) {
-                    console.log("ya exite")
-                } else {
-                    $('.b-2').addClass('disabled');
-                    $div_alert = '<div class="alert alert-danger alert-global" role="alert">' +
-                        '<strong>Este campo es requerido.</strong>' +
-                        '</div>';
-                    $('input:required:invalid').after($div_alert);
-                    $('select:required:invalid').after($div_alert);
-                    $(".alert-global").fadeTo(4000, 700).slideUp(700, function() {
-                        $(".alert-global").slideUp(700);
-                        $(".alert-global").remove();
-                    });
-                }
+                //$('.b-1').removeClass('disabled'); 
             }
         });
 
@@ -361,6 +263,11 @@ var subventionAddController = {
                 <td><input type="text" name="inputTotalPrice_${i2}" id="inputTotalPrice_${i2}" data-op="${i2}" placeholder="Precio Total" class="form-control inner_form total_price_list" readonly="" /></td>
                 <td><button type="button" name="remove" id="${i2}" class="btn btn-danger btn_remove">X</button></td>
                 </tr>`);
+
+                $( `#inputDetails_${i2}` ).rules( "add", { required: true });
+                $( `#inputUnityPrice_${i2}` ).rules( "add", { required: true, amount: true });
+                $( `#inputQuantity_${i2}` ).rules( "add", { required: true, amount: true });
+                $( `#inputTotalPrice_${i2}` ).rules( "add", { required: true, amount: true });
             }else{
                 i1++;
                 $('#dynamic_field').append(
@@ -370,7 +277,12 @@ var subventionAddController = {
                 <td><input type="number" name="inputQuantity_${i1}" id="inputQuantity_${i1}" data-op="${i1}" placeholder="Cantidad" class="form-control inner_form quantity_list" /></td>
                 <td><input type="text" name="inputTotalPrice_${i1}" id="inputTotalPrice_${i1}" data-op="${i1}" placeholder="Precio Total" class="form-control inner_form total_price_list" readonly="" /></td>
                 <td><button type="button" name="remove" id="${i1}" class="btn btn-danger btn_remove">X</button></td>
-                </tr>`);  
+                </tr>`);
+
+                $( `#inputDetails_${i1}` ).rules( "add", { required: true });
+                $( `#inputUnityPrice_${i1}` ).rules( "add", { required: true, amount: true });
+                $( `#inputQuantity_${i1}` ).rules( "add", { required: true, amount: true });
+                $( `#inputTotalPrice_${i1}` ).rules( "add", { required: true, amount: true }); 
             }
          
         });
@@ -506,7 +418,7 @@ var subventionAddController = {
         $("#btnSavedSubvention").click(function(event){
             event.preventDefault();
 
-            if ($("#formCreateSubvention").valid()) {
+            if ($("#formCreateSubventionStep3").valid()) {
                 $("#btnSavedSubvention").attr('disabled','disabled');//deshabilitar el boton
                 // var form_data = new FormData();
                 // var step3images = document.getElementById('financing_files').files.length;
@@ -704,7 +616,7 @@ var subventionAddController = {
             //paso 1
             $("#inputYearSubvention").val(data.subvention_data.year);
             $("#inputOrgName").val(data.subvention_data.name);
-            $("#inputOrgRut").val(data.subvention_data.name);
+            $("#inputOrgRut").val(data.subvention_data.rut);
             $("#inputAddress").val(data.subvention_data.address);
             $("#inputEmailAddress").val(data.subvention_data.email);
             $("#inputPhone").val(data.subvention_data.phone);
@@ -936,7 +848,7 @@ var subventionAddController = {
 
         $("#btnSavedSubventionEdit").click(function(event){
             event.preventDefault();
-            if ($("#formCreateSubvention").valid()) {
+            if ($("#formCreateSubventionStep3").valid()) {
                 $("#btnSavedSubventionEdit").attr('disabled','disabled');//deshabilitar el boton
                 var financing_array = [];
                 $( ".dynamic_field" ).each(function( index ) {

@@ -25,7 +25,7 @@ switch ($method) {
 
         $id_user = $_SESSION['id_user'];
 
-        $sql = "SELECT su.id as subvention_id, su.created_at, o.name, ac.date_admission, ac.status FROM subvention su INNER JOIN organitation o on o.id = su.id_organitation LEFT JOIN accountability ac on ac.id_subvention = su.id";
+        $sql = "SELECT su.id as subvention_id, su.status as subvention_status, su.created_at, o.name, ac.date_admission, ac.status as status_accountability FROM subvention su INNER JOIN organitation o on o.id = su.id_organitation LEFT JOIN accountability ac on ac.id_subvention = su.id";
         $query = $obj_bdmysql->query($sql, $dbconn);
         $totalData = is_array($query) ? count($query) : 0;
         //print_r($sql);exit();
@@ -55,18 +55,21 @@ switch ($method) {
                 }*/
 
 
-                $botones .= '<button class="btn btn-primary btn-sm mr-1" onclick="subventionController.view(' . $row["subvention_id"] . ')"><i class="fas fa-eye" aria-hidden="true"></i></a></button>';
+                $botones .= '<button class="btn btn-primary btn-sm mr-1 mt-1" onclick="subventionController.view(' . $row["subvention_id"] . ')"><i class="fas fa-eye" aria-hidden="true"></i></a></button>';
 
-                $botones .= '<button class="btn btn-primary btn-sm mr-1" title="Editar Subvención" onclick="subventionController.edit(' . $row["subvention_id"] . ')"><i class="fas fa-edit" aria-hidden="true"></i></a></button>'; 
+                $botones .= '<button class="btn btn-primary btn-sm mr-1 mt-1" title="Editar Subvención" onclick="subventionController.edit(' . $row["subvention_id"] . ')"><i class="fas fa-edit" aria-hidden="true"></i></a></button>'; 
 
-                $botones .= '<button class="btn btn-primary btn-sm mr-1" title="Editar Documentos" onclick="subventionController.editDocuments(' . $row["subvention_id"] . ')"><i class="fas fa-folder"></i></a></button>';               
+                $botones .= '<button class="btn btn-primary btn-sm mr-1 mt-1" title="Editar Documentos" onclick="subventionController.editDocuments(' . $row["subvention_id"] . ')"><i class="fas fa-folder"></i></a></button>';
+
+                $botones .= '<button class="btn btn-primary btn-sm mr-1 mt-1" title="Acciones" onclick="subventionController.actions(' . $row["subvention_id"] . ')"><i class="fas fa-list"></i></a></button>';
 
                 $nestedData = array();
                 $nestedData[] = $row['subvention_id'];
                 $nestedData[] = '<center>' . html_entity_decode($row['name'], ENT_QUOTES | ENT_HTML401, "UTF-8") . '</center>';    
                 $nestedData[] = '<center>' . $row['created_at'] . '</center>';
                 $nestedData[] = '<center>' . $row['date_admission'] . '</center>';
-                $nestedData[] = '<center>' . $row['status'] . '</center>'; 
+                $nestedData[] = '<center>' . $row['status_accountability'] . '</center>';
+                $nestedData[] = '<center>' . $row['subvention_status'] . '</center>'; 
                 $nestedData[] = '<center>' . $botones . '</center>'; 
 
                 $data[] = $nestedData;
@@ -453,6 +456,49 @@ switch ($method) {
         } else {
             $out['code'] = 200;
             $out['message'] = 'ok..!';
+        }
+
+        echo json_encode($out);
+    break;
+
+    case 'updateSubventionStatus':
+        //0 Error  //1 En evaluación   //2 Pre-Aprobada    //3 Aprobada    //4 Rechazada
+
+        if ($status == 3) {
+            $sql = "SELECT accumulated_amount FROM data WHERE id = 1";
+            $query = $obj_bdmysql->query($sql, $dbconn);
+            $monto = 4700;
+
+            if($monto <= $query[0]['accumulated_amount']){
+
+                $campo = "status='$status', reason='$reason'";
+                $where = "id = '$subvention_id'";
+                $update_subvention = $obj_bdmysql->update("subvention", $campo, $where, $dbconn);
+
+                $resultado = $query[0]['accumulated_amount'] - $monto;
+                $campo = "accumulated_amount='$resultado'";
+                $where = "id = 1";
+                $update_data = $obj_bdmysql->update("data", $campo, $where, $dbconn);
+                
+                $out['code']    = 200;
+                $out['message'] = 'El estado de la subvención se ha cambiado..!';
+                
+            }else{
+                $out['code']    = 204;
+                $out['message'] = 'No hay suficiente disponibilidad presupuestaria..!';
+            }
+        } else {
+            $campo = "status='$status', reason='$reason'";
+            $where = "id = '$subvention_id'";
+            $update_subvention = $obj_bdmysql->update("subvention", $campo, $where, $dbconn);
+
+            if($update_subvention > 0){
+                $out['code']    = 200;
+                $out['message'] = 'El estado de la subvención se ha cambiado..!';
+            }else{
+                $out['code']    = 204;
+                $out['message'] = 'Error update..!';
+            }
         }
 
         echo json_encode($out);
