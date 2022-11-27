@@ -26,16 +26,17 @@ switch ($method) {
             5 => 'no_payment_installments'
         );        
 
-        $sql = "SELECT *  FROM approval_subsidy";
+        $sql = "SELECT aps.*, s.id AS numero_de_folio FROM approval_subsidy aps INNER JOIN subvention s ON s.id = aps.id_subvention";
         $query = $obj_bdmysql->query($sql, $dbconn);
         $totalData = is_array($query) ? count($query) : 0;
-        //print_r($sql);exit();
+        
         if (!empty($requestData['search']['value'])) {
-            $sql .= " WHERE no_mayor_decree LIKE '%" . $requestData['search']['value'] . "%' ";
-            $sql .= " OR agreement_date LIKE '%" . $requestData['search']['value'] . "%'";
-            $sql .= " OR no_payment_decree LIKE '%" . $requestData['search']['value'] . "%'";
-            $sql .= " OR payment_date LIKE '%" . $requestData['search']['value'] . "%'";
-            $sql .= " OR no_payment_installments LIKE '%" . $requestData['search']['value'] . "%'";
+            $sql .= " WHERE aps.no_mayor_decree LIKE '%" . $requestData['search']['value'] . "%' ";
+            $sql .= " OR aps.agreement_date LIKE '%" . $requestData['search']['value'] . "%'";
+            $sql .= " OR s.id LIKE '%" . $requestData['search']['value'] . "%'";
+            $sql .= " OR aps.no_payment_decree LIKE '%" . $requestData['search']['value'] . "%'";
+            $sql .= " OR aps.payment_date LIKE '%" . $requestData['search']['value'] . "%'";
+            $sql .= " OR aps.no_payment_installments LIKE '%" . $requestData['search']['value'] . "%'";
         } 
         
         $query = $obj_bdmysql->query($sql, $dbconn);
@@ -43,7 +44,7 @@ switch ($method) {
         
         $sql .= " ORDER BY " . $columns[$requestData['order'][0]['column']] . " " . $requestData['order'][0]['dir'] . "  LIMIT " . $requestData['start'] . " ," . $requestData['length'];
         $query = $obj_bdmysql->query($sql, $dbconn);
-
+        //print_r($sql);exit();
         $data = array();
         if (is_array($query)) {
             foreach ($query as $row) {
@@ -58,11 +59,12 @@ switch ($method) {
 
                 $nestedData = array();
                 $nestedData[] = $row['id'];
-                 $nestedData[] = '<center>' . html_entity_decode($row['no_mayor_decree'], ENT_QUOTES | ENT_HTML401, "UTF-8") . '</center>';
+                $nestedData[] = '<center>'. $row['numero_de_folio'] .'</center>';
+                $nestedData[] = '<center>' . html_entity_decode($row['no_mayor_decree'], ENT_QUOTES | ENT_HTML401, "UTF-8") . '</center>';
                 $nestedData[] = '<center>' . html_entity_decode($row['agreement_date'], ENT_QUOTES | ENT_HTML401, "UTF-8") . '</center>';
                 $nestedData[] = '<center>' . html_entity_decode($row['no_payment_decree'], ENT_QUOTES | ENT_HTML401, "UTF-8") . '</center>';    
                 $nestedData[] = '<center>' . html_entity_decode($row['payment_date'], ENT_QUOTES | ENT_HTML401, "UTF-8") . '</center>';    
-                $nestedData[] = '<center>' . html_entity_decode($row['no_payment_installments'], ENT_QUOTES | ENT_HTML401, "UTF-8") . '</center>';    
+                //$nestedData[] = '<center>' . html_entity_decode($row['no_payment_installments'], ENT_QUOTES | ENT_HTML401, "UTF-8") . '</center>';    
                 $nestedData[] = '<center>' . $botones . '</center>'; 
 
                 $data[] = $nestedData;

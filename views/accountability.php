@@ -5,6 +5,9 @@
 	max-width: 10rem;
 }	
 </style>
+<div class="alert alert-success text-center" id="alert_name_organization" role="alert" style="display:none">
+  
+</div>
 <div class="card shadow mb-4">
 	<div class="card-header py-3">
 		<div class="row">
@@ -57,8 +60,8 @@
                 	<div class="row">
                 		<div class="col-md-4">
                     		<div class="form-group m-form__group"> 
-		                        <label>Rut</label>
-		                        <input type="text" name="add_rut_organization" id="add_rut_organization" class="form-control" required>
+		                        <label>N° Folio de la subvencion</label>
+		                        <input type="text" name="add_num_folio" id="add_num_folio" class="form-control" required>
 		                        <input type="hidden" name="id_subvention" id="id_subvention">
 		                    </div>
                     	</div>
@@ -217,7 +220,9 @@
         </div>
     </div>
 </div>
- 
+<?php endif; ?>
+
+<?php if($obj_function->validarPermiso($_SESSION['permissions'],'accountability_view_list')): ?>
 <div class="modal fade" id="modalListDocuments" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -297,8 +302,60 @@
         </div>
     </div>
 </div>
-
 <?php endif; ?>
+
+<div class="modal fade" id="modalActions" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            	<div class="col-md-6">
+            		<h5 class="modal-title" id="number_folio">Subvención</h5>
+            	</div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+            	<input type="hidden" name="id_accountability_action" id="id_accountability_action">
+            	<form id="formAction">
+					<div class="col-md-12">
+						<div class="form-group m-form__group">
+							<label for="">Acción:</label>
+		        			<select name="select_action" id="select_action" class="form-control">
+		        				<option value="">Seleccione 1 opción</option>
+		        				<option value="0">Pendiente</option>
+		        				<option value="1">Aprobada</option>
+		        				<option value="2">Observada</option>
+		        				<option value="3">Reintegro</option>
+		        			</select>
+						</div>
+	        		</div>
+	        		<div class="col-md-12 div_reason" style="display: block;">
+	        			<div class="form-group m-form__group">
+	        				<label for="">Motivo:</label>
+	        				<textarea name="" class="form-control" name="textarea_reason" id="textarea_reason" required></textarea>
+						</div>
+	        		</div>
+	        		<div class="col-md-12 div_refund" style="display: none;">
+		        		<div class="row">
+	                    	<div class="col-md-12">
+	                    		<div class="form-group m-form__group"> 
+			                        <label>Archivo</label>
+			                        <input type="file" name="add_file_refund" id="add_file_refund" class="form-control" accept='file_extension|image/*'>
+			                    </div>
+	                    	</div>
+	                    </div>
+	        		</div>
+            	</form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary tr" key="" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-success" id="btnSaveAction">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/8.6.2/firebase.js"></script>
 

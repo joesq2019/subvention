@@ -2,9 +2,18 @@ var MODEL = '../models/subvention_model.php';
 var dataTable = '';
 var dataTableDocuments = '';
 
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+
+
 var subventionController = {
     init: () => {      
         console.log("Init");
+
+        if (urlParams.get("organization") !== null) {
+            var id_organization = urlParams.get("organization");
+            console.log("id_organization: "+id_organization)
+        }
 
         dataTable = $('#subventionDataTable').DataTable({
             "processing": true,
@@ -13,7 +22,8 @@ var subventionController = {
             "ajax": {
                 url: MODEL, // json datasource
                 data: {
-                    method: "subventionsList"
+                    method: "subventionsList",
+                    id_organization: id_organization > 0 ? id_organization : 0
                 },
                 type: "post",
                 error: function() {}
@@ -39,6 +49,47 @@ var subventionController = {
                     "last": "Ultimo",
                     "next": "Siguiente",
                     "previous": "Anterior"
+                },
+                buttons: {
+                    pageLength: {
+                        _: "Mostrar %d entradas",
+                        '-1': "Todas las entradas"
+                    }
+                }
+            },
+            "lengthMenu": [ [10, 25, 50, -1], [10, 25, 50, "All"] ],
+            dom: 'Bfrtip',
+            buttons: [
+                'pageLength',
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel"></i>',
+                    titleAttr: 'Exportar a Excel',
+                    className: 'btn btn-success',
+                    exportOptions: {
+                        columns: [ 0, 1, 2, 3, 4, 5 ]
+                    }
+                },
+                {
+                    text: '<i class="fas fa-file-pdf"></i>',
+                    titleAttr: 'Exportar a PDF',
+                    className: 'btn btn-danger',
+                    extend: 'pdfHtml5',
+                    exportOptions: {
+                        columns: [ 0, 1, 2, 3, 4, 5 ]
+                    }
+                }
+            ],
+            "drawCallback": function( response ) {
+                if (response.json !== undefined){
+                    if (response.json.code == '440') {
+                        loginTimeout(response.json.message);
+                        return;
+                    }
+                    if(response.json.name_organization != ""){
+                        $("#alert_name_organization").html("A continuación se mostraran todas las subvenciones de la organización: <span class='font-weight-bold'>"+response.json.name_organization+"<span>");
+                        $("#alert_name_organization").show("");
+                    }
                 }
             }
         });
@@ -80,6 +131,27 @@ var subventionController = {
                 },
                 textarea_reason: {
                     required: true
+                },
+                add_no_mayor_decree: {
+                    required: false
+                },
+                add_agreement_date: {
+                    required: false
+                },
+                add_no_payment_decree: {
+                    required: false
+                },
+                add_payment_date: {
+                    required: false
+                },
+                add_no_payment_installments: {
+                    required: false
+                },
+                add_no_session: {
+                    required: false
+                },
+                add_session_date: {
+                    required: false
                 }
             },
             messages: {
@@ -88,6 +160,27 @@ var subventionController = {
                 },
                 textarea_reason: {
                     required: "Este campo es requerido.",
+                },
+                add_no_mayor_decree: {
+                    required: "El numero de certificado es requerido.",
+                },
+                add_agreement_date: {
+                    required: "La fecha de convenio es requerida.",
+                },
+                add_no_payment_decree: {
+                    required: "El N° de Decreto es requerido.",
+                },
+                add_payment_date: {
+                    required: "La fecha de pago es requerida.",
+                },
+                add_no_payment_installments: {
+                    required: "el numero de cuotas es requerido.",
+                },
+                add_no_session: {
+                    required: "el numero de la sesion es requerido.",
+                },
+                add_session_date: {
+                    required: "La fecha de sesion es requerido.",
                 }
             },
             errorElement: 'span',
@@ -102,7 +195,6 @@ var subventionController = {
                 $(element).removeClass('is-invalid');
             }
         });
-        //preloader('show');
     },
     events: function() {
         $("#btn_newSubvention").click(function(event) {
@@ -124,11 +216,35 @@ var subventionController = {
         });
 
         $("#select_action").change(function(){
-            if($("#select_action").val() == 0 || $("#select_action").val() == 1 || $("#select_action").val() == 4){
-                $( "#textarea_reason" ).rules( "add", { required: true });
-            } else {
+            $(".approve_input").val("");
+            $("#textarea_reason").val("");
+
+            if($("#select_action").val() == 3){
                 $( "#textarea_reason" ).rules( "add", { required: false });
                 $( "#textarea_reason" ).removeClass('is-invalid');
+
+                $( "#add_no_mayor_decree" ).rules( "add", { required: true });
+                $( "#add_agreement_date" ).rules( "add", { required: true });
+                $( "#add_no_payment_decree" ).rules( "add", { required: true });
+                $( "#add_payment_date" ).rules( "add", { required: true });
+                $( "#add_no_payment_installments" ).rules( "add", { required: true });
+                $( "#add_no_session" ).rules( "add", { required: true });
+                $( "#add_session_date" ).rules( "add", { required: true });
+
+                $(".div_reason").hide();
+                $(".div_approve").show();
+            } else {
+                $(".div_reason").show();
+                $(".div_approve").hide();
+                $( "#textarea_reason" ).rules( "add", { required: true });
+
+                $( "#add_no_mayor_decree" ).rules( "add", { required: false });
+                $( "#add_agreement_date" ).rules( "add", { required: false });
+                $( "#add_no_payment_decree" ).rules( "add", { required: false });
+                $( "#add_payment_date" ).rules( "add", { required: false });
+                $( "#add_no_payment_installments" ).rules( "add", { required: false });
+                $( "#add_no_session" ).rules( "add", { required: false });
+                $( "#add_session_date" ).rules( "add", { required: false });
             }
         });
 
@@ -139,7 +255,14 @@ var subventionController = {
                     "method": "updateSubventionStatus",
                     "subvention_id": subvention_id,
                     "status": $("#select_action").val(),
-                    "reason": $("#textarea_reason").val()
+                    "reason": $("#textarea_reason").val(),
+                    "add_no_mayor_decree": $('#add_no_mayor_decree').val(),
+                    "add_agreement_date": $('#add_agreement_date').val(),
+                    "add_no_payment_decree": $('#add_no_payment_decree').val(),
+                    "add_payment_date": $('#add_payment_date').val(),
+                    "add_no_payment_installments": $('#add_no_payment_installments').val(),
+                    "add_no_session": $('#add_no_session').val(),
+                    "add_session_date": $('#add_session_date').val(),
                 }
                 if($("#select_action").val() == 3){
                     Swal.fire({
@@ -346,6 +469,21 @@ var subventionController = {
         $("#select_action").val('');
         $("#textarea_reason").val('');
 
+        $("#id_approval_subvention_id").val('');
+        $("#add_no_mayor_decree").val('');
+        $("#add_agreement_date").val('');
+        $("#add_no_payment_decree").val('');
+        $("#add_payment_date").val('');
+        $("#add_no_payment_installments").val(''); 
+
+        $("#add_session_date").val(''); 
+        $("#add_no_session").val('');
+
+        $(".div_reason").show();
+        $(".div_approve").hide();
+
+        $('.form-control').removeClass('is-invalid');
+
         setTimeout(function(){
             var validator = $("#formAction").validate();
             validator.resetForm();
@@ -421,6 +559,48 @@ var subventionController = {
         $("#select_type_documents").val('');
         $("#input_upload_document").val('');
     },
+    view: function (id){
+        
+        event.preventDefault();
+        sessionStorage.setItem('id_subvention', id);
+        sessionStorage.setItem('action', 2);
+        window.location.href = 'subvention_view.php';
+    },
+    approve: function (id){
+        
+        // $("#id_approval_subvention_id").val('');
+        // $("#add_no_mayor_decree").val('');
+        // $("#add_agreement_date").val('');
+        // $("#add_no_payment_decree").val('');
+        // $("#add_payment_date").val('');
+        // $("#add_no_payment_installments").val(''); 
+
+        // setTimeout(function(){
+        //     // var validator = $("#formAction").validate();
+        //     // validator.resetForm();
+        //     $('#formCreateApprovalSubsidy .form-control').removeClass('is-invalid');
+
+        //     $("#id_approval_subvention_id").val(id);
+        // },100);
+
+        // $("#modalCreateApprovalSubsidy").modal('show');
+    },
+    convenio: function(id){
+        event.preventDefault();
+        Swal.fire({
+            title: "Deseas generar el convenio?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Sí, Hazlo!",
+            cancelButtonText: 'Cancelar!',
+        }).then(result => {
+            if (result.value) {
+                window.location.href = '../models/convenio.php?id='+id;
+            }
+        });
+    }
 };
 
 $(function() {

@@ -1,5 +1,8 @@
 <?php require_once '../common/header.php'; ?>
 <?php if($obj_function->validarPermiso($_SESSION['permissions'],'subvention_list')): ?>
+<div class="alert alert-success text-center" id="alert_name_organization" role="alert" style="display:none">
+  
+</div>
 <div class="card shadow mb-4">
 	<div class="card-header py-3">
 		<div class="row">
@@ -152,11 +155,55 @@
 		        			</select>
 						</div>
 	        		</div>
-	        		<div class="col-md-12">
+	        		<div class="col-md-12 div_reason" style="display: block;">
 	        			<div class="form-group m-form__group">
 	        				<label for="">Motivo:</label>
 	        				<textarea name="" class="form-control" name="textarea_reason" id="textarea_reason"></textarea>
 						</div>
+	        		</div>
+	        		<div class="col-md-12 div_approve" style="display: none;">
+		        		<div class="row">
+	                    	<div class="col-md-6">
+	                    		<div class="form-group m-form__group"> 
+			                        <label>N° Decreto alcaldicio que aprueba subvención</label>
+			                        <input type="text" name="add_no_mayor_decree" id="add_no_mayor_decree" class="form-control approve_input" required>
+			                    </div>
+	                    	</div>
+	                    	<div class="col-md-6">
+	                    		<div class="form-group m-form__group"> 
+			                        <label>Fecha convenio de entrega subvención</label>
+			                        <input type="date" name="add_agreement_date" id="add_agreement_date" class="form-control approve_input" required>
+			                    </div>
+	                    	</div>
+                    		<div class="col-md-6">
+	                    		<div class="form-group m-form__group"> 
+			                        <label>N° Decreto de pago</label>
+			                        <input type="text" name="add_no_payment_decree" id="add_no_payment_decree" class="form-control approve_input">
+			                    </div>
+	                    	</div>
+	                    	<div class="col-md-6">
+	                    		<div class="form-group m-form__group"> 
+			                        <label>Fecha de pago</label>
+			                        <input type="date" name="add_payment_date" id="add_payment_date" class="form-control approve_input">
+			                    </div>
+	                    	</div>				            
+	                    	<div class="col-md-6">
+	                    		<div class="form-group m-form__group"> 
+			                        <label>N° de session</label>
+			                        <input type="text" name="add_no_session" id="add_no_session" class="form-control approve_input">
+			                    </div>
+	                    	</div>
+	                    	<div class="col-md-6">
+	                    		<div class="form-group m-form__group"> 
+			                        <label>Fecha de sesion</label>
+			                        <input type="date" name="add_session_date" id="add_session_date" class="form-control approve_input">
+			                    </div>
+	                    	</div>
+				            <div class="col md-12">
+	                    		<label>N° de cuotas de pago</label>
+			                    <input type="number" name="add_no_payment_installments" id="add_no_payment_installments" class="form-control approve_input" min="0" >
+				            </div>
+	                    </div>
 	        		</div>
             	</form>
             </div>
@@ -164,6 +211,30 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary tr" key="" data-dismiss="modal">Cerrar</button>
                 <button type="button" class="btn btn-success" id="btnSaveAction">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCreateApprovalSubsidy" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"><span id="titleModelApprovalSubsidy">Nueva aprobación subvención</span></h5>
+                <input type="hidden" name="id_approval_subsidy" id="id_approval_subsidy" value="0">
+                <input type="hidden" name="id_approval_subvention_id" id="id_approval_subvention_id" value="0">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="formCreateApprovalSubsidy">
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary tr" key="" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-success" id="btn_saveApprovalSubsidy">Guardar</button>
             </div>
         </div>
     </div>

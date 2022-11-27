@@ -27,12 +27,11 @@
                 Interfaz
             </div>
 
-            <?php if($obj_function->validarPermiso($_SESSION['permissions'],'approval_subsidy_list')): ?>
+            <?php if($obj_function->validarPermiso($_SESSION['permissions'],'organization_list')): ?>
             <li class="nav-item">
-                <a class="nav-link" href="approval_subsidy.php">
-                    <i class="fas fa-check-double"></i>
-                    <span>Antecedentes de aprobacion de subvención</span>
-                </a>
+                <a class="nav-link" href="organization.php">
+                    <i class="fas fa-file-contract"></i>
+                    <span>Organizaciones</span></a>
             </li>
             <?php endif; ?>
 

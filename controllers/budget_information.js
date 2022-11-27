@@ -366,6 +366,11 @@ var budgetInformationController = {
         $("#add_amount_available").val("");
         $("#documento_de_respaldo").val("");
         $("#lista_2").html("");
+        setTimeout(function(){
+            var validator = $("#formCreateBudgetInformation").validate();
+            validator.resetForm();
+            $('#formCreateBudgetInformation .form-control').removeClass('is-invalid');
+        },100);
     },
 };
 

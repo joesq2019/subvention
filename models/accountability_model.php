@@ -28,21 +28,32 @@ switch ($method) {
 
         $id_user = $_SESSION['id_user'];
 
-        $sql   = "SELECT a.*, r.rut, r.name, r.phone, r.email, s.name_proyect FROM accountability a
-        INNER JOIN subvention s ON a.id_subvention = s.id 
-        INNER JOIN organitation r ON s.id_organitation = r.id ";
+        $sql = "SELECT s.status as status_subvention, a.*, r.rut, r.name, r.phone, r.email, s.name_proyect FROM accountability a INNER JOIN subvention s ON a.id_subvention = s.id INNER JOIN organitation r ON s.id_organitation = r.id";
+        if($id_organization > 0){
+            $sql .= " WHERE r.id = $id_organization";
+        }
         $query = $obj_bdmysql->query($sql, $dbconn);
         $totalData = is_array($query) ? count($query) : 0;
         // print_r($sql);exit();
         
         if (!empty($requestData['search']['value'])) {
-            $sql .= " WHERE r.rut LIKE '%" . $requestData['search']['value'] . "%' ";
-            $sql .= " OR r.name LIKE '%" . $requestData['search']['value'] . "%'";
-            $sql .= " OR a.name_represent LIKE '%" . $requestData['search']['value'] . "%'";
-            $sql .= " OR a.amount_delivered LIKE '%" . $requestData['search']['value'] . "%'";
-            $sql .= " OR a.amount_yielded LIKE '%" . $requestData['search']['value'] . "%'";
-            $sql .= " OR a.date_admission LIKE '%" . $requestData['search']['value'] . "%'";
-            $sql .= " OR a.status LIKE '%" . $requestData['search']['value'] . "%'";
+            if($id_organization > 0){
+                $sql .= " AND (r.rut LIKE '%" . $requestData['search']['value'] . "%' ";
+                $sql .= " OR r.name LIKE '%" . $requestData['search']['value'] . "%'";
+                $sql .= " OR a.name_represent LIKE '%" . $requestData['search']['value'] . "%'";
+                $sql .= " OR a.amount_delivered LIKE '%" . $requestData['search']['value'] . "%'";
+                $sql .= " OR a.amount_yielded LIKE '%" . $requestData['search']['value'] . "%'";
+                $sql .= " OR a.date_admission LIKE '%" . $requestData['search']['value'] . "%'";
+                $sql .= " OR a.status LIKE '%" . $requestData['search']['value'] . "%')";
+            }else{
+                $sql .= " WHERE r.rut LIKE '%" . $requestData['search']['value'] . "%' ";
+                $sql .= " OR r.name LIKE '%" . $requestData['search']['value'] . "%'";
+                $sql .= " OR a.name_represent LIKE '%" . $requestData['search']['value'] . "%'";
+                $sql .= " OR a.amount_delivered LIKE '%" . $requestData['search']['value'] . "%'";
+                $sql .= " OR a.amount_yielded LIKE '%" . $requestData['search']['value'] . "%'";
+                $sql .= " OR a.date_admission LIKE '%" . $requestData['search']['value'] . "%'";
+                $sql .= " OR a.status LIKE '%" . $requestData['search']['value'] . "%'";
+            }            
         } 
         
         $query = $obj_bdmysql->query($sql, $dbconn);
@@ -57,8 +68,6 @@ switch ($method) {
                 $s = array();
                 $botones = '';
                 $status = '';
-                $sql = "SELECT id AS id_accou_file, type FROM `accountability_files` WHERE id_accountability = ".$row['id'];
-                $queryFile1 = $obj_bdmysql->query($sql, $dbconn);
 
                 if($obj_function->validarPermiso($_SESSION['permissions'],'accountability_edit')){
                     $botones .= '<button class="btn btn-primary btn-sm mr-1" onclick="accountabilityController.edit(' . $row["id"] . ')"><i class="fas fa-edit" aria-hidden="true"></i></a></button>';
@@ -68,23 +77,23 @@ switch ($method) {
                     $botones .= '<button class="btn btn-primary btn-sm mr-1" title="Ver Documentos" onclick="accountabilityController.viewDocuments(' . $row["id"] . ')"><i class="fas fa-folder" title="Ver Documentos" aria-hidden="true"></i></a></button>';
                     
                 }
-                if($obj_function->validarPermiso($_SESSION['permissions'],'user_delete')){
-                    //$botones .= '<button class="btn btn-primary btn-sm mr-1" onclick="accountabilityController.deleted(' . $row["id"] . ')"><i class="fas fa-trash-alt" aria-hidden="true"></i></a></button>';
-                    //print_r($queryFile1);exit();
-                    // if ($queryFile1[0]['type'] == 2) {
-                    //     $botones .= '<button class="btn btn-success btn-sm mr-1 button_viewDocumentation" > Documentación Subida</a></button>';
-                    // }
-                    // else{                        
-                         //$botones .= '<button class="btn btn-primary btn-sm mr-1 button_uploadDocumentation"><i class="fas fa-upload" aria-hidden="true"></i> Documentación</a></button>';
-                    // }
-                    
+                if($obj_function->validarPermiso($_SESSION['permissions'],'accountability_approve')){
+                    if($row['status_subvention'] == 3){
+                        if($row['status'] != 1){
+                            $botones .= '<button class="btn btn-primary btn-sm mr-1 mt-1" title="Cambiar estatus" onclick="accountabilityController.actions(' . $row["id"] . ')"><i class="far fa-check-circle"></i></a></button>';
+                        }else{
+                            $botones .= '<button class="btn btn-primary btn-sm mr-1 mt-1" title="Rendicion ya aprobada" disabled><i class="far fa-check-circle"></i></a></button>';
+                            $botones .= '<button class="btn btn-primary btn-sm mr-1" title="Generar Certificado" onclick="accountabilityController.certificate(' . $row["id"] . ')"><i class="fas fa-file" title="Generar Certificado" aria-hidden="true"></i></a></button>';
+                        }                        
+                    }else{
+                       $botones .= '<button class="btn btn-primary btn-sm mr-1 mt-1" title="Debe aprobar la subvención" disabled><i class="far fa-check-circle"></i></a></button>';
+                    }
                 }
 
-                if($row['status'] == 1) $status = '<span class="badge badge-warning">Pendiente</span>';
-                if($row['status'] == 2) $status = '<span class="badge badge-success">Aprobada</span>';
-                if($row['status'] == 3) $status = '<span class="badge badge-info">Observada</span>';
-                if($row['status'] == 4) $status = '<span class="badge badge-danger">Devolución o Reintegro</span>';
-
+                if($row['status'] == 0) $status = '<span class="badge badge-warning" title="'.$row['message'].'">Pendiente</span>';
+                if($row['status'] == 1) $status = '<span class="badge badge-success" title="'.$row['message'].'">Aprobada</span>';
+                if($row['status'] == 2) $status = '<span class="badge badge-info" title="'.$row['message'].'">Observada</span>';
+                if($row['status'] == 3) $status = '<span class="badge badge-danger" title="'.$row['message'].'">Reintegro</span>';
 
                 $nestedData = array();
                 $nestedData[] = $row['id'];
@@ -100,13 +109,19 @@ switch ($method) {
                 $data[] = $nestedData;
             }
         }
-        
+        $name_organization = "";
+        if($id_organization > 0){
+            $sql = "SELECT name FROM organitation WHERE id = $id_organization";
+            $query = $obj_bdmysql->query($sql, $dbconn);
+            $name_organization = $query[0]['name'];
+        }
         ## Response
         $json_data = array(           
             "draw" => intval($requestData['draw']),
             "recordsTotal" => intval($totalData),
             "recordsFiltered" => intval($totalFiltered),
             "data" => $data,
+            "name_organization" => $name_organization
         );//print_r($json_data);exit();
 
         echo json_encode($json_data);
@@ -118,12 +133,19 @@ switch ($method) {
         //print_r($_POST);exit;
 
         if ($id == 0) {
-            //print_r("b");exit;
+            $sql   = "SELECT id FROM accountability WHERE id_subvention = $id_subvention";
+            $query = $obj_bdmysql->query($sql, $dbconn);
+            if(is_array($query)){
+                $out['code'] = 204;
+                $out['message'] = "Ya existe una rendición de cuenta para la subvención con el numero de folio: $id_subvention";
+                echo json_encode($out);die();
+            }
+
             $out['code'] = 204;
             $out['message'] = 'Error Insert...!';
 
             $campo = "id_subvention, name_represent, number_invoices, amount_delivered, amount_yielded, amount_refunded, balance, date_admission, status";
-            $valor = "'$id_subvention', '$add_name_represent', '$add_invoice_number', '$add_mount_delivered', '$add_yielded', '$add_amount_refunded', '$add_balance', '$add_date_surrender_income', 1";
+            $valor = "'$id_subvention', '$add_name_represent', '$add_invoice_number', '$add_mount_delivered', '$add_yielded', '$add_amount_refunded', '$add_balance', '$add_date_surrender_income', 0";
             $accountability_id = $obj_bdmysql->insert("accountability", $campo, $valor, $dbconn);
             //$sql = "INSERT INTO user ($campo) VALUES ($valor)";
             //print_r($sql);exit;    
@@ -216,11 +238,12 @@ switch ($method) {
             $sql = "SELECT id, name, `path`, url FROM `accountability_files` WHERE id_accountability = $id AND type = 1";
             $query = $obj_bdmysql->query($sql, $dbconn);
             $beneficiarios = $query[0];
+
             if(is_array($beneficiarios)) $out['beneficiarios_file'] = $beneficiarios;
 
             $sql = "SELECT id, name, `path`, url FROM `accountability_files` WHERE id_accountability = $id AND type = 2";
             $query = $obj_bdmysql->query($sql, $dbconn);
-            $comprobante = $query[0];
+            $comprobante = $query;
             if(is_array($comprobante)) $out['comprobante_file'] = $comprobante;
 
             $sql = "SELECT id, name, `path`, url FROM `accountability_files` WHERE id_accountability = $id AND type = 3";
@@ -275,10 +298,10 @@ switch ($method) {
         echo json_encode($out);
     break;
 
-    case 'checkRut':
-        $sql   = "SELECT r.rut, r.name, r.phone, r.email, s.name_proyect, s.id AS id_subvention FROM organitation r 
-        INNER JOIN subvention s ON s.id_organitation = r.id 
-        WHERE rut = '$rut' ";
+    case 'checkNumFolio':
+        $sql = "SELECT r.rut, r.name, r.phone, r.email, s.name_proyect, s.id AS id_subvention FROM subvention s 
+        INNER JOIN organitation r ON s.id_organitation = r.id 
+        WHERE s.id = '$num_folio'";
        
         $query = $obj_bdmysql->query($sql, $dbconn);
 
@@ -292,7 +315,7 @@ switch ($method) {
             $out['message'] = 'Ok';
         }else{
             $out['code']    = 204;
-            $out['message'] = 'No existe una organizacion con este Rut!';
+            $out['message'] = 'No existe una subvención con ese numero de folio!';
         }
         echo json_encode($out);
     break;
@@ -380,10 +403,10 @@ switch ($method) {
         $columns = array(
             0 => 'af.id',
             1 => 'af.name',
-            2 => 'td.name',
+            2 => 'af.url',
         );
 
-        $sql   = "SELECT af.id, af.name, af.url, td.name as name_document, af.type FROM accountability_files af INNER JOIN type_documents td ON td.id = af.type WHERE af.id_accountability = $id";
+        $sql   = "SELECT af.id, af.name, af.url, af.type FROM accountability_files af WHERE af.id_accountability = $id";
         $query = $obj_bdmysql->query($sql, $dbconn);
         $totalData = is_array($query) ? count($query) : 0;
         
@@ -391,7 +414,7 @@ switch ($method) {
         if (!empty($requestData['search']['value'])) {
             $sql .= " AND (af.id LIKE '%" . $requestData['search']['value'] . "%' ";
             $sql .= " OR af.name LIKE '%" . $requestData['search']['value'] . "%'";
-            $sql .= " OR td.name LIKE '%" . $requestData['search']['value'] . "%')";
+            $sql .= " OR af.url LIKE '%" . $requestData['search']['value'] . "%')";
         } 
         
         $query = $obj_bdmysql->query($sql, $dbconn);
@@ -416,7 +439,7 @@ switch ($method) {
                 if($row['type'] == 1) $status = '<span class="badge badge-warning">Lista de beneficiarios</span>';
                 if($row['type'] == 2) $status = '<span class="badge badge-success">Comprobante de restitución de fondos</span>';
                 if($row['type'] == 3) $status = '<span class="badge badge-info">Fotografías de lo adquirido</span>';
-
+                if($row['type'] == 4) $status = '<span class="badge badge-primary">Archivo de reintegro</span>';
 
                 $nestedData = array();
                 $nestedData[] = $row['id'];
@@ -476,5 +499,20 @@ switch ($method) {
         }
 
         echo json_encode($out);
+    break;
+
+    case 'updateAccountabilityStatus':
+        $out['code'] = 204;
+        $out['message'] = 'Error Update..!';
+
+        $campo = "status='$status', message='$reason'";           
+        $where = "id = '$accountability_id'";
+        $update = $obj_bdmysql->update("accountability", $campo, $where, $dbconn);
+
+        if ($update > 0) {
+            $out['code'] = 200;
+            $out['message'] = 'El estatus de la rendición fue cambiado exitosamente..!';
+        } 
+        echo json_encode($out); 
     break;
 }

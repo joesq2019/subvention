@@ -3,8 +3,15 @@ var dataTable = '';
 var action_subvention = sessionStorage.getItem('action');
 var id_subvention = sessionStorage.getItem('id_subvention');
 
+$(function() {
+    subventionViewController.init();
+    //subventionViewController.view();
+});
+
+
 var subventionViewController = {
 	init: () => {
+
 		if (action_subvention == 2) {
             subventionViewController.view(id_subvention)
         }
@@ -35,7 +42,7 @@ var subventionViewController = {
         });
 	},
 	view: function(id) {      
-
+        //console.log("awdawd")
         $('#id_subvention').val(id);
         var parametros = {
             "method": "findSubvention",
@@ -59,21 +66,25 @@ var subventionViewController = {
             //paso 2
             $("#id_presidente").val(data.members_data[0].id);
             $("#inputRepreName1").val(data.members_data[0].name);
+            $("#inputRepreRut1").val(data.members_data[0].rut);
             $("#inputRepreAddress1").val(data.members_data[0].address);
             $("#inputReprePhone1").val(data.members_data[0].phone);
 
             $("#id_vicepresidente").val(data.members_data[1].id);
             $("#inputRepreName2").val(data.members_data[1].name);
+            $("#inputRepreRut2").val(data.members_data[1].rut);
             $("#inputRepreAddress2").val(data.members_data[1].address);
             $("#inputReprePhone2").val(data.members_data[1].phone);
 
             $("#id_secretario").val(data.members_data[2].id);
             $("#inputRepreName3").val(data.members_data[2].name);
+            $("#inputRepreRut3").val(data.members_data[2].rut);
             $("#inputRepreAddress3").val(data.members_data[2].address);
             $("#inputReprePhone3").val(data.members_data[2].phone);
             
             $("#id_tesorero").val(data.members_data[3].id);
             $("#inputRepreName4").val(data.members_data[3].name);
+            $("#inputRepreRut4").val(data.members_data[3].rut);
             $("#inputRepreAddress4").val(data.members_data[3].address);
             $("#inputReprePhone4").val(data.members_data[3].phone);
             //paso 2
@@ -209,7 +220,3 @@ var subventionViewController = {
 
 }
 
-$(function() {
-    subventionViewController.init();
-    subventionViewController.view();
-});

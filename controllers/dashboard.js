@@ -45,7 +45,7 @@ var userController = {
         $(".div_rol").click(function(event){
             event.preventDefault();
             var id_role = $(this).data('id-rol');
-            window.location.href = 'xxxxxxxxx.php?r='+id_role;
+            //window.location.href = 'xxxxxxxxx.php?r='+id_role;
         });
     }
 };

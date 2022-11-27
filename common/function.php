@@ -2,6 +2,87 @@
 use PHPMailer\PHPMailer\PHPMailer;
 
 class coFunction{
+
+    function users_permissions(){
+        $p = [
+            'users' => [
+                'icon' => '<i class="fas fa-users"></i>',
+                'title' => 'Modulo Usuarios',
+                'keys' => [
+                    'user_list' => 'Puede ver la lista de usuarios',
+                    'user_add' => 'Puede agregar usuarios',
+                    'user_edit' => 'Puede editar usuarios',
+                    'user_delete' => 'Puede borrar usuarios'
+                ]
+            ],
+            'roles' => [
+                'icon' => '<i class="far fa-id-badge"></i>',
+                'title' => 'Modulo Roles',
+                'keys' => [
+                    'roles_list' => 'Puede ver la lista de roles',
+                    'roles_add' => 'Puede agregar roles',
+                    'roles_edit' => 'Puede editar roles',
+                    'roles_delete' => 'Puede borrar roles'
+                ]
+            ],
+            'subvenciones' => [
+                'icon' => '<i class="fas fa-file-contract"></i>',
+                'title' => 'Modulo Subvencion',
+                'keys' => [
+                    'subvention_list' => 'Puede ver la lista de subvenciones',
+                    'subvention_add' => 'Puede agregar subvenciones',
+                    'subvention_edit' => 'Puede editar subvenciones',
+                    'subvention_delete' => 'Puede borrar subvenciones',
+                    'subvention_approve' => 'Puede aprobar subvenciones'
+                ]
+            ],
+            'accountability' => [
+                'icon' => '<i class="fas fa-file-invoice-dollar"></i>',
+                'title' => 'Modulo Rendicion de Cuentas',
+                'keys' => [
+                    'accountability_list' => 'Puede ver la lista de rendicion de cuentas',
+                    'accountability_add' => 'Puede agregar rendicion de cuenta',
+                    'accountability_approve' => 'Puede aprobar una rendicion de cuenta',
+                    'accountability_edit' => 'Puede editar rendicion de cuenta',
+                    'accountability_delete' => 'Puede borrar rendicion de cuenta',
+                    'accountability_view_list' => 'Puede ver documentos de rendicion de cuenta'
+                ]
+            ],
+            'budget_information' => [
+                'icon' => '<i class="fas fa-file-invoice-dollar"></i>',
+                'title' => 'Modulo Información Presupuestaria',
+                'keys' => [
+                    'budget_information_list' => 'Puede ver la lista de informaciones presupuestarias',
+                    'budget_information_add' => 'Puede agregar informacion presupuestaria',
+                    //'budget_information_edit' => 'Puede editar informacion presupuestaria',
+                    'budget_information_delete' => 'Puede anular informacion presupuestaria'
+                ]
+            ],
+            'organization' => [
+                'icon' => '<i class="fas fa-house-user"></i>',
+                'title' => 'Modulo Organización',
+                'keys' => [
+                    'organization_list' => 'Puede ver la lista de organizaciones',
+                ]
+            ],
+        ];
+        return $p;
+    }
+
+    function validarPermiso($json, $key){
+        if ($json == null) {
+            return null;
+        } else {
+            $json = $json;
+            $json = json_decode($json,true);
+            if (array_key_exists($key, $json)) {
+                return $json[$key];
+            } else {
+                return null;
+            }
+        }
+    }
+
     //VALIDA Y DEPURA VALORES DE ARREGLOS
     function evalua_array($array,$i){
         if (array_key_exists($i,$array)){
@@ -167,63 +248,11 @@ class coFunction{
             return 'Email Sent';
         }
     }
+}
 
-    function users_permissions(){
-        $p = [
-            'users' => [
-                'icon' => '<i class="fas fa-users"></i>',
-                'title' => 'Modulo Usuarios',
-                'keys' => [
-                    'user_list' => 'Puede ver la lista de usuarios',
-                    'user_add' => 'Puede agregar usuarios',
-                    'user_edit' => 'Puede editar usuarios',
-                    'user_delete' => 'Puede borrar usuarios'
-                ]
-            ],
-            'roles' => [
-                'icon' => '<i class="far fa-id-badge"></i>',
-                'title' => 'Modulo Roles',
-                'keys' => [
-                    'roles_list' => 'Puede ver la lista de roles',
-                    'roles_add' => 'Puede agregar roles',
-                    'roles_edit' => 'Puede editar roles',
-                    'roles_delete' => 'Puede borrar roles'
-                ]
-            ],
-            'subvenciones' => [
-                'icon' => '<i class="fas fa-file-contract"></i>',
-                'title' => 'Modulo Subvencion',
-                'keys' => [
-                    'subvention_list' => 'Puede ver la lista de subvenciones',
-                    'subvention_add' => 'Puede agregar subvenciones',
-                    'subvention_edit' => 'Puede editar subvenciones',
-                    'subvention_delete' => 'Puede borrar subvenciones'
-                ]
-            ],
-            'accountability' => [
-                'icon' => '<i class="fas fa-file-invoice-dollar"></i>',
-                'title' => 'Modulo Rendicion de Cuentas',
-                'keys' => [
-                    'accountability_list' => 'Puede ver la lista de rendicion de cuentas',
-                    'accountability_add' => 'Puede agregar rendicion de cuenta',
-                    'accountability_edit' => 'Puede editar rendicion de cuenta',
-                    'accountability_delete' => 'Puede borrar rendicion de cuenta',
-                    'accountability_view_list' => 'Puede ver documentos de rendicion de cuenta',
-                    'accountability_view_add' => 'Puede subir documentos de rendicion de cuenta',
-                    'accountability_view_delete' => 'Puede borrar documentos de rendicion de cuenta'
-                ]
-            ],
-            'budget_information' => [
-                'icon' => '<i class="fas fa-file-invoice-dollar"></i>',
-                'title' => 'Modulo Información Presupuestaria',
-                'keys' => [
-                    'budget_information_list' => 'Puede ver la lista de informaciones presupuestarias',
-                    'budget_information_add' => 'Puede agregar informacion presupuestaria',
-                    'budget_information_edit' => 'Puede editar informacion presupuestaria',
-                    'budget_information_delete' => 'Puede borrar informacion presupuestaria'
-                ]
-            ],
-            'approval_subsidy' => [
+
+/*
+'approval_subsidy' => [
                 'icon' => '<i class="fas fa-check-double"></i>',
                 'title' => 'Modulo Aprovación de Subvención',
                 'keys' => [
@@ -233,21 +262,5 @@ class coFunction{
                     'approval_subsidy_delete' => 'Puede borrar una aprovación de subvencion'
                 ]
             ]
-        ];
-        return $p;
-    }
 
-    function validarPermiso($json, $key){
-        if ($json == null) {
-            return null;
-        } else {
-            $json = $json;
-            $json = json_decode($json,true);
-            if (array_key_exists($key, $json)) {
-                return $json[$key];
-            } else {
-                return null;
-            }
-        }
-    }
-}
+*/

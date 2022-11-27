@@ -23,7 +23,7 @@ switch ($method) {
             2 => 'bf.amount_available',
         );        
 
-        $sql = "SELECT bf.*  FROM budge_information bf WHERE bf.id_user = $id_user";
+        $sql = "SELECT bf.*  FROM budge_information bf";
         $query = $obj_bdmysql->query($sql, $dbconn);
         $totalData = is_array($query) ? count($query) : 0;
         //print_r($sql);exit();
@@ -50,16 +50,20 @@ switch ($method) {
                     $botones .= '<button class="btn btn-primary btn-sm mr-1" onclick="budgetInformationController.edit(' . $row["id"] . ')"><i class="fas fa-edit" aria-hidden="true"></i></a></button>';
                 }*/
 
-                if($obj_function->validarPermiso($_SESSION['permissions'],'budget_information_delete') AND $row["status"] == 1){
-                    $botones .= '<button class="btn btn-primary btn-sm mr-1" title="Anular" onclick="budgetInformationController.cancel(' . $row["id"] . ','. $row["amount_available"] .')"><i class="fas fa-ban"></i></a></button>';
-                    $status .= '<i class="fas fa-check" style="color:#62dd6a" title="Activa"></i>';
-                }else{
-                    $botones .= '<button class="btn btn-primary btn-sm mr-1" title="Ya ha sido anulada" disabled><i class="fas fa-ban"></i></a></button>';
-                    $status .= '<i class="fas fa-ban" style="color:red" title="Anulada"></i>';
+                if($obj_function->validarPermiso($_SESSION['permissions'],'budget_information_delete')){
+                    if($row["status"] == 1){
+                        $botones .= '<button class="btn btn-primary btn-sm mr-1" title="Anular" onclick="budgetInformationController.cancel(' . $row["id"] . ','. $row["amount_available"] .')"><i class="fas fa-ban"></i></a></button>';
+                        $status .= '<i class="fas fa-check" style="color:#62dd6a" title="Activa"></i>';
+                    }else{
+                        $botones .= '<button class="btn btn-primary btn-sm mr-1" title="Ya ha sido anulada" disabled><i class="fas fa-ban"></i></a></button>';
+                        $status .= '<i class="fas fa-ban" style="color:red" title="Anulada"></i>';
+                    }
                 }
 
-                if ($row['url_document'] !== '') {
-                	$document = '<center> <b>Documento:</b>' . $row['name_document']  . '</center>';
+                if ($row['url_document'] != '') {
+                	$document = '<a href="' . $row["url_document"] . '" target="_blank" class="text-white" title="Visualizar Documento"><button class="btn btn-primary btn-sm mr-1"><i class="fas fa-external-link-alt"></i></a></button></a>';
+                }else{
+                    $document = '<h6><span class="badge badge-secondary">Sin documento</span></h6>';
                 }
 
                 $nestedData = array();

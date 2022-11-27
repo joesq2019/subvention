@@ -7,9 +7,24 @@ require_once '../common/function.php';
 $obj_function = new coFunction();
 $obj_bdmysql = new coBdmysql();
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+require '../assets/phpmailer/Exception.php';
+require '../assets/phpmailer/PHPMailer.php';
+require '../assets/phpmailer/SMTP.php';
+
 foreach ($_POST as $i_dato => $dato_) {
     @$$i_dato = addslashes($obj_function->evalua_array($_POST, $i_dato));
 }
+
+// $sql   = "SELECT id FROM accountability WHERE id_subvention = $id_subvention";
+// $query = $obj_bdmysql->query($sql, $dbconn);
+// if(is_array($query)){
+// $out['code'] = 204;
+// $out['message'] = "Ya existe una rendición de cuenta para la subvención con el numero de folio: $id_subvention";
+// echo json_encode($out);die();
+// }
+$id_user = $_SESSION['id_user'];
 
 switch ($method) {
     case 'subventionsList':
@@ -25,20 +40,34 @@ switch ($method) {
 
         $id_user = $_SESSION['id_user'];
 
-        $sql = "SELECT su.id as subvention_id, su.status as subvention_status, su.created_at, o.name, ac.date_admission, ac.status as status_accountability FROM subvention su INNER JOIN organitation o on o.id = su.id_organitation LEFT JOIN accountability ac on ac.id_subvention = su.id";
+        $sql = "SELECT su.message, su.id as subvention_id, su.status as subvention_status, su.created_at, o.name, ac.date_admission, ac.status as status_accountability FROM subvention su INNER JOIN organitation o on o.id = su.id_organitation LEFT JOIN accountability ac on ac.id_subvention = su.id";
+        if($id_organization > 0){
+            $sql .= " WHERE o.id = $id_organization";
+        }
         $query = $obj_bdmysql->query($sql, $dbconn);
         $totalData = is_array($query) ? count($query) : 0;
-        //print_r($sql);exit();
+        //print_r($query);exit();
         if (!empty($requestData['search']['value'])) {
-            $sql .= " WHERE o.name LIKE '%" . $requestData['search']['value'] . "%' ";
-            $sql .= " OR su.created_at LIKE '%" . $requestData['search']['value'] . "%'";
-            $sql .= " OR ac.date_admission LIKE '%" . $requestData['search']['value'] . "%'";
+            if($id_organization > 0){
+                $sql .= " AND (o.name LIKE '%" . $requestData['search']['value'] . "%' ";                        
+                $sql .= " OR su.created_at LIKE '%" . $requestData['search']['value'] . "%'";
+                $sql .= " OR ac.date_admission LIKE '%" . $requestData['search']['value'] . "%')";
+            }else{
+                $sql .= " WHERE o.name LIKE '%" . $requestData['search']['value'] . "%' ";                        
+                $sql .= " OR su.created_at LIKE '%" . $requestData['search']['value'] . "%'";
+                $sql .= " OR ac.date_admission LIKE '%" . $requestData['search']['value'] . "%'";
+            }            
         } 
+        //print_r($sql);exit;
         
         $query = $obj_bdmysql->query($sql, $dbconn);
         $totalFiltered = is_array($query) ? count($query) : 0;
+        if($requestData['length'] == -1){
+            $sql .= " ORDER BY " . $columns[$requestData['order'][0]['column']] . " " . $requestData['order'][0]['dir'];
+        }else{
+            $sql .= " ORDER BY " . $columns[$requestData['order'][0]['column']] . " " . $requestData['order'][0]['dir'] . "  LIMIT " . $requestData['start'] . " ," . $requestData['length'];
+        }
         
-        $sql .= " ORDER BY " . $columns[$requestData['order'][0]['column']] . " " . $requestData['order'][0]['dir'] . "  LIMIT " . $requestData['start'] . " ," . $requestData['length'];
         $query = $obj_bdmysql->query($sql, $dbconn);
         //print_r($sql);exit();
         $data = array();
@@ -53,35 +82,79 @@ switch ($method) {
                 if($obj_function->validarPermiso($_SESSION['permissions'],'user_delete')){
                     $botones .= '<button class="btn btn-primary btn-sm mr-1" onclick="userController.deleted(' . $row["id"] . ')"><i class="fas fa-trash-alt" aria-hidden="true"></i></a></button>';
                 }*/
-
-
+                
                 $botones .= '<button class="btn btn-primary btn-sm mr-1 mt-1" onclick="subventionController.view(' . $row["subvention_id"] . ')"><i class="fas fa-eye" aria-hidden="true"></i></a></button>';
 
-                $botones .= '<button class="btn btn-primary btn-sm mr-1 mt-1" title="Editar Subvención" onclick="subventionController.edit(' . $row["subvention_id"] . ')"><i class="fas fa-edit" aria-hidden="true"></i></a></button>'; 
+                if($obj_function->validarPermiso($_SESSION['permissions'],'subvention_edit')){
+                    $botones .= '<button class="btn btn-primary btn-sm mr-1 mt-1" title="Editar Subvención" onclick="subventionController.edit(' . $row["subvention_id"] . ')"><i class="fas fa-edit" aria-hidden="true"></i></a></button>'; 
+                    $botones .= '<button class="btn btn-primary btn-sm mr-1 mt-1" title="Editar Documentos" onclick="subventionController.editDocuments(' . $row["subvention_id"] . ')"><i class="fas fa-folder"></i></a></button>';
+                }                
+                
+                // if($obj_function->validarPermiso($_SESSION['permissions'],'subvention_approve')){
+                //     $botones .= '<button class="btn btn-primary btn-sm mr-1 mt-1" title="Acciones" onclick="subventionController.actions(' . $row["subvention_id"] . ')"><i class="fas fa-list"></i></a></button>';
+                // }
 
-                $botones .= '<button class="btn btn-primary btn-sm mr-1 mt-1" title="Editar Documentos" onclick="subventionController.editDocuments(' . $row["subvention_id"] . ')"><i class="fas fa-folder"></i></a></button>';
+                if($obj_function->validarPermiso($_SESSION['permissions'],'subvention_approve')){
+                    if($row['subvention_status'] != 3){
+                        $botones .= '<button class="btn btn-primary btn-sm mr-1 mt-1" title="Cambiar Estatus" onclick="subventionController.actions(' . $row["subvention_id"] . ')"><i class="far fa-check-circle"></i></a></button>';
+                    }else{
+                        $botones .= '<button class="btn btn-primary btn-sm mr-1 mt-1" title="Subvencion ya aprobada" disabled><i class="far fa-check-circle"></i></a></button>';
+                    }
+                }
 
-                $botones .= '<button class="btn btn-primary btn-sm mr-1 mt-1" title="Acciones" onclick="subventionController.actions(' . $row["subvention_id"] . ')"><i class="fas fa-list"></i></a></button>';
+                if($row['subvention_status'] == 3){
+                    $botones .= '<button class="btn btn-primary btn-sm mt-1 mr-1" title="Generar Convenio" onclick="subventionController.convenio(' . $row["subvention_id"] . ')"><i class="fas fa-file" title="Generar Convenio" aria-hidden="true"></i></a></button>';
+                }                
+
+                if($row['status_accountability'] == 0){
+                    $status_accountability = "<span class='badge badge-info' title='".$row['message']."'>Pendiente</span>";
+                }else if($row['status_accountability'] == 1){
+                    $status_accountability = "<span class='badge badge-success' title='".$row['message']."'>Aprobada</span>";
+                }else if($row['status_accountability'] == 2){
+                    $status_accountability = "<span class='badge badge-primary' title='".$row['message']."'>Observada</span>";
+                }else if($row['status_accountability'] == 3){
+                    $status_accountability = "<span class='badge badge-warning' title='".$row['message']."'>Devolución</span>";
+                }
+
+                if($row['subvention_status'] == 3){
+                    $status_subvention = "<span class='badge badge-success' title='".$row['message']."'>Aprobada</span>";
+                }else if($row['subvention_status'] == 0){
+                    $status_subvention = "<span class='badge badge-danger' title='".$row['message']."'>Error</span>";
+                }else if($row['subvention_status'] == 1){
+                    $status_subvention = "<span class='badge badge-info' title='".$row['message']."'>En evaluación</span>";
+                }else if($row['subvention_status'] == 2){
+                    $status_subvention = "<span class='badge badge-primary' title='".$row['message']."'>Pre-Aprobada</span>";
+                }else if($row['subvention_status'] == 4){
+                    $status_subvention = "<span class='badge badge-warning' title='".$row['message']."'>Rechazada</span>";
+                }else{
+                    $status_subvention = "<span class='badge badge-dark' title='".$row['message']."'>?</span>";
+                }
 
                 $nestedData = array();
                 $nestedData[] = $row['subvention_id'];
                 $nestedData[] = '<center>' . html_entity_decode($row['name'], ENT_QUOTES | ENT_HTML401, "UTF-8") . '</center>';    
                 $nestedData[] = '<center>' . $row['created_at'] . '</center>';
                 $nestedData[] = '<center>' . $row['date_admission'] . '</center>';
-                $nestedData[] = '<center>' . $row['status_accountability'] . '</center>';
-                $nestedData[] = '<center>' . $row['subvention_status'] . '</center>'; 
+                $nestedData[] = '<center>' . $status_accountability . '</center>';
+                $nestedData[] = '<center>' . $status_subvention . '</center>'; 
                 $nestedData[] = '<center>' . $botones . '</center>'; 
 
                 $data[] = $nestedData;
             }
         }
-        
+        $name_organization = "";
+        if($id_organization > 0){
+            $sql = "SELECT name FROM organitation WHERE id = $id_organization";
+            $query = $obj_bdmysql->query($sql, $dbconn);
+            $name_organization = $query[0]['name'];
+        }
         ## Response
         $json_data = array(           
             "draw" => intval($requestData['draw']),
             "recordsTotal" => intval($totalData),
             "recordsFiltered" => intval($totalFiltered),
             "data" => $data,
+            "name_organization" => $name_organization
         );//print_r($json_data);exit();
 
         echo json_encode($json_data);
@@ -163,14 +236,19 @@ switch ($method) {
             $out['code'] = 204;
             $out['message'] = 'Error Insert...!';
 
-            $campo = "name, rut, address, email, phone, status, created_at";
-            $valor = "'$organitation_name', '$organitation_rut', '$organitation_address', '$organitation_email', '$organitation_phone', '1', '$date'";
-            $organitation_id = $obj_bdmysql->insert("organitation", $campo, $valor, $dbconn);
+            if($id_organitation > 0){
+                $organitation_id = $id_organitation;
+            }else{
+                $campo = "name, rut, address, email, phone, status, created_at";
+                $valor = "'$organitation_name', '$organitation_rut', '$organitation_address', '$organitation_email', '$organitation_phone', '1', '$date'";
+                $organitation_id = $obj_bdmysql->insert("organitation", $campo, $valor, $dbconn);
+            }
+
             //$sql = "INSERT INTO user ($campo) VALUES ($valor)";
            // print_r($sql); exit();
              
-            $campo = "id_organitation, year, name_proyect, objetive_proyect, quantity_purchases, amount_purchases, organization_contribution, amount_direct, amount_indirect, total_beneficiaries, quantity_activities, status, created_at";     
-            $valor = "'$organitation_id', '$year', '$name_proyect', '$objetive_proyect', '$quantity_purchases', '$total_sum_price', '$amount_organitation', '$amount_direct', '$amount_indirect', '$total_sum_bene', '$quantity_activities', 1, '$date'";
+            $campo = "id_user, id_organitation, year, name_proyect, objetive_proyect, quantity_purchases, amount_purchases, organization_contribution, amount_direct, amount_indirect, total_beneficiaries, quantity_activities, status, created_at";     
+            $valor = "$id_user, '$organitation_id', '$year', '$name_proyect', '$objetive_proyect', '$quantity_purchases', '$total_sum_price', '$amount_organitation', '$amount_direct', '$amount_indirect', '$total_sum_bene', '$quantity_activities', 1, '$date'";
             $subvention_id = $obj_bdmysql->insert("subvention", $campo, $valor, $dbconn);
 
             $cant = count((array)$_POST['beneficiarios']);
@@ -181,11 +259,12 @@ switch ($method) {
                 for ($i=0; $i < $cant; $i++) { 
                     $type = $_POST['beneficiarios'][$i]['type']; 
                     $name = $_POST['beneficiarios'][$i]['name']; 
+                    $rut = $_POST['beneficiarios'][$i]['rut']; 
                     $address = $_POST['beneficiarios'][$i]['address']; 
                     $phone = $_POST['beneficiarios'][$i]['phone'];
 
-                    $campo = "type, id_subvention, name, address, phone, created_at";     
-                    $valor = "'$type', '$subvention_id', '$name' ,'$address' , '$phone', '$date'";
+                    $campo = "type, id_subvention, name, rut, address, phone, created_at";     
+                    $valor = "'$type', '$subvention_id', '$name', '$rut', '$address' , '$phone', '$date'";
                     $obj_bdmysql->insert("members", $campo, $valor, $dbconn);
                     //$sql = "INSERT INTO members ($campo) VALUES ($valor)";print_r($sql);exit();
                 }
@@ -230,7 +309,13 @@ switch ($method) {
 
             $edit = 0;
 
-            $organitation_id = $id_organitation;
+            if($id_organitation > 0){
+                $organitation_id = $id_organitation;
+            }else{
+                $campo = "name, rut, address, email, phone, status, created_at";
+                $valor = "'$organitation_name', '$organitation_rut', '$organitation_address', '$organitation_email', '$organitation_phone', '1', '$date'";
+                $organitation_id = $obj_bdmysql->insert("organitation", $campo, $valor, $dbconn);
+            }
 
             $campo = "year='$year', name_proyect='$name_proyect', objetive_proyect='$objetive_proyect', quantity_purchases='$quantity_purchases', amount_purchases='$total_sum_price', organization_contribution='$amount_organitation', amount_direct='$amount_direct', amount_indirect='$amount_indirect', total_beneficiaries='$total_sum_bene', quantity_activities='$quantity_activities', status='1', updated_at='$date'";
             $where = "id = '$id_subvention'";
@@ -464,14 +549,17 @@ switch ($method) {
     case 'updateSubventionStatus':
         //0 Error  //1 En evaluación   //2 Pre-Aprobada    //3 Aprobada    //4 Rechazada
 
-        if ($status == 3) {
+        if($status == 3){
+            $sql = "SELECT amount_purchases FROM subvention WHERE id = $subvention_id";
+            $query = $obj_bdmysql->query($sql, $dbconn);
+            $monto = $query[0]['amount_purchases'];
+
             $sql = "SELECT accumulated_amount FROM data WHERE id = 1";
             $query = $obj_bdmysql->query($sql, $dbconn);
-            $monto = 4700;
 
             if($monto <= $query[0]['accumulated_amount']){
 
-                $campo = "status='$status', reason='$reason'";
+                $campo = "status='$status', message='$reason'";
                 $where = "id = '$subvention_id'";
                 $update_subvention = $obj_bdmysql->update("subvention", $campo, $where, $dbconn);
 
@@ -479,6 +567,10 @@ switch ($method) {
                 $campo = "accumulated_amount='$resultado'";
                 $where = "id = 1";
                 $update_data = $obj_bdmysql->update("data", $campo, $where, $dbconn);
+
+                $campo = "id_subvention, no_mayor_decree, agreement_date, no_payment_decree, payment_date, no_payment_installments, session_date, no_session";
+                $valor = "$subvention_id, '$add_no_mayor_decree', '$add_agreement_date', '$add_no_payment_decree', '$add_payment_date', '$add_no_payment_installments', '$add_session_date', '$add_no_session'";
+                $approval_subsidy_id = $obj_bdmysql->insert("approval_subsidy", $campo, $valor, $dbconn);     
                 
                 $out['code']    = 200;
                 $out['message'] = 'El estado de la subvención se ha cambiado..!';
@@ -487,14 +579,34 @@ switch ($method) {
                 $out['code']    = 204;
                 $out['message'] = 'No hay suficiente disponibilidad presupuestaria..!';
             }
-        } else {
-            $campo = "status='$status', reason='$reason'";
+        }else{
+            $campo = "status='$status', message='$reason'";
             $where = "id = '$subvention_id'";
             $update_subvention = $obj_bdmysql->update("subvention", $campo, $where, $dbconn);
 
             if($update_subvention > 0){
                 $out['code']    = 200;
                 $out['message'] = 'El estado de la subvención se ha cambiado..!';
+
+                $sql = "SELECT u.email, s.status, s.message FROM subvention s 
+                inner join user u on u.id = s.id_user
+                WHERE s.id = $subvention_id";
+                $query = $obj_bdmysql->query($sql, $dbconn);
+                $email = $query[0]['email'];
+
+                if($query[0]['status'] == 3){
+                    $status_subvention = "Aprobada";
+                }else if($query[0]['status'] == 0){
+                    $status_subvention = "Error";
+                }else if($query[0]['status'] == 1){
+                    $status_subvention = "En evaluación";
+                }else if($query[0]['status'] == 2){
+                    $status_subvention = "Pre-Aprobada";
+                }else if($query[0]['status'] == 4){
+                    $status_subvention = "Rechazada";
+                }
+
+                sendEmail($email, $status_subvention, $query[0]['message']);
             }else{
                 $out['code']    = 204;
                 $out['message'] = 'Error update..!';
@@ -503,4 +615,184 @@ switch ($method) {
 
         echo json_encode($out);
     break;
+
+    case 'saveNewApprovalSubsidy':
+        $fecha = date('Y-m-d');
+
+        $sql = "SELECT amount_purchases FROM subvention WHERE id = $id_subvention";
+        $query = $obj_bdmysql->query($sql, $dbconn);
+        $monto = $query[0]['amount_purchases'];
+
+        $sql = "SELECT accumulated_amount FROM data WHERE id = 1";
+        $query = $obj_bdmysql->query($sql, $dbconn);
+
+        if($monto <= $query[0]['accumulated_amount']){
+
+            $campo = "status=3";
+            $where = "id = '$id_subvention'";
+            $update_subvention = $obj_bdmysql->update("subvention", $campo, $where, $dbconn);
+
+            $resultado = $query[0]['accumulated_amount'] - $monto;
+            $campo = "accumulated_amount='$resultado'";
+            $where = "id = 1";
+            $update_data = $obj_bdmysql->update("data", $campo, $where, $dbconn);
+
+            $campo = "id_subvention, no_mayor_decree, agreement_date, no_payment_decree, payment_date, no_payment_installments";
+            $valor = "$id_subvention, '$add_no_mayor_decree', '$add_agreement_date', '$add_no_payment_decree', '$add_payment_date', '$add_no_payment_installments'";
+            $approval_subsidy_id = $obj_bdmysql->insert("approval_subsidy", $campo, $valor, $dbconn);     
+            
+            $out['code'] = 200;
+            $out['message'] = 'El estado de la subvención se ha cambiado..!';
+            
+        }else{
+            $out['code']    = 204;
+            $out['message'] = 'No hay suficiente disponibilidad presupuestaria..!';
+        }
+
+        echo json_encode($out);
+
+        // if ($id_approval_subsidy == 0) {
+        //     //print_r("b");exit;
+        //     $out['code'] = 204;
+        //     $out['message'] = 'Error Insert...!';
+
+        //     $campo = "id_subvention, no_mayor_decree, agreement_date, no_payment_decree, payment_date, no_payment_installments";
+        //     $valor = "$id_subvention, '$add_no_mayor_decree', '$add_agreement_date', '$add_no_payment_decree', '$add_payment_date', '$add_no_payment_installments'";
+        //     $approval_subsidy_id = $obj_bdmysql->insert("approval_subsidy", $campo, $valor, $dbconn);          
+
+        //     if ($approval_subsidy_id > 0) {
+        //         $out['approval_subsidy_id'] = $approval_subsidy_id;
+        //         $out['code'] = 200;
+        //         $out['message'] = 'El antecedente fué creado exitosamente..!';
+        //     }           
+        // }
+
+        // if ($id_approval_subsidy != 0) {
+        //     // print_r($_POST);exit;
+        //     $out['code'] = 204;
+        //     $out['message'] = 'Error Updated...!';
+             
+        //     $campo = "no_mayor_decree='$add_no_mayor_decree',agreement_date='$add_agreement_date', no_payment_decree='$add_no_payment_decree', no_payment_installments='$add_no_payment_installments'";
+        //     $where = "id = '$id_approval_subsidy'";
+        //     // $sql = "UPDATE `budge_information` SET $campo WHERE $where";print($sql);exit();
+        //     $update_approval_subsidy = $obj_bdmysql->update("approval_subsidy", $campo, $where, $dbconn);
+
+        //     if ($update_approval_subsidy > 0) {
+        //         $out['approval_subsidy_id'] = $id_approval_subsidy;
+        //         $out['code'] = 200;
+        //         $out['message'] = 'El antecedente fué actualizado exitosamente..!';
+        //     }
+        // }
+    break;
+
+    case 'checkRut':
+        $sql = "SELECT id, name, rut, address, email, phone FROM organitation WHERE rut = '$rut'";
+        $organitation = $obj_bdmysql->query($sql, $dbconn);
+        //print_r($subvention_data);exit();
+        if(is_array($organitation)){
+            $out['code'] = 200;
+            $out['id_organitation'] = $organitation[0]['id'];
+            $out['name'] = $organitation[0]['name'];
+            $out['rut'] = $organitation[0]['rut'];
+            $out['address'] = $organitation[0]['address'];
+            $out['email'] = $organitation[0]['email'];
+            $out['phone'] = $organitation[0]['phone'];
+        }else{
+            $out['code'] = 204;
+        }
+        echo json_encode($out);
+    break;
+}
+
+function sendEmail($to, $status, $motivo){
+    global $mail;
+
+    $subject = "El estatus de la subvencion que creaste ha sido cambiado";
+    $additional_text = "";
+    $message = '
+        <!DOCTYPE html>
+        <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Forgot Password</title>
+                <style type="text/css">
+                    .content{
+                        width:100%; background:#eee; position:relative; font-family:sans-serif; padding-bottom:40px;
+                    }
+                    .body-email{
+                        position:relative; margin:auto; width:700px; background:white; padding:20px
+                    }
+                    .img-email{
+                        width:15%
+                    }
+                    @media (max-width: 768px) {
+                       .body-email {
+                         width: 80%;
+                       }
+                       .img-email{
+                            width: 30%;
+                       }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="content">
+                    <div class="body-email">
+                        <center>
+                        <img class="img-email" src="../assets/img/notify.jpg" style="width: 150px; height: 150px">
+
+                        <h4 style="font-weight:100; color:#666; padding:0 20px">Hola, se ha cambiado el estado de la subvención que creaste.</h4>
+
+                        <h3 style="font-weight:100; color:#666">El estado ahora es: "<strong>'.$status.'</strong>", y el motivo es el siguiente: <strong>'.$motivo.'</strong></h3>
+
+                        <h3 style="font-weight:100; color:#666"><strong>No responda este mensaje, gracias.</strong></h3>
+                      
+                        </center>
+                    </div>
+                </div>
+            </body>
+    </html>';
+    $message = utf8_decode($message);
+    $mail = new PHPMailer(TRUE);
+
+    $mail->isSMTP(); // Indicando el uso de SMTP
+    $mail->SMTPOptions = array(
+        'tls' => array(
+            'verify_peer' => false,
+            'verify_peer_name' => false,
+            'allow_self_signed' => true
+        )
+    );   
+    //$mail->SMTPDebug = 4;
+    $mail->Debugoutput = 'html'; // Agregando compatibilidad con HTML       
+    $mail->Host = 'smtp.gmail.com'; // Estableciendo el nombre del servidor de email         
+    $mail->Port = 587; // Estableciendo el puerto
+    $mail->SMTPSecure = false; // Estableciendo el sistema de encriptación      
+    $mail->SMTPAuth = true; // Para utilizar la autenticación SMTP
+    $mail->Username = "subvenciones10@gmail.com"; // Nombre de usuario para la autenticación SMTP - usar email completo para gmail
+    //$mail->Password = "2022*subvenciones";// Password para la autenticación SMTP
+    $mail->Password = "vqzkbzrddhxreavs";// Password para la autenticación SMTP
+    $mail->setFrom('subvenciones10@gmail.com', 'Subvenciones');// Estableciendo como quién se va a enviar el mail
+    $mail->addAddress($to, $to);// Estableciendo a quién se va a enviar el mail
+    //$mail->addAddress($email_agent, $email_agent);// Estableciendo a quién se va a enviar el mail
+    $mail->Subject = $subject;// El asunto del mail
+    $mail->MsgHTML($message);// Estableciendo el mensaje a enviar
+
+    // Adjuntando una imagen
+    //$mail->addAttachment('images/phpmailer_mini.png');
+
+    // Enviando el mensaje y controlando los errores
+    if ($mail->send()) {
+        $mss = '1';
+        $salida = 'EMAIL SENT.';
+
+        //contacts_service_wizard_log($id_contacts_services, "EMAIL", "OK: SEND EMAIL WIZARD", 1);
+    } else {
+        $mss = '0';
+        $salida = 'EMAIL NOT SENT.';
+
+        //contacts_service_wizard_log($id_contacts_services, "EMAIL", "ERROR: SEND EMAIL WIZARD", 2);
+    }
+    //echo $mss;
 }

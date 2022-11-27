@@ -1,5 +1,5 @@
 <?php require_once '../common/header.php'; ?>
-<?php if($obj_function->validarPermiso($_SESSION['permissions'],'subvention_edit') OR $obj_function->validarPermiso($_SESSION['permissions'],'subvention_edit')): ?>
+<?php if(1 == 1): ?>
  
 <div class="card shadow mb-4">
     <div class="card-header py-3">
@@ -130,6 +130,7 @@
                                         <tr>
                                             <th scope="col">#</th>
                                             <th scope="col">Nombre Completo</th>
+                                            <th scope="col">Rut</th>
                                             <th scope="col">Dirección</th>
                                             <th scope="col">Teléfono</th>
                                         </tr>
@@ -142,6 +143,7 @@
                                                 <input type="hidden" id="id_presidente" value="">
                                             </th>
                                             <td><input class="form-control inner_form" id="inputRepreName1" name="inputRepreName1" type="text" disabled=""></td>
+                                            <td><input class="form-control inner_form" id="inputRepreRut1" name="inputRepreRut1" type="text" disabled=""></td>
                                             <td><textarea class="form-control inner_form" id="inputRepreAddress1" name="inputRepreAddress1" rows="2" style="resize: none;" disabled></textarea></td>
                                             <td><input class="form-control inner_form" id="inputReprePhone1" name="inputReprePhone1" type="text" disabled></td>
                                         </tr>
@@ -152,6 +154,7 @@
                                                 <input type="hidden" id="id_vicepresidente" value="">
                                             </th>
                                             <td><input class="form-control inner_form" id="inputRepreName2" name="inputRepreName2" type="text" disabled></td>
+                                             <td><input class="form-control inner_form" id="inputRepreRut2" name="inputRepreRut2" type="text" disabled=""></td>
                                             <td><textarea class="form-control inner_form" id="inputRepreAddress2" name="inputRepreAddress2" rows="2" style="resize: none;" disabled></textarea></td>
                                             <td><input class="form-control inner_form" id="inputReprePhone2" name="inputReprePhone2" type="text" disabled></td>
                                         </tr>
@@ -162,6 +165,7 @@
                                                 <input type="hidden" id="id_secretario" value="">
                                             </th>
                                             <td><input class="form-control inner_form" id="inputRepreName3" name="inputRepreName3" type="text" disabled></td>
+                                             <td><input class="form-control inner_form" id="inputRepreRut3" name="inputRepreRut3" type="text" disabled=""></td>
                                             <td><textarea class="form-control inner_form" id="inputRepreAddress3" name="inputRepreAddress3" rows="2" style="resize: none;" disabled></textarea></td>
                                             <td><input class="form-control inner_form" id="inputReprePhone3" name="inputReprePhone3" type="text" disabled></td>
                                         </tr>
@@ -172,6 +176,7 @@
                                                 <input type="hidden" id="id_tesorero" value="">
                                             </th>
                                             <td><input class="form-control inner_form" id="inputRepreName4" name="inputRepreName4" type="text" disabled></td>
+                                             <td><input class="form-control inner_form" id="inputRepreRut4" name="inputRepreRut4" type="text" disabled=""></td>
                                             <td><textarea class="form-control inner_form" id="inputRepreAddress4" name="inputRepreAddress4" rows="2" style="resize: none;" disabled></textarea></td>
                                             <td><input class="form-control inner_form" id="inputReprePhone4" name="inputReprePhone4" type="text" disabled></td>
                                         </tr>

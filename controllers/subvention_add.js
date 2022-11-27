@@ -4,6 +4,8 @@ var formCreateSubvention = $("#formCreateSubvention");
 var action_subvention = sessionStorage.getItem('action');
 var id_subvention = sessionStorage.getItem('id_subvention');
 
+var formCreateApprovalSubsidy = $("#formCreateApprovalSubsidy");
+
 var subventionAddController = {
     init: () => {
         
@@ -103,6 +105,54 @@ var subventionAddController = {
             }
         });
 
+        $("#formCreateApprovalSubsidy").validate({
+            rules: {
+                add_no_mayor_decree: {
+                    required: true
+                },
+                add_agreement_date: {
+                    required: true
+                },
+                add_no_payment_decree: {
+                    required: true
+                },
+                add_payment_date: {
+                    required: true
+                },
+                add_no_payment_installments: {
+                    required: true
+                }
+            },
+            messages: {
+                add_no_mayor_decree: {
+                    required: "El numero de certificado es requerido.",
+                },
+                add_agreement_date: {
+                    required: "La fecha de convenio es requerida.",
+                },
+                add_no_payment_decree: {
+                    required: "El numero de decreto es requerido.",
+                },
+                add_payment_date: {
+                    required: "La fecha de pago es requerida.",
+                },
+                add_no_payment_installments: {
+                    required: "El numero de cuotas es requerido.",
+                }
+            },
+            errorElement: 'span',
+            errorPlacement: function (error, element) {
+                error.addClass('invalid-feedback');
+                element.closest('.form-group').append(error);
+            },
+            highlight: function (element, errorClass, validClass) {
+                $(element).addClass('is-invalid');
+            },
+            unhighlight: function (element, errorClass, validClass) {
+                $(element).removeClass('is-invalid');
+            }
+        });
+
         $(".month_list").datepicker( {
             format: "mm-yyyy",
             startView: "months", 
@@ -110,7 +160,10 @@ var subventionAddController = {
         });
 
         //Para agregar required cuando se escriba en el campo
-        $("#inputRepreName1").keyup(function(){$("#inputRepreAddress1").prop("required",!0),$("#inputReprePhone1").prop("required",!0)});
+        $("#inputRepreName1").keyup(function(){
+            $("#inputRepreAddress1").prop("required",!0),
+            $("#inputReprePhone1").prop("required",!0)
+         });
         $("#inputRepreName2").keyup(function(){$("#inputRepreAddress2").prop("required",!0),$("#inputReprePhone2").prop("required",!0)});
         $("#inputRepreName3").keyup(function(){$("#inputRepreAddress3").prop("required",!0),$("#inputReprePhone3").prop("required",!0)});
         $("#inputRepreName4").keyup(function(){$("#inputRepreAddress4").prop("required",!0),$("#inputReprePhone4").prop("required",!0)});
@@ -460,24 +513,28 @@ var subventionAddController = {
                         {// 1
                             type:$("#type1").val(),
                             name:$("#inputRepreName1").val(),
+                            rut:$("#inputRepreRut1").val(),
                             address:$("#inputRepreAddress1").val(),
                             phone: $("#inputReprePhone1").val()
                         },
                         {// 2
                             type:$("#type2").val(),
                             name:$("#inputRepreName2").val(),
+                            rut:$("#inputRepreRut2").val(),
                             address:$("#inputRepreAddress2").val(),
                             phone: $("#inputReprePhone2").val()
                         },
                         {// 3
                             type:$("#type3").val(),
                             name:$("#inputRepreName3").val(),
+                            rut:$("#inputRepreRut3").val(),
                             address:$("#inputRepreAddress3").val(),
                             phone: $("#inputReprePhone3").val()
                         },
                         {// 4
                             type:$("#type4").val(),
                             name:$("#inputRepreName4").val(),
+                            rut:$("#inputRepreRut4").val(),
                             address:$("#inputRepreAddress4").val(),
                             phone: $("#inputReprePhone4").val()
                         }         
@@ -545,25 +602,52 @@ var subventionAddController = {
                                                 },'json');
 
                                                 if (key+1 === file.length) { ///terminó el ciclo each
-                                                    preloader("hide","La subvencion y los documentos fueron guardados con éxito..!","success");
-                                                    setTimeout(function(){
-                                                        window.location.href = 'subvention.php';
-                                                    },2000);
+                                                    Swal.fire({
+                                                        text: "La subvencion y los documentos fueron guardados con éxito..!",
+                                                        icon: "success",
+                                                        showCancelButton: false,
+                                                        showConfirmButton: true,
+                                                        confirmButtonColor: "#3085d6",
+                                                        confirmButtonText: "Ok!",
+                                                        allowOutsideClick: false,
+                                                    }).then((result) => {
+                                                        if (result.isConfirmed) {
+                                                            window.location.href = 'subvention.php';
+                                                        }
+                                                    });
                                                 }
                                             });
                                         });
                                     });
                                 } else {
                                     if(response == 1){
-                                        preloader("hide","La subvencion y los documentos fueron guardados con éxito..!","success");
-                                        setTimeout(function(){
-                                            window.location.href = 'subvention.php';
-                                        },2000);
+                                        Swal.fire({
+                                            text: "La subvencion y los documentos fueron guardados con éxito..!",
+                                            icon: "success",
+                                            showCancelButton: false,
+                                            showConfirmButton: true,
+                                            confirmButtonColor: "#3085d6",
+                                            confirmButtonText: "Ok!",
+                                            allowOutsideClick: false,
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                window.location.href = 'subvention.php';
+                                            }
+                                        });
                                     } else {
-                                        preloader("hide","La subvencion fue guardada con éxito..!","success");
-                                        setTimeout(function(){
-                                            window.location.href = 'subvention.php';
-                                        },2000);
+                                        Swal.fire({
+                                            text: "La subvencion fue guardada con éxito..!",
+                                            icon: "success",
+                                            showCancelButton: false,
+                                            showConfirmButton: true,
+                                            confirmButtonColor: "#3085d6",
+                                            confirmButtonText: "Ok!",
+                                            allowOutsideClick: false,
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                window.location.href = 'subvention.php';
+                                            }
+                                        });
                                     }
                                 }
                             });
@@ -580,22 +664,62 @@ var subventionAddController = {
             }
         });
        
-        $('#add_rut').blur(function() {
+        $('#inputOrgRut').blur(function() {
+            console.log("inputOrgRutinputOrgRut")
             var parametros = {
                 "method": "checkRut",
-                "rut": $('#add_rut').val(),
-                "id": $('#id_user').val(),
+                "rut": $('#inputOrgRut').val()
             };
             $.post(MODEL, parametros, function(data) {
-                if (data.code == 204) {
-                    $('#add_rut').val('');
-                    preloader("hide",data.message,'info');
+                if (data.code == 200) {
+                    $('#id_organitation').val(data.id_organitation);
+                    $('#inputOrgRut').val(data.rut);
+                    $('#inputOrgName').val(data.name);
+                    $('#inputAddress').val(data.address);
+                    $('#inputEmailAddress').val(data.email);
+                    $('#inputPhone').val(data.phone);
+                }
+                if(data.code == 204){
+                   $('#id_organitation').val(""); 
                 }
                 if (data.code == 440) {
                     loginTimeout();
                 }
             },'json');
         });
+
+        $("#btn_saveApprovalSubsidy").click(function(event){
+            event.preventDefault();
+            if ($("#formCreateApprovalSubsidy").valid()) {
+                var dt = {
+                    method: 'saveNewApprovalSubsidy',
+                    id_approval_subsidy: $('#id_approval_subsidy').val(),
+                    add_no_mayor_decree: $('#add_no_mayor_decree').val(),
+                    add_agreement_date: $('#add_agreement_date').val(),
+                    add_no_payment_decree: $('#add_no_payment_decree').val(),
+                    add_payment_date: $('#add_payment_date').val(),
+                    add_no_payment_installments: $('#add_no_payment_installments').val(),
+                };
+                preloader("show");
+                $.post(MODEL, dt,
+                    function(data) {     
+                    console.log(data)                 
+                        if (data.code == 200) {
+                            preloader("hide",data.message,'success');
+                            $("#modalCreateApprovalSubsidy").modal('hide');
+                            dataTable.draw();
+                        }
+                        if(data.code == 204){
+                            preloader("hide",data.message,'error');
+                        }
+                        if (data.code == 440) {
+                            loginTimeout();
+                        }
+                    },
+                    "json"
+                );
+            }
+        });  
     },
     edit: function(id) {
         //$( "#financing_files" ).rules( "add", { required: false });

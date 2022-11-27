@@ -3,9 +3,10 @@
 define('DB_CONNECTION','mysql');
 
 // define('DB_HOST','localhost');
-// define('DB_DATABASE','futbolsc_admin');
-// define('DB_USERNAME','futbolsc_admin');
-// define('DB_PASSWORD','futboladmin2021');
+// define('DB_DATABASE','amunbucr_subvenciones');
+// define('DB_USERNAME','amunbucr_subvenciones');
+// // define('DB_PASSWORD','');
+// define('DB_PASSWORD','subvenciones2021');
 
 
 define('DB_HOST','localhost');

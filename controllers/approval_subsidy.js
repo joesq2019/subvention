@@ -99,40 +99,7 @@ var approvalSubsidyController = {
             event.preventDefault();
             approvalSubsidyController.clean();
             $("#modalCreateApprovalSubsidy").modal('show');
-        });
-
-        $("#btn_saveApprovalSubsidy").click(function(event){
-            event.preventDefault();
-            if ($("#formCreateApprovalSubsidy").valid()) {
-                var dt = {
-                    method: 'saveNewApprovalSubsidy',
-                    id_approval_subsidy: $('#id_approval_subsidy').val(),
-                    add_no_mayor_decree: $('#add_no_mayor_decree').val(),
-                    add_agreement_date: $('#add_agreement_date').val(),
-                    add_no_payment_decree: $('#add_no_payment_decree').val(),
-                    add_payment_date: $('#add_payment_date').val(),
-                    add_no_payment_installments: $('#add_no_payment_installments').val(),
-                };
-                preloader("show");
-                $.post(MODEL, dt,
-                    function(data) {     
-                    console.log(data)                 
-                        if (data.code == 200) {
-                            preloader("hide",data.message,'success');
-                            $("#modalCreateApprovalSubsidy").modal('hide');
-                            dataTable.draw();
-                        }
-                        if(data.code == 204){
-                            preloader("hide",data.message,'error');
-                        }
-                        if (data.code == 440) {
-                            loginTimeout();
-                        }
-                    },
-                    "json"
-                );
-            }
-        });        
+        });      
 
         /////////////////////////////////////////////////////////////
         $('#approvalSubsidyDataTable tbody').on('click', '.button_edit', function () {

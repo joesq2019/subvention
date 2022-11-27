@@ -69,14 +69,14 @@
                                         <div class="offset-8 col-md-4 mb-0 form-group">
                                             <label class="small mb-1" for="inputBirthday">Año de la subvención</label>
                                             <input class="form-control" id="inputYearSubvention" type="date" name="inputYearSubvention" placeholder="06/10/1988"  required>
+                                        </div>                                        
+                                        <div class="mb-3 col-md-6 form-group">
+                                            <label class="small mb-1" for="inputOrgRut">Rut de la Organización</label>
+                                            <input class="form-control" id="inputOrgRut" name="inputOrgRut" type="text" required>
                                         </div>
                                         <div class="mb-3 col-md-6 form-group">
                                             <label class="small mb-1" for="inputOrgName">Nombre de la Organización</label>
                                             <input class="form-control" id="inputOrgName" name="inputOrgName" type="text" required>
-                                        </div>
-                                        <div class="mb-3 col-md-6 form-group">
-                                            <label class="small mb-1" for="inputOrgRut">Rut de la Organización</label>
-                                            <input class="form-control" id="inputOrgRut" name="inputOrgRut" type="text" required>
                                         </div>
                                     </div>
                                     <div class="row gx-3">
@@ -122,15 +122,17 @@
                     <!-- Wizard tab pane item 2-->
                     <div class="tab-pane py-xl-10 fade" id="wizard2" role="tabpanel" aria-labelledby="wizard2-tab">
                         <div class="row justify-content-center">
-                            <div class="col-xxl-6 col-xl-10">
-                                <h3 class="text-primary">Paso 2</h3>
-                                <h5 class="card-title mb-4">Ingresar representates de la organización</h5>
+
+                            <div class="col-xxl-6 col-xl-12">
+                                <h3 class="text-primary" style="margin-left:100px">Paso 2</h3>
+                                <h5 class="card-title mb-4" style="margin-left:100px">Ingresar representates de la organización</h5>
                                 <form id="formCreateSubventionStep2">
                                 <table class="table">
                                     <thead>
                                         <tr>
                                             <th scope="col">#</th>
                                             <th scope="col">Nombre Completo</th>
+                                            <th scope="col">Rut</th>
                                             <th scope="col">Dirección</th>
                                             <th scope="col">Teléfono</th>
                                         </tr>
@@ -143,6 +145,7 @@
                                                 <input type="hidden" id="id_presidente" value="">
                                             </th>
                                             <td><input class="form-control inner_form" id="inputRepreName1" name="inputRepreName1" type="text" required=""></td>
+                                            <td><input class="form-control inner_form" id="inputRepreRut1" name="inputRepreRut1" type="text" required=""></td>
                                             <td><textarea class="form-control inner_form" id="inputRepreAddress1" name="inputRepreAddress1" rows="2" style="resize: none;" required></textarea></td>
                                             <td><input class="form-control inner_form" id="inputReprePhone1" name="inputReprePhone1" type="text" required></td>
                                         </tr>
@@ -153,6 +156,7 @@
                                                 <input type="hidden" id="id_vicepresidente" value="">
                                             </th>
                                             <td><input class="form-control inner_form" id="inputRepreName2" name="inputRepreName2" type="text"></td>
+                                            <td><input class="form-control inner_form" id="inputRepreRut2" name="inputRepreRut2" type="text"></td>
                                             <td><textarea class="form-control inner_form" id="inputRepreAddress2" name="inputRepreAddress2" rows="2" style="resize: none;"></textarea></td>
                                             <td><input class="form-control inner_form" id="inputReprePhone2" name="inputReprePhone2" type="text"></td>
                                         </tr>
@@ -163,6 +167,7 @@
                                                 <input type="hidden" id="id_secretario" value="">
                                             </th>
                                             <td><input class="form-control inner_form" id="inputRepreName3" name="inputRepreName3" type="text" required></td>
+                                            <td><input class="form-control inner_form" id="inputRepreRut3" name="inputRepreRut3" type="text" required=""></td>
                                             <td><textarea class="form-control inner_form" id="inputRepreAddress3" name="inputRepreAddress3" rows="2" style="resize: none;" required></textarea></td>
                                             <td><input class="form-control inner_form" id="inputReprePhone3" name="inputReprePhone3" type="text" required></td>
                                         </tr>
@@ -173,6 +178,7 @@
                                                 <input type="hidden" id="id_tesorero" value="">
                                             </th>
                                             <td><input class="form-control inner_form" id="inputRepreName4" name="inputRepreName4" type="text" required></td>
+                                            <td><input class="form-control inner_form" id="inputRepreRut4" name="inputRepreRut4" type="text" required=""></td>
                                             <td><textarea class="form-control inner_form" id="inputRepreAddress4" name="inputRepreAddress4" rows="2" style="resize: none;" required></textarea></td>
                                             <td><input class="form-control inner_form" id="inputReprePhone4" name="inputReprePhone4" type="text" required></td>
                                         </tr>
@@ -289,8 +295,6 @@
                                     <button class="btn btn-light disabled btnPrevious b-3" type="button">Anterior</button>
                                     <button class="btn btn-primary btn-next-4" type="button">Siguiente</button>
                                     <button class="btn btn-primary" id="btnSavedSubventionEdit" style="display:none" type="button">Guardar</button>
-                                    <input type="hidden" id="id_subvention">
-                                    <input type="hidden" id="id_organitation">
                                 </div>
                             </div>
                         </div>
@@ -304,98 +308,74 @@
                             </div>
                             <div class="col-xxl-6 col-xl-12">
                                 <div class="row gx-3">
-                                    <div class="col-md-4">
-                                        <div class="mb-3 col-md-12 form-group">
-                                            <label class="btn btn-primary btn-file mt-4">
-                                                Cargar Archivo <span class="requerido" >*</span>
-                                                <input type="file" id="certificado_persolidad_juridica" required name="certificado_persolidad_juridica" style="display: none;" accept='file_extension|image/*' class="input_file">
-                                            </label>
-                                            <p>Certificado de Personalidad Jurídica Vigentes</p>  
+                                    <div class="col-md-6">
+                                        <div class="mb-3 col-md-12 form-group" style="border: 1px solid #eae8e8">
+                                            <label class="mt-4">Certificado de persolidad juridica vigente <span class="requerido" >*</span></label>
+                                            <input type="file" id="certificado_persolidad_juridica" required name="certificado_persolidad_juridica"  accept='file_extension|image/*' class="input_file mb-2">
                                         </div>
                                     </div>
-                                    <div class="col-md-4">
-                                        <div class="mb-3 col-md-12 form-group">
-                                            <label class="btn btn-primary btn-file mt-4">
-                                                Cargar Archivo <span class="requerido" >*</span>
-                                                <input type="file" id="certificado_directorio" required name="certificado_directorio" style="display: none;" accept='file_extension|image/*' class="input_file">
-                                            </label>
-                                            <p>Certificado de Directorio Vigente</p>  
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="mb-3 col-md-12 form-group">
-                                            <label class="btn btn-primary btn-file mt-4">
-                                                Cargar Archivo <span class="requerido" >*</span>
-                                                <input type="file" id="estatutos" required name="estatutos" style="display: none;" accept='file_extension|image/*' class="input_file">
-                                            </label>
-                                            <p>Estatutos</p>  
+                                    <div class="col-md-6">
+                                        <div class="mb-3 col-md-12 form-group" style="border: 1px solid #eae8e8">
+                                            <label class="mt-4">Certificado de Directorio Vigente <span class="requerido" >*</span></label>
+                                            <input type="file" id="certificado_directorio" required name="certificado_directorio" accept='file_extension|image/*' class="input_file mb-2"> 
                                         </div>
                                     </div>
                                 </div>
                                 <div class="row gx-3">
-                                    <div class="col-md-4">
-                                        <div class="mb-3 col-md-12 form-group">
-                                            <label class="btn btn-primary btn-file mt-4">
-                                                Cargar Archivo <span class="requerido" >*</span>
-                                                <input type="file" id="certificado_inscripcion" required name="certificado_inscripcion" style="display: none;" accept='file_extension|image/*' class="input_file">
-                                            </label>
-                                            <p>Certificado de Inscripción en el Registro Central de Colaboradores del Estado y Municipalidades</p>
+                                    <div class="col-md-6">
+                                        <div class="mb-3 col-md-12 form-group" style="border: 1px solid #eae8e8">
+                                            <label class="mt-4">Estatutos <span class="requerido" >*</span></label><br><br>
+                                            <input type="file" id="estatutos" required name="estatutos" accept='file_extension|image/*' class="input_file mb-2">
                                         </div>
                                     </div>
-                                    <div class="col-md-4">
-                                        <div class="mb-3 col-md-12 form-group">
-                                            <label class="btn btn-primary btn-file mt-4">
-                                                Cargar Archivo <span class="requerido" >*</span>
-                                                <input type="file" id="fotocopia_rut" required name="fotocopia_rut" style="display: none;" accept='file_extension|image/*' class="input_file">
-                                            </label>
-                                            <p>Fotocopia del RUT de la organización</p>  
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="mb-3 col-md-12 form-group">
-                                            <label class="btn btn-primary btn-file mt-4">
-                                                Cargar Archivo <span class="requerido" >*</span>
-                                                <input type="file" id="fotocopia_cedula" required name="fotocopia_cedula" style="display: none;" accept='file_extension|image/*' class="input_file">
-                                            </label>
-                                            <p>Fotocopia Cédula de Identidad del representante legal</p>  
+                                    <div class="col-md-6">
+                                        <div class="mb-3 col-md-12 form-group" style="border: 1px solid #eae8e8">
+                                            <label class="mt-4">Certificado de Inscripción en el Registro Central de Colaboradores del Estado y Municipalidades <span class="requerido" >*</span></label>
+                                            <input type="file" id="certificado_inscripcion" required name="certificado_inscripcion" accept='file_extension|image/*' class="input_file mb-2">
                                         </div>
                                     </div>
                                 </div>
                                 <div class="row gx-3">
-                                    <div class="col-md-3">
-                                        <div class="mb-3 col-md-12 form-group">
-                                            <label class="btn btn-primary btn-file mt-4">
-                                                Cargar Archivo <span class="requerido" >*</span>
-                                                <input type="file" id="fotocopia_libreta" required name="fotocopia_libreta" style="display: none;" accept='file_extension|image/*' class="input_file">
-                                            </label>
-                                            <p>Fotocopia de la libreta de ahorro o cuenta corriente a nombre de la organización</p>  
+  
+                                    <div class="col-md-6">
+                                        <div class="mb-3 col-md-12 form-group" style="border: 1px solid #eae8e8">
+                                            <label class="mt-4">Fotocopia del RUT de la organización <span class="requerido" >*</span></label><br><br>
+                                            <input type="file" id="fotocopia_rut" required name="fotocopia_rut" accept='file_extension|image/*' class="input_file mb-2">
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
-                                        <div class="mb-3 col-md-12 form-group">
-                                            <label class="btn btn-primary btn-file mt-4">
-                                                Cargar Archivo<span class="requerido" >*</span>
-                                                <input type="file" id="fotocopia_registro" required name="fotocopia_registro" style="display: none;" accept='file_extension|image/*' class="input_file">
-                                            </label>
-                                            <p>Fotocopia de registro de propiedad o comodato de Sede Comunitaria (cuando corresponda)</p>  
+                                    <div class="col-md-6">
+                                        <div class="mb-3 col-md-12 form-group" style="border: 1px solid #eae8e8">
+                                            <label class="mt-4">Fotocopia Cédula de Identidad del representante legal <span class="requerido" >*</span></label>
+                                            <input type="file" id="fotocopia_cedula" required name="fotocopia_cedula" accept='file_extension|image/*' class="input_file mb-2">
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
-                                        <div class="mb-3 col-md-12 form-group">
-                                            <label class="btn btn-primary btn-file mt-4">
-                                                Cargar Archivo <span class="requerido" >*</span>
-                                                <input type="file" id="fotocopia_caratula" required name="fotocopia_caratula" style="display: none;" accept='file_extension|image/*' class="input_file">
-                                            </label>
-                                            <p>Fotocopia de la carátula de la rendición de cuentas de la última subvención (si corresponde)</p>
+                                </div>
+                                <div class="row gx-3">
+                                    <div class="col-md-6">
+                                        <div class="mb-3 col-md-12 form-group" style="border: 1px solid #eae8e8">
+                                            <label class="mt-4">Fotocopia de la libreta de ahorro o cuenta corriente a nombre de la organización <span class="requerido" >*</span></label>
+                                            <input type="file" id="fotocopia_libreta" required name="fotocopia_libreta" accept='file_extension|image/*' class="input_file mb-2">
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
-                                        <div class="mb-3 col-md-12 form-group">
-                                            <label class="btn btn-primary btn-file mt-4">
-                                                Cargar Archivo <span class="requerido" >*</span>
-                                                <input type="file" id="antecedentes" required name="antecedentes" style="display: none;" accept='file_extension|image/*' class="input_file">
-                                            </label>
-                                            <p>Otros Antecedentes</p>  
+                                    <div class="col-md-6">
+                                        <div class="mb-3 col-md-12 form-group" style="border: 1px solid #eae8e8">
+                                            <label class="mt-4">Fotocopia de registro de propiedad o comodato de Sede Comunitaria (cuando corresponda) <span class="requerido" >*</span></label>
+                                            <input type="file" id="fotocopia_registro" required name="fotocopia_registro" accept='file_extension|image/*' class="input_file mb-2">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row gx-3">
+                                    <div class="col-md-6">
+                                        <div class="mb-3 col-md-12 form-group" style="border: 1px solid #eae8e8">
+                                            <label class="mt-4">Fotocopia de la carátula de la rendición de cuentas de la última subvención (si corresponde) <span class="requerido" >*</span></label>
+                                            <input type="file" id="fotocopia_caratula" required name="fotocopia_caratula" accept='file_extension|image/*' class="input_file mb-2">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3 col-md-12 form-group" style="border: 1px solid #eae8e8">
+                                            <label class="btn-file mt-4"> Otros Antecedentes <span class="requerido" >*</span><br><br>
+                                                <input type="file" id="antecedentes" required name="antecedentes" accept='file_extension|image/*' class="input_file mb-2">
+                                            </label> 
                                         </div>
                                     </div>
                                 </div>
