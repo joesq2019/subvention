@@ -751,21 +751,25 @@ var subventionAddController = {
             //paso 2
             $("#id_presidente").val(data.members_data[0].id);
             $("#inputRepreName1").val(data.members_data[0].name);
+            $("#inputRepreRut1").val(data.members_data[0].rut);
             $("#inputRepreAddress1").val(data.members_data[0].address);
             $("#inputReprePhone1").val(data.members_data[0].phone);
 
             $("#id_vicepresidente").val(data.members_data[1].id);
             $("#inputRepreName2").val(data.members_data[1].name);
+            $("#inputRepreRut2").val(data.members_data[1].rut);
             $("#inputRepreAddress2").val(data.members_data[1].address);
             $("#inputReprePhone2").val(data.members_data[1].phone);
 
             $("#id_secretario").val(data.members_data[2].id);
             $("#inputRepreName3").val(data.members_data[2].name);
+            $("#inputRepreRut3").val(data.members_data[2].rut);
             $("#inputRepreAddress3").val(data.members_data[2].address);
             $("#inputReprePhone3").val(data.members_data[2].phone);
             
             $("#id_tesorero").val(data.members_data[3].id);
             $("#inputRepreName4").val(data.members_data[3].name);
+            $("#inputRepreRut4").val(data.members_data[3].rut);
             $("#inputRepreAddress4").val(data.members_data[3].address);
             $("#inputReprePhone4").val(data.members_data[3].phone);
             //paso 2
@@ -951,12 +955,7 @@ var subventionAddController = {
                         console.log(data)
                         if (data.code == 200) {
                             element.parents("div:first").remove();
-                            var storageRef = firebase.storage().ref();
-                            var desertRef = storageRef.child(data.path);
-                            console.log(data.path)
-                            desertRef.delete().then(function() {
-                            }).catch(function(error) {
-                            });
+                            
                             preloader("hide", data.message, 'success');
                         }
                         if(data.code == 204){

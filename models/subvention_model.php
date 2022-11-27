@@ -104,7 +104,9 @@ switch ($method) {
 
                 if($row['subvention_status'] == 3){
                     $botones .= '<button class="btn btn-primary btn-sm mt-1 mr-1" title="Generar Convenio" onclick="subventionController.convenio(' . $row["subvention_id"] . ')"><i class="fas fa-file" title="Generar Convenio" aria-hidden="true"></i></a></button>';
-                }                
+                }
+
+                $botones .= '<button class="btn btn-primary btn-sm mt-1 mr-1" title="Reutilizar subvencion" onclick="subventionController.reutilizar(' . $row["subvention_id"] . ')"><i class="fas fa-sync-alt"></i></a></button>';                
 
                 if($row['status_accountability'] == 0){
                     $status_accountability = "<span class='badge badge-info' title='".$row['message']."'>Pendiente</span>";
@@ -377,9 +379,7 @@ switch ($method) {
                     $obj_bdmysql->insert("schedule", $campo, $valor, $dbconn);
                     
                 }
-            }
-
-            
+            }            
         
             if ($update_subvention > 0) {
                 $out['code'] = 200;
@@ -392,6 +392,91 @@ switch ($method) {
         }
         //print_r($out);exit();
         echo json_encode($out);
+    break;
+
+    case 'cloneSubvention':
+
+        $out['code'] = 204;
+        $out['message'] = 'Error..!';
+
+        $date = date('Y-m-d H:i:s');
+
+        $sql = "INSERT INTO subvention (`id_user`, `id_organitation`, `year`, `name_proyect`, `objetive_proyect`, `quantity_purchases`, `amount_purchases`, `organization_contribution`, `amount_direct`, `amount_indirect`, `total_beneficiaries`, `quantity_activities`, `message`) SELECT `id_user`, `id_organitation`, `year`, `name_proyect`, `objetive_proyect`, `quantity_purchases`, `amount_purchases`, `organization_contribution`, `amount_direct`, `amount_indirect`, `total_beneficiaries`, `quantity_activities`, `message` FROM subvention s WHERE s.id = $id_subvention_old";
+        $dbconn->query($sql);
+        $id_subvention_new = $dbconn->insert_id;
+
+        if (is_integer($id_subvention_new)) {
+            $sql = "SELECT * FROM members WHERE id_subvention = $id_subvention_old";
+            $query = $obj_bdmysql->query($sql, $dbconn);
+            
+            if (is_array($query)) {
+                foreach($query as $value){
+                    //print_r($value['type']);exit;
+                    $campo = "type, id_subvention, name, rut, address, phone";
+                    $valor = "'".$value['type']."', '$id_subvention_new', '".$value['name']."', '".$value['rut']."', '".$value['address']."', '".$value['phone']."'";
+                    $query = $obj_bdmysql->insert("members", $campo, $valor, $dbconn);
+                }
+            }
+
+            ///////////////////////////////////////////
+
+            $sql = "SELECT * FROM financing_details WHERE id_subvention = $id_subvention_old";
+            $query = $obj_bdmysql->query($sql, $dbconn);
+
+            if (is_array($query)) {
+                foreach($query as $value){
+                    $campo = "`id_subvention`, `details`, `unit_price`, `quantity`, `total_price`";
+                    $valor = "$id_subvention_new, '".$value['details']."', '".$value['unit_price']."', '".$value['quantity']."', '".$value['total_price']."'";
+                    $query = $obj_bdmysql->insert("financing_details", $campo, $valor, $dbconn);
+                }
+            }
+
+            //////////////////////////////////////
+
+            $sql = "SELECT * FROM schedule WHERE id_subvention = $id_subvention_old";
+            $query = $obj_bdmysql->query($sql, $dbconn);
+
+            if (is_array($query)) {
+                foreach($query as $value){
+                    $campo = "`id_subvention`, `activities`, `month`";
+                    $valor = "$id_subvention_new, '".$value['activities']."', '".$value['month']."'";
+                    $query = $obj_bdmysql->insert("schedule", $campo, $valor, $dbconn);
+                }
+            }            
+
+            //////////////////////////////////////
+
+            $sql = "SELECT * FROM financing_files WHERE id_subvention = $id_subvention_old";
+            $query = $obj_bdmysql->query($sql, $dbconn);
+
+            if (is_array($query)) {
+                foreach($query as $value){
+                    $campo = "`id_subvention`, `name`, `path`, `url`";
+                    $valor = "$id_subvention_new, '".$value['name']."', '".$value['path']."', '".$value['url']."'";
+                    $query = $obj_bdmysql->insert("financing_files", $campo, $valor, $dbconn);
+                }
+            }
+
+            //////////////////////////////////////
+
+            $sql = "SELECT * FROM subvention_files WHERE id_subvention = $id_subvention_old";
+            $query = $obj_bdmysql->query($sql, $dbconn);
+
+            if (is_array($query)) {
+                foreach($query as $value){
+                    $campo = "`id_subvention`, `type`, `name`, `path`, `url`";
+                    $valor = "$id_subvention_new, '".$value['type']."', '".$value['name']."', '".$value['path']."', '".$value['url']."'";
+                    $query = $obj_bdmysql->insert("subvention_files", $campo, $valor, $dbconn);
+                }
+            }
+
+            $out['code'] = 200;
+            $out['id_subvention_new'] = $id_subvention_new;
+            $out['message'] = 'Ok..!';
+        }
+
+        echo json_encode($out);
+
     break;
 
     case 'saveFinancingFiles':

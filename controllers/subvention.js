@@ -534,12 +534,7 @@ var subventionController = {
                 $.post(MODEL, parametros, function(data) {
                     console.log(data)
                     if (data.code == 200) {
-                        var storageRef = firebase.storage().ref();
-                        var desertRef = storageRef.child(data.path);
-                        console.log(data.path)
-                        desertRef.delete().then(function() {
-                        }).catch(function(error) {
-                        });
+                        
                         dataTableDocuments.draw();
                         preloader("hide", data.message, 'success');
                     }
@@ -600,7 +595,40 @@ var subventionController = {
                 window.location.href = '../models/convenio.php?id='+id;
             }
         });
-    }
+    },
+    reutilizar: function (id){
+        event.preventDefault();
+        Swal.fire({
+            title: "Estas seguro de reutilizar esta subvención?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Sí, Hazlo!",
+            cancelButtonText: 'Cancelar!',
+        }).then(result => {
+            if (result.value) {
+                preloader("show");
+                var parametros = {
+                    "method": "cloneSubvention",
+                    "id_subvention_old": id,
+                };
+                $.post(MODEL, parametros, function(data) {
+                    if (data.code == 200) {
+                        sessionStorage.setItem('id_subvention', data.id_subvention_new);
+                        sessionStorage.setItem('action', 2);
+                        window.location.href = 'subvention_add.php';
+                    }
+                    if(data.code == 204){
+                        preloader("hide",data.message,'error');
+                    }
+                    if(data.code == 440) {
+                        loginTimeout();
+                    }
+                },'json');
+            }
+        });
+    },
 };
 
 $(function() {

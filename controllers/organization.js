@@ -620,12 +620,7 @@ var organizationController = {
                     console.log(data)
                     if (data.code == 200) {
                         if(data.path != ''){
-                            var storageRef = firebase.storage().ref();
-                            var desertRef = storageRef.child(data.path);
-                            console.log(data.path)
-                            desertRef.delete().then(function() {
-                            }).catch(function(error) {
-                            });
+                            //
                         }
                         dataTableDocuments.draw();
                         preloader("hide", data.message, 'success');

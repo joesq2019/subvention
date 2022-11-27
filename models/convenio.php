@@ -33,8 +33,8 @@
    // $organitation_name = $organitation[0]['name'];
 
    $amount_purchases = $subvention[0]['amount_purchases'];
-   $formatterES = new NumberFormatter("es", NumberFormatter::SPELLOUT);
-   $formatterES = $formatterES->format($amount_purchases);
+   //$formatterES = new NumberFormatter("es", NumberFormatter::SPELLOUT);
+   $formatterES = convertir($amount_purchases);
 
    // $no_payment_installments = $approval_subsidy[0]['no_payment_installments'];
 
@@ -53,20 +53,8 @@
    // $no_session = $approval_subsidy[0]['no_session'];
    // $session_date = date("d/m/Y", strtotime($approval_subsidy[0]['session_date']));
 
-   //header("Content-type: application/vnd.ms-word");
-   //header("Content-Disposition: attachment; Filename=certificado.doc");
-
-         $filename='convenio.pdf';            
-        $url_download = BASE_URL . RELATIVE_PATH . $filename;            
-
-        header("Content-type:application/pdf");   
-        header("Content-type: application/octet-stream");                       
-        header("Content-Disposition:inline;filename='".basename($filename)."'");            
-        header('Content-Length: ' . filesize($filename));   
-        header("Cache-control: private"); //use this to open files directly                     
-        readfile($filename);     
-    //exit();
-
+   header("Content-type: application/vnd.ms-word");
+   header("Content-Disposition: attachment; Filename=certificado.doc");
 ?>
  
 <!DOCTYPE html>
